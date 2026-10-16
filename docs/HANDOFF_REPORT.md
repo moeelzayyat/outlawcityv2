@@ -25,7 +25,7 @@ Local folder `C:\RobloxProjects\OutlawCityV2` is now a git clone of `moeelzayyat
 1. **Place backup:** in the Outlaw City Studio window, File → Download a Copy → save as `OutlawCity_R1_before_2026-10-16.rbxl` outside the repo. This is the stage-start backup for R1.
 2. **Studio changes are not saved by me.** The restore-point folder `ServerStorage.Backups` and all R1 work live in the open Studio session; `src/` in git is the recovery copy for every script. Save the place the way you normally do (not a publish).
 3. **MaxPlayers 8** (D-005): Game Settings → Places → Outlaw City → Max Players = 8. Studio currently reports 60.
-4. **Siren asset ID** (D-003): pick a siren from the Roblox-owned audio library (creator "Roblox") and send me the ID; needed by S2.6.
+4. **Sound IDs** (D-003, S2.6): the audio system is built but silent. No search result was uploaded by the `Roblox` account itself, so tell me which IDs (or which creators, e.g. Roblox's licensed Pro Sound Effects library) count as Roblox-owned. Candidates are listed in `assets/ART_SOURCES.md`; I need a siren, engine loop, tyre squeal, alarm, bank (cash register) and bust sting.
 5. **Icon palette** (`ART_BIBLE.md`): sunset orange or night blue; needed by S2.10.
 6. **Archive the old repo** `moeelzayyat/outlawcity` on GitHub (Settings → Archive this repository). It is history only.
 
@@ -229,4 +229,15 @@ KNOWN: 48/50 rays is close to the budget (risk register row added); roadblocks o
 BACKUP/RESTORE POINT: ServerStorage.Backups["S2.5 passed"] (S2.4 pruned)
 MIRROR: Studio = src/ 136/136, manifest 10d98ac0 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.6
+```
+
+## CHECKPOINT: S2.6 Audio (built, 🟦 IDs pending owner) · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 319 passed, 0 failed (+ AudioRules.spec 4) · SCRIPT ANALYSIS: 🟦 · 141/141 parse
+PLAY TEST (clients: 1): console "[Audio] waiting for approved Roblox-owned IDs: Alarm, Bank, Bust, Engine, Siren, Tyre (assets/ART_SOURCES.md)"; 0 Siren/Alarm Sound instances created (none approved); 0 game errors.
+ATTENUATION: spec-checked (InverseTapered, RollOffMin < RollOffMax ≤ 500 studs); not heard, no ID approved.
+OWNER: item 4 (sound IDs). Nothing plays until then; nothing else waits on it.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.6 built"] (S2.5 passed kept)
+MIRROR: Studio = src/ 141/141, manifest 8e6edbf5 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.7
 ```

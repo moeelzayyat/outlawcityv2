@@ -2,18 +2,18 @@
 
 **Mode:** UNATTENDED (D-008) — run substages back to back; stop only at publish substages (write the package, continue elsewhere) and GO/NO-GO gates.
 **Stage:** S2 — Signature: Crime Spree
-**Substage:** S2.6 — Audio
-**Status:** 🟨 In progress · **Last checkpoint passed:** S2.5 (2026-10-16)
+**Substage:** S2.7 — HUD UIScale
+**Status:** 🟨 In progress · **Last checkpoint passed:** S2.5 (2026-10-16); S2.6 🟦 built, sound IDs await the owner (handoff item 4)
 
-## S2.6 — Audio
-`AudioConfig` + AudioService/AudioController: siren (owner-chosen Roblox-owned asset, D-003; off until the ID arrives), engine loop, tyre, alarm, bank, bust. Every ID Roblox-owned and listed in `assets/ART_SOURCES.md`; distance attenuation. Passes: all IDs Roblox-owned and listed; distance attenuation; play test.
+## S2.7 — HUD UIScale
+Root `ScreenGui` + `UIScale` (architecture: UiRoot); the HUD in two rows; cash in row 1; spree counter, bank bar, robbery and wanted HUDs don't overlap. Checked in Device Simulator at iPhone 7 and iPhone 13 Pro Max (Device Simulator ≠ real phone). Passes: no overlap at either size; cash in row 1; screenshots.
 
 ## S2 stage notes
 - Owner `.rbxl` for the S2 stage start: handoff owner item 1 (same instruction, name `OutlawCity_S2_before_<date>.rbxl`).
 - S2 exit numbers: first crime ≤ 60 s; first result ≤ 4 min; 3★ budget; 8-client Studio soak 30 min, 0 errors.
 
 ## Carried notes (from R1)
-- Restore points: `ServerStorage.Backups["R0 baseline"]`, `["R1.1 passed"]`, `["R1.2 passed"]`, `["R1.3 passed"]`, `["R1.4 passed"]`, `["R1.5 passed"]`, `["R1.6 passed"]`, `["R1.7 passed"]`, `["R1.8 passed"]`, `["S2.5 passed"]` (intermediate points pruned, D-015); owner `.rbxl` pending (handoff owner item 1).
+- Restore points: `ServerStorage.Backups["R0 baseline"]`, `["R1.1 passed"]`, `["R1.2 passed"]`, `["R1.3 passed"]`, `["R1.4 passed"]`, `["R1.5 passed"]`, `["R1.6 passed"]`, `["R1.7 passed"]`, `["R1.8 passed"]`, `["S2.5 passed"]`, `["S2.6 built"]` (intermediate points pruned, D-015); owner `.rbxl` pending (handoff owner item 1).
 - Hash checks skip `ServerStorage.Backups`; manifest format `<path>|<len>|<fnv1a>` sorted.
 - New specs: create the ModuleScript with `Instance.new` + `.Source` (the MCP path syntax turns `X.spec` into a folder `X` with child `spec`); edit specs by literal replace via `execute_luau`.
 - Studio command bar has its own require cache: reach live service state through Studio-only bridges (`ServerStorage.LoopGuardControl`) or dev remotes.

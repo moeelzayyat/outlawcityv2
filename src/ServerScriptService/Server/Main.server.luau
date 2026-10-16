@@ -31,6 +31,7 @@ local modules: { ModuleScript } = {
 	Services.DealershipService,
 	Services.CombatService,
 	Services.PoliceService,
+	Services.AudioService,
 	Dev.DevToolsService,
 	Dev.MilestoneLog,
 	Services.VehicleService,
