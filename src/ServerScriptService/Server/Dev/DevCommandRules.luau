@@ -20,6 +20,7 @@ export type Command =
 	| { Name: "ClearRobberyCooldown" }
 	| { Name: "SetCashUnavailable", Value: boolean } -- simulates losing cash data mid-session
 	| { Name: "TryRobStore" }
+	| { Name: "BankSpree" } -- banks the caller's spree as if at a safehouse (until S2.4)
 	| { Name: "AddLedgerReward", Value: number } -- writes a reward straight into the ledger
 	| { Name: "WriteLegacyProfile" } -- stores a v1 cash-only record; rejoin to test migration -- same server checks as the register prompt, minus the prompt's own range limit
 
@@ -83,6 +84,8 @@ function DevCommandRules.parse(name: any, value: any): (Command?, string?)
 		return { Name = "WriteLegacyProfile" }, nil
 	elseif name == "TryRobStore" then
 		return { Name = "TryRobStore" }, nil
+	elseif name == "BankSpree" then
+		return { Name = "BankSpree" }, nil
 	end
 	return nil, "Unknown command"
 end

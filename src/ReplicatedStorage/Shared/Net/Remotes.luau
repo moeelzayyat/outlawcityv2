@@ -21,8 +21,10 @@ Remotes.Definitions = table.freeze({
 	RequestSetCombatStatus = "RemoteFunction",
 	-- client -> server: (vehicleId) -> (ok, err: PurchaseError?). Price and ownership are server-side.
 	RequestPurchaseVehicle = "RemoteFunction",
-	-- server -> client: (kind: "Rejected" | "Started" | "Escape" | "Failed" | "Paid" | "PayoutFailed", payload)
+	-- server -> client: (kind: "Rejected" | "Started" | "Completed" | "Failed" | "Paid" | "PayoutFailed", payload)
 	OnRobberyNotice = "RemoteEvent",
+	-- server -> client: (kind: "Added" | "Banked" | "Lost" | "BankFailed", payload) — Crime Spree (S2.2)
+	OnSpreeNotice = "RemoteEvent",
 } :: { [string]: string })
 
 function Remotes.createAll(): Folder

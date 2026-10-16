@@ -12,7 +12,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | Vehicle physics (client-owned), chase camera, touch/gamepad/keyboard | Implemented | — | |
 | Coupe (starter), Muscle ($15k), Police cruiser | Implemented | S4.1 | +Sport, +Super, +van |
 | Spawn pads (6) + civilian spawns (6) + spawn protection | Implemented | R1.5 | restrictions |
-| Wanted rules (3★, decay, escape) | Implemented | S2.1 | escape no longer pays |
+| Wanted rules (3★, decay, escape) | Implemented | S2.1 | escape no longer pays ✅ (S2.2: robbery cash goes into the spree; banking pays) |
 | Peaceful/Combat status (no damage) | Implemented | R1.8 hide ✅ (`CombatConfig.ToggleVisible = false`); S5.1 damage | |
 | Safe zone (plaza) | Implemented | — | |
 | NPC police: one unit, road graph, bust | Implemented | R1.6, S2.5 | re-target, 1→3, roadblock |
@@ -33,7 +33,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | Spawn restrictions (`VehicleSpawnRules`: wanted / crime / unbanked; car within 30 studs; characters block pads) | Tested | R1.5 |
 | Dispatch re-target + decay freeze (`pickTarget`, `heatHeld`) | Tested (2 Studio clients) | R1.6 |
 | EventBus + AnalyticsService funnel (hidden wires replaced; 15 events live) | Tested (Studio; dashboard 🟦) | R1.7 |
-| SpreeRules (S2.1 ✅ Tested) / SpreeService / Spree HUD / result card | In Development | S2.1–S2.2 |
+| SpreeRules / SpreeService / Spree HUD / result card | Tested (solo; bank via dev command until S2.4) | S2.1–S2.2 |
 | CrimeConfig + CrimeService (store, ATM ×4, gas station, car theft ×6) | Planned | S2.3 |
 | Safehouses ×2 + banking | Planned | S2.4 |
 | Police escalation + roadblock | Planned | S2.5 |

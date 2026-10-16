@@ -20,7 +20,11 @@ local PlayerAttributes = table.freeze({
 	RobberyHoldEndsAt = "RobberyHoldEndsAt", -- server time the holdout completes
 	RobberyReward = "RobberyReward", -- cash promised for escaping (display only)
 	ObservedAt = "ObservedAt", -- server time of the last character observation (CharacterValidationService); absent if none
-	SpreeUnbanked = "SpreeUnbanked", -- unbanked spree cash (S2.2); absent until sprees exist
+	SpreeUnbanked = "SpreeUnbanked", -- unbanked spree cash (SpreeService); 0 when no spree is active
+	SpreeMultiplier = "SpreeMultiplier", -- the multiplier the next crime pays (SpreeService)
+	SpreeCrimes = "SpreeCrimes", -- crimes in the current spree (SpreeService)
+	Reputation = "Reputation", -- persisted reputation, earned at bank (EconomyService, profile v4)
+	BestSpree = "BestSpree", -- largest banked spree (EconomyService, profile v4)
 })
 
 return PlayerAttributes

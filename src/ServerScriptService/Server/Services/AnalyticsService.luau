@@ -38,7 +38,7 @@ local function reportError(source: string, message: string)
 	warn(`[Loop] {source} iteration failed: {message}`)
 end
 
-local function log(player: Player, name: string, value: number?)
+local function log(player: Player, name: string, value: number?, fields: { [string]: any }?)
 	local state = states[player.UserId]
 	if not state then
 		state = FunnelRules.new()
@@ -54,7 +54,7 @@ local function log(player: Player, name: string, value: number?)
 		end)
 	else
 		pcall(function()
-			RobloxAnalytics:LogCustomEvent(player, name, value or 1)
+			RobloxAnalytics:LogCustomEvent(player, name, value or 1, fields)
 		end)
 	end
 	print(`[Analytics] {name} ({player.Name}){if value then " " .. tostring(value) else ""}`)
@@ -94,9 +94,27 @@ function AnalyticsService.start()
 		joinedAt[payload.UserId] = nil
 		return if started then math.floor(os.clock() - started) else nil
 	end)
+	-- Sprees (S2.2): every result is a SpreeEnded event; a spree started after a result is "Again".
+	local ended: { [number]: boolean } = {}
+	EventBus.subscribe("SpreeStarted", function(payload)
+		local player = Players:GetPlayerByUserId(payload.UserId)
+		if player and ended[payload.UserId] then
+			log(player, "Again")
+		end
+	end)
+	for _, event in { "SpreeBanked", "SpreeLost" } do
+		EventBus.subscribe(event, function(payload)
+			ended[payload.UserId] = true
+			local player = Players:GetPlayerByUserId(payload.UserId)
+			if player then
+				log(player, "SpreeEnded", payload.Amount, { [Enum.AnalyticsCustomFieldKeys.CustomField01.Name] = if event == "SpreeBanked" then "Banked" else "Lost" })
+			end
+		end)
+	end
 	Players.PlayerRemoving:Connect(function(player)
 		task.defer(function()
 			states[player.UserId] = nil
+			ended[player.UserId] = nil
 		end)
 	end)
 end

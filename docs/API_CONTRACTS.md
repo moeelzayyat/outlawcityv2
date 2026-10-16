@@ -9,7 +9,7 @@ Rules: a remote exists only with a row here, a type guard, a limiter, and an ent
 | `RequestExitVehicle` | E | — | 0.5 s limiter; in a DriverSeat under `Workspace.Vehicles` | — |
 | `RequestSetCombatStatus` | F | `target` | limiter, string ≤ 16, names, jail, wanted lock, 30 s cooldown | hidden in HUD until S5 |
 | `RequestPurchaseVehicle` | F | `vehicleId` | type/len, server price, in-flight guard before yield, 1 s limiter, alive, not jailed, desk ≤ 20 studs, GUID tx | distance also checked against the server-side last-good sample |
-| `OnWantedNotice`, `OnRobberyNotice` | E (S→C) | — | server never listens | `OnSpreeNotice` added · R1.4: robbery `Rejected`/`Failed` reason may be `Observed`; `Paid` is also sent for `AlreadyPaid` (F13) |
+| `OnWantedNotice`, `OnRobberyNotice` | E (S→C) | — | server never listens | `OnSpreeNotice` added · R1.4: robbery `Rejected`/`Failed` reason may be `Observed`; `Paid` is also sent for `AlreadyPaid` (F13) · S2.2: `Escape` replaced by `Completed {Id, Reward}` (cash goes to the spree) |
 | `DevRemotes.RequestDevCommand` | F | `(name, value)` | `IsStudio` ×2, `DevCommandRules` | + 1 s limiter |
 
 ## New (S2+)
@@ -18,8 +18,8 @@ Rules: a remote exists only with a row here, a type guard, a limiter, and an ent
 | `RequestCustomize` | F | `{vehicleId, paintId, txId}` | owned car, paint in catalog, cash, GUID tx | 1 / 2 |
 | `RequestObjectiveClaim` | F | `{objectiveId, claimId}` | complete, unclaimed | 2 / 3 |
 | `RequestSettings` | E | `{key, value}` | whitelist | 5 / 10 |
-| `OnSpreeNotice` | E (S→C) | `{kind, amount?, multiplier?, stars?}` | — | — |
+| `OnSpreeNotice` | E (S→C) | ✅ S2.2: `(kind, payload)` — `Added {Amount, Unbanked, Multiplier, Crimes}` · `Banked {Amount, PeakStars, Crimes, Duration, Reputation, Pending}` · `Lost {Amount, Reason}` · `BankFailed {Amount}` | server never listens | — |
 | `OnLeaderboard` | E (S→C) | `{board, rows}` | — | 60 s |
 
 ## Attributes (server-set on Player; clients read only)
-`Status`, `SpawnProtectedUntil`, `WantedLevel`, `WantedHeat`, `WantedEvading`, `CriminalReputation`, `CombatStatus`, `InSafeZone`, `Jailed`, `Cash`, `OwnedVehicles`, `RobberyPhase` → `CrimePhase`, **`SpreeUnbanked`, `SpreeMultiplier`, `SpreeCrimes`, `ObservedAt`**.
+`Status`, `SpawnProtectedUntil`, `WantedLevel`, `WantedHeat`, `WantedEvading`, `CriminalReputation`, `CombatStatus`, `InSafeZone`, `Jailed`, `Cash`, `OwnedVehicles`, `RobberyPhase` → `CrimePhase`, **`SpreeUnbanked`, `SpreeMultiplier`, `SpreeCrimes`, `ObservedAt`**, `Reputation`, `BestSpree` (S2.2, profile v4).

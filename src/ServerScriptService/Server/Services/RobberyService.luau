@@ -170,10 +170,12 @@ local function tick()
 		if event == "Failed" then
 			failSession(player, entry, reason :: Types.RobberyFailReason)
 		elseif event == "HoldComplete" then
+			-- D-001: the store's cash goes into the player's spree now; escaping no longer pays.
 			PoliceService.setDispatchHold(player, false) -- police respond now
-			publish(player, session)
-			notify(player, "Escape", { Id = session.Id, Reward = session.Reward, Deadline = session.EscapeDeadline })
-			print(`[Robbery] {player.Name} {session.Id} holdout complete; escaping`)
+			endSession(player, entry)
+			notify(player, "Completed", { Id = session.Id, Reward = session.Reward })
+			print(`[Robbery] {player.Name} {session.Id} holdout complete; +{session.Reward} to the spree`)
+			EventBus.publish("CrimeCompleted", { UserId = player.UserId, CrimeId = "StoreRobbery", LocationId = session.StoreId, Amount = session.Reward, Stars = WantedService.getStars(player) })
 		elseif session.Phase == "Holding" and t - entry.LastInProgressReport >= 1 then
 			-- Keep the robber hot while inside so heat can't decay before the holdout ends.
 			entry.LastInProgressReport = t
@@ -185,35 +187,9 @@ local function tick()
 	end
 end
 
-local function onEscaped(player: Player)
-	local entry = live[player]
-	if not entry then
-		return -- not robbing: an ordinary escape pays nothing
-	end
-	local session = entry.Session
-	local pay, reason = RobberyRules.onEscaped(session, CharacterValidationService.isObserved(player))
-	if not pay then
-		if reason then
-			failSession(player, entry, reason) -- observed: the escape never pays (R1.4)
-		end
-		return -- still holding (or already settled): never pays
-	end
-	endSession(player, entry)
-	MilestoneLog.mark(player, "FirstEscape")
-	if paidIds[session.Id] then
-		return
-	end
-	pendingPayouts[player] = {
-		TxId = "robbery:" .. session.Id, -- stable: every retry uses the same id
-		Amount = session.Reward,
-		SessionId = session.Id,
-		StoreId = session.StoreId,
-		NextTry = 0,
-		InFlight = false,
-		Recorded = false,
-	}
-	RobberyService.tryPayout(player)
-end
+-- Escaping no longer pays (D-001, S2.2): the cash went into the spree at the end of the holdout,
+-- and banking it at a safehouse pays (SpreeService). The payout below only settles rewards that
+-- were already pending; CrimeService replaces this service in S2.3.
 
 -- One payout attempt for a pending reward. Returns the outcome (nil if nothing pending).
 function RobberyService.tryPayout(player: Player): Types.PayoutOutcome?
@@ -242,7 +218,6 @@ function RobberyService.tryPayout(player: Player): Types.PayoutOutcome?
 	publish(player, nil)
 	if outcome == "Paid" then
 		notify(player, "Paid", { Id = pending.SessionId, Amount = pending.Amount })
-		EventBus.publish("CrimeCompleted", { UserId = player.UserId, CrimeId = "StoreRobbery", LocationId = pending.StoreId, Amount = pending.Amount })
 		print(`[Robbery] {player.Name} {pending.SessionId} escaped; paid {pending.Amount}`)
 	elseif outcome == "AlreadyPaid" then
 		-- An earlier attempt was stored; the player still sees the payout (F13).
@@ -293,12 +268,6 @@ function RobberyService.init()
 end
 
 function RobberyService.start()
-	EventBus.subscribe("Escaped", function(payload)
-		local player = Players:GetPlayerByUserId(payload.UserId)
-		if player then
-			onEscaped(player)
-		end
-	end)
 	Players.PlayerRemoving:Connect(function(player)
 		local pending = pendingPayouts[player]
 		if pending then

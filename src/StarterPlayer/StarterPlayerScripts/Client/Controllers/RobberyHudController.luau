@@ -158,8 +158,8 @@ function RobberyHudController.init()
 			showToast(text, WHITE, 3)
 		elseif kind == "Started" then
 			showToast("Alarm tripped! Police have been alerted.", RED, 3.5)
-		elseif kind == "Escape" then
-			showToast("Got the cash! Now escape the police.", AMBER, 3.5)
+		elseif kind == "Completed" then
+			showToast("Got the cash! Push your luck, or bank it at a safehouse.", AMBER, 3.5)
 		elseif kind == "Failed" then
 			showToast(FAIL_TEXT[payload.Reason] or "Robbery failed. No cash.", RED, 4)
 		elseif kind == "Paid" and type(payload.Amount) == "number" then

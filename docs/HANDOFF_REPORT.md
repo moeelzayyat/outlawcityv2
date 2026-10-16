@@ -164,3 +164,19 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.1 passed"]; pruned R1.1–R1.7 (
 MIRROR: Studio = src/ 124/124, manifest 293950ef · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.2
 ```
+
+## CHECKPOINT: S2.2 SpreeService + HUD · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 294 passed, 0 failed (+ SpreeBank.spec 5) · SCRIPT ANALYSIS: 🟦 · 127/127 parse
+PLAY TEST (clients: 1):
+  robbery 1 → "holdout complete; +2000 to the spree" → counter "$2,000 UNBANKED x1.5"
+  BankSpree (dev) → "bank spree 2000 (tx spree:6f18…) -> 19400 (stored)"; card "BANKED $2,000 · 1 crimes ★★ 6s · Best spree: $2,000 +2 rep";
+    attributes BestSpree 2000, Reputation 2; analytics FirstBank + SpreeEnded 2000
+  robbery 2 → analytics "Again"; +2000 unbanked → stood on the road → police BUSTED in 4.1 s → "spree lost (Busted), -2000";
+    card "BUSTED -$2,000 · Your banked cash is safe"; cash stayed 19400; "bust (tx bust:73b6…) stored"; analytics FirstBust
+  Console: 0 game errors.
+KNOWN: stars don't reset after a bank yet (S2.4 adds the 10 s decay on bank); result card positions untested on phones (S2.7).
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.2 passed"] (S2.1 pruned)
+MIRROR: Studio = src/ 127/127, manifest c263a0d2 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.3
+```

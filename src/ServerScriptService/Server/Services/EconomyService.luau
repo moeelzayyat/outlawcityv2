@@ -63,6 +63,8 @@ end
 local function publish(player: Player, session: Session)
 	player:SetAttribute(PlayerAttributes.CashStatus, session.Status)
 	player:SetAttribute(PlayerAttributes.Cash, if session.Profile then session.Profile.Cash else nil)
+	player:SetAttribute(PlayerAttributes.Reputation, if session.Profile then session.Profile.Reputation else nil)
+	player:SetAttribute(PlayerAttributes.BestSpree, if session.Profile then session.Profile.BestSpree else nil)
 	local owned = if session.Profile then table.clone(session.Profile.OwnedVehicles) else table.clone(EconomyConfig.StarterVehicles)
 	table.sort(owned)
 	player:SetAttribute(PlayerAttributes.OwnedVehicles, table.concat(owned, ","))
@@ -322,6 +324,36 @@ function EconomyService.grantReward(player: Player, amount: number, txId: string
 		end
 	end
 	return paid, err, recorded
+end
+
+-- Banks a Crime Spree (S2.2): recorded in the reward ledger first, then paid write-through with
+-- the spree stats in the same write; tx "spree:<spreeId>" pays once per spree, ever. Returns
+-- (paid, err, recorded): if not paid but recorded, the ledger claim pays the cash shortly.
+function EconomyService.bankSpree(player: Player, spreeId: string, amount: number, reputation: number): (boolean, Types.EconomyError?, boolean)
+	local txId = "spree:" .. spreeId
+	local recorded, recordErr = RewardLedger.record(rewardStore, rewardKeyFor(keyFor(player)), { TxId = txId, Amount = amount, Reason = "spree bank", At = os.time() }, EconomyConfig.LedgerMaxEntries)
+	if not recorded then
+		warn(`[Economy] {player.Name}: spree {txId} could not be recorded in the ledger ({recordErr}); paying directly`)
+	end
+	local paid, err = commitChange(player, `bank spree {amount} (tx {txId})`, txId, function(draft)
+		return EconomyRules.bankSpree(draft, amount, reputation, txId, EconomyConfig)
+	end)
+	if (paid or err == "DuplicateTransaction") and recorded then
+		local session = sessions[player]
+		if session then
+			session.NextClaim = math.min(session.NextClaim, os.clock() + EconomyConfig.LedgerSettleDelay)
+		end
+	end
+	return paid, err, recorded
+end
+
+-- Counts a bust in the profile stats (best effort; never blocks the jail).
+function EconomyService.noteBust(player: Player): boolean
+	local txId = EconomyService.newTransactionId("bust")
+	local ok = commitChange(player, `bust (tx {txId})`, txId, function(draft)
+		return EconomyRules.noteBust(draft, txId, EconomyConfig)
+	end)
+	return ok
 end
 
 function EconomyService.getBalance(player: Player): number?

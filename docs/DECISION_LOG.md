@@ -130,3 +130,6 @@ Decision: keep `R0 baseline`, the latest stage exit and the latest substage; eve
 
 ## CP — S2.1 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 `SpreeRules` + `SpreeConfig`; 19 spec cases (caps, rounding, NaN, bank conditions, bust, escape, reputation). `[Tests] 289 passed, 0 failed`. Static 🟦.
+
+## CP — S2.2 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+SpreeService + SpreeHudController; robbery cash goes into the spree at holdout end (escape payout retired, D-001); `EconomyService.bankSpree` (ledger-recorded, tx `spree:<id>`, stats in the same write); `noteBust`; analytics FirstBank / SpreeEnded / Again. `[Tests] 294 passed, 0 failed`. Static 🟦. Banking uses the Studio `BankSpree` dev command until safehouses (S2.4).

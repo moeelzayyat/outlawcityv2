@@ -11,6 +11,7 @@ local JailService = require(script.Parent.Parent.Services.JailService)
 local EconomyService = require(script.Parent.Parent.Services.EconomyService)
 local DataStoreAdapter = require(script.Parent.Parent.Data.DataStoreAdapter)
 local RobberyService = require(script.Parent.Parent.Services.RobberyService)
+local SpreeService = require(script.Parent.Parent.Services.SpreeService)
 
 local DevToolsService = {}
 
@@ -66,6 +67,8 @@ local function run(player: Player, name: unknown, value: unknown): (boolean, str
 		return EconomyService.writeLegacyRecordForTesting(player), nil
 	elseif command.Name == "TryRobStore" then
 		return RobberyService.tryStart(player, "Store1")
+	elseif command.Name == "BankSpree" then
+		return SpreeService.bank(player)
 	end
 	return false, "Unhandled command"
 end

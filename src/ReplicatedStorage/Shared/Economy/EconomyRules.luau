@@ -348,6 +348,36 @@ function EconomyRules.prunePaidRewards(profile: Types.Profile, stillInLedger: { 
 	return dropped
 end
 
+-- Banks a Crime Spree (S2.2): pays it once as a ledger reward (`txId` = "spree:<id>") and records
+-- it in the profile stats in the same step: reputation, best spree, sprees and total banked.
+function EconomyRules.bankSpree(profile: Types.Profile, amount: any, reputation: any, txId: any, config: Config): (boolean, Types.EconomyError?)
+	local ok, err = EconomyRules.payReward(profile, amount, txId, config)
+	if not ok then
+		return false, err
+	end
+	if isWholeNonNegative(reputation) then
+		profile.Reputation += reputation
+	end
+	profile.BestSpree = math.max(profile.BestSpree, amount)
+	profile.Stats.Sprees += 1
+	profile.Stats.Banked += amount
+	return true, nil
+end
+
+-- Counts a bust in the profile stats once per transaction id.
+function EconomyRules.noteBust(profile: Types.Profile, txId: any, config: Config): (boolean, Types.EconomyError?)
+	local ok, err = EconomyRules.validateTransactionId(txId, config)
+	if not ok then
+		return false, err
+	end
+	if EconomyRules.hasTransaction(profile, txId) then
+		return false, "DuplicateTransaction"
+	end
+	profile.Stats.Busts += 1
+	remember(profile, txId, config)
+	return true, nil
+end
+
 -- Session lock: a server may claim a record when it is unlocked, already its own, or the
 -- other server's lock is older than `timeout` seconds (that server crashed or hung).
 function EconomyRules.canClaimLock(lock: any, sessionId: string, now: number, timeout: number): boolean
