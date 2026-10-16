@@ -23,6 +23,8 @@ Rounding: each crime adds `floor(base × multiplier)`; the multiplier rises afte
 | Gas station | 12 s | 1,500 | 2 | 150 s | always |
 | Car theft | enter | 500 (at bank) | 1 | 120 s respawn | 30% |
 
+As built (S2.3): stars come from the WantedConfig heat of the reported crime (`AtmSmash` 25, `GasStationRobbery` 70, `CarTheft` 25, `StoreRobbery` as before). Failed-attempt cooldowns: store 60 s, ATM 45 s, gas 75 s. Prompt ranges: store 10, ATM 6, gas 8 studs. Car theft is a 1.5 s hold prompt that completes on the spot; the spot refills 120 s after it empties, once clear. A silent ATM (50%) adds cash with no stars.
+
 ## Wanted (`WantedConfig`, as built)
 3 stars; decay delay 8 s; thresholds as approved; heat frozen while any unit sees the player **or no unit is assigned to a wanted player** (R1.6).
 

@@ -133,3 +133,6 @@ Decision: keep `R0 baseline`, the latest stage exit and the latest substage; eve
 
 ## CP — S2.2 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 SpreeService + SpreeHudController; robbery cash goes into the spree at holdout end (escape payout retired, D-001); `EconomyService.bankSpree` (ledger-recorded, tx `spree:<id>`, stats in the same write); `noteBust`; analytics FirstBank / SpreeEnded / Again. `[Tests] 294 passed, 0 failed`. Static 🟦. Banking uses the Studio `BankSpree` dev command until safehouses (S2.4).
+
+## CP — S2.3 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+CrimeConfig + CrimeRules + CrimeService (replaces RobberyService; store migrated as a definition) and ParkedCarService. World additions named by S2.3 (D-006): ATM ×4, gas station ×1, parked cars ×6, all built at server start by WorldService/ParkedCarService (the saved place is unchanged, so the code restore point is the exact rollback). `[Tests] 304 passed, 0 failed`. Static 🟦. Scripted scenario `S2.3-Crimes` (1 client): PASS.

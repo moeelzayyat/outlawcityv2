@@ -28,6 +28,9 @@ function WorldService.init()
 		CityBuilder.buildDealership(city)
 	end
 	if city then
+		CityBuilder.buildCrimeSites(city) -- adds only missing sites (S2.3)
+	end
+	if city then
 		CityBuilder.buildStreetSigns(city) -- adds only missing signs
 	end
 end
@@ -42,6 +45,37 @@ end
 function WorldService.getStore(): Folder?
 	local store = city and city:FindFirstChild("Store")
 	return if store and store:IsA("Folder") then store else nil
+end
+
+export type CrimeSite = { Id: string, CrimeId: string, Folder: Instance, Anchor: BasePart, Area: BasePart, Prompt: ProximityPrompt }
+
+-- Every holdout crime site: the store (its register and RobPrompt) and City.CrimeSites (S2.3).
+function WorldService.getCrimeSites(): { CrimeSite }
+	local result: { CrimeSite } = {}
+	local function addSite(folder: Instance, id: any, crimeId: string, anchorName: string)
+		local anchor = folder:FindFirstChild(anchorName)
+		local area = folder:FindFirstChild("Area")
+		local prompt = anchor and anchor:FindFirstChildWhichIsA("ProximityPrompt", true)
+		if type(id) == "string" and anchor and anchor:IsA("BasePart") and area and area:IsA("BasePart") and prompt then
+			table.insert(result, { Id = id, CrimeId = crimeId, Folder = folder, Anchor = anchor, Area = area, Prompt = prompt :: ProximityPrompt })
+		else
+			warn(`[World] crime site {folder:GetFullName()} is incomplete; skipped`)
+		end
+	end
+	local store = WorldService.getStore()
+	if store then
+		addSite(store, store:GetAttribute("StoreId"), "StoreRobbery", "StoreRegister")
+	end
+	local sites = city and city:FindFirstChild("CrimeSites")
+	if sites then
+		for _, spec in CityLayout.crimeSites() do
+			local folder = sites:FindFirstChild(spec.Id)
+			if folder then
+				addSite(folder, folder:GetAttribute("SiteId"), spec.CrimeId, spec.Anchor)
+			end
+		end
+	end
+	return result
 end
 
 -- Jail cell standing spots, in slot order.

@@ -23,18 +23,18 @@ local REJECT_TEXT: { [string]: string } = {
 	Dead = "You can't rob while dead.",
 	Jailed = "You can't rob while in jail.",
 	InSafeZone = "No robberies inside a safe zone.",
-	InVehicle = "Get out of your car to rob the store.",
-	TooFar = "Get closer to the register.",
-	StoreCooldown = "This store was robbed recently.",
-	StoreBusy = "Someone is already robbing this store.",
-	AlreadyRobbing = "You're already on a robbery.",
+	InVehicle = "Get out of your car first.",
+	TooFar = "Get closer.",
+	StoreCooldown = "Hit recently. Try again later.",
+	StoreBusy = "Someone is already on it.",
+	AlreadyRobbing = "You're already on a job.",
 	CashUnavailable = "Your cash data isn't loaded right now. Try again in a moment.",
 	Observed = "Unusual movement detected. Try again in a few seconds.",
 }
 local FAIL_TEXT: { [string]: string } = {
 	Died = "Robbery failed: you died. No cash.",
 	Busted = "Robbery failed: busted by the police. No cash.",
-	LeftArea = "Robbery failed: you left the store too early. No cash.",
+	LeftArea = "Failed: you left too early. No cash.",
 	Disconnected = "Robbery failed: disconnected.",
 	EscapeTimedOut = "Robbery failed: you didn't escape in time. No cash.",
 	Observed = "Robbery failed: unusual movement detected. No cash.",
@@ -153,13 +153,17 @@ function RobberyHudController.init()
 		if kind == "Rejected" then
 			local text = REJECT_TEXT[payload.Reason] or "You can't rob this store right now."
 			if payload.Reason == "StoreCooldown" and type(payload.CooldownLeft) == "number" then
-				text = `This store was robbed recently. Try again in {payload.CooldownLeft}s.`
+				text = `Hit recently. Try again in {payload.CooldownLeft}s.`
 			end
 			showToast(text, WHITE, 3)
 		elseif kind == "Started" then
-			showToast("Alarm tripped! Police have been alerted.", RED, 3.5)
+			if payload.Alarm == false then
+				showToast("Silent alarm didn't trip. Be quick.", AMBER, 3)
+			else
+				showToast("Alarm tripped! Police have been alerted.", RED, 3.5)
+			end
 		elseif kind == "Completed" then
-			showToast("Got the cash! Push your luck, or bank it at a safehouse.", AMBER, 3.5)
+			showToast(if payload.CrimeId == "CarTheft" then "Car stolen! Push your luck, or bank it at a safehouse." else "Got the cash! Push your luck, or bank it at a safehouse.", AMBER, 3.5)
 		elseif kind == "Failed" then
 			showToast(FAIL_TEXT[payload.Reason] or "Robbery failed. No cash.", RED, 4)
 		elseif kind == "Paid" and type(payload.Amount) == "number" then
@@ -185,8 +189,9 @@ function RobberyHudController.init()
 		if phase == "Holding" then
 			local endsAt = player:GetAttribute(PlayerAttributes.RobberyHoldEndsAt)
 			local left = if type(endsAt) == "number" then math.max(0, math.ceil(endsAt - Workspace:GetServerTimeNow())) else 0
-			title.Text = `ROBBING THE STORE  {left}s`
-			detail.Text = "Stay inside until the timer ends"
+			local name = player:GetAttribute(PlayerAttributes.CrimeName)
+			title.Text = `{string.upper(if type(name) == "string" then name else "Robbery")}  {left}s`
+			detail.Text = "Stay put until the timer ends"
 		elseif phase == "Escaping" then
 			local reward = player:GetAttribute(PlayerAttributes.RobberyReward)
 			title.Text = `ESCAPE TO KEEP {if type(reward) == "number" then money(reward) else "THE CASH"}`

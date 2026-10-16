@@ -386,6 +386,120 @@ function CityLayout.streetSigns(): { StreetSignSpec }
 	return result
 end
 
+-- Crime sites (S2.3; world additions named by the roadmap substage, D-006). ATMs stand on the
+-- sidewalk 4 studs in from a plaza-ring road, facing it; the gas station sits beside the x = 100
+-- highway connector. Each site has the part that carries its prompt (Anchor), an Area (the
+-- holdout box) and its parts. Parked-car spots hold stealable cars that ParkedCarService spawns.
+export type CrimeSiteSpec = {
+	Id: string,
+	CrimeId: string,
+	Parts: { PartSpec },
+	Anchor: string,
+	Prompt: CFrame,
+	Area: { Center: Vector3, Size: Vector3 },
+}
+
+CityLayout.ATM_SITES = table.freeze({
+	table.freeze({ Id = "ATM1", X = 0, Z = -122, FaceX = 0, FaceZ = 1 }),
+	table.freeze({ Id = "ATM2", X = 0, Z = 122, FaceX = 0, FaceZ = -1 }),
+	table.freeze({ Id = "ATM3", X = 122, Z = 0, FaceX = -1, FaceZ = 0 }),
+	table.freeze({ Id = "ATM4", X = -122, Z = 40, FaceX = 1, FaceZ = 0 }),
+})
+
+function CityLayout.atms(): { CrimeSiteSpec }
+	local result: { CrimeSiteSpec } = {}
+	local base = CityLayout.CURB_TOP
+	for _, a in CityLayout.ATM_SITES do
+		local frontAlongX = a.FaceX == 0 -- facing ±Z, so the front face runs along X
+		-- forward: offset toward the road; up: height of the box bottom above the curb.
+		local function box(name: string, forward: number, up: number, across: number, height: number, depth: number, color: Color3, material: Enum.Material): PartSpec
+			local sx = if frontAlongX then across else depth
+			local sz = if frontAlongX then depth else across
+			return slab(`{a.Id}{name}`, "CrimeSites", a.X + a.FaceX * forward, a.Z + a.FaceZ * forward, sx, sz, base + up + height, height, color, material, true)
+		end
+		local area = if frontAlongX then Vector3.new(10, 8, 9) else Vector3.new(9, 8, 10)
+		table.insert(result, {
+			Id = a.Id,
+			CrimeId = "AtmSmash",
+			Parts = {
+				box("Body", 0, 0, 3, 6, 2, Color3.fromRGB(60, 65, 75), Enum.Material.Metal),
+				box("Screen", 1.05, 3.4, 2, 1.4, 0.1, Color3.fromRGB(60, 160, 255), Enum.Material.Neon),
+				box("Topper", 0, 6, 3.4, 0.6, 2.4, Color3.fromRGB(30, 120, 70), Enum.Material.SmoothPlastic),
+			},
+			Anchor = `{a.Id}Body`,
+			Prompt = CFrame.new(a.X + a.FaceX * 1.2, base + 4, a.Z + a.FaceZ * 1.2),
+			Area = { Center = Vector3.new(a.X + a.FaceX * 3.5, base + 4, a.Z + a.FaceZ * 3.5), Size = area },
+		})
+	end
+	return result
+end
+
+CityLayout.GAS_CENTER = Vector3.new(150, 0, -405)
+
+function CityLayout.gasStation(): CrimeSiteSpec
+	local c = CityLayout.GAS_CENTER
+	local top = CityLayout.ROAD_TOP
+	local white = Color3.fromRGB(235, 235, 235)
+	local red = Color3.fromRGB(200, 40, 40)
+	local wall = Color3.fromRGB(205, 200, 185)
+	local parts: { PartSpec } = {}
+	local function add(name: string, x: number, z: number, sizeX: number, sizeZ: number, partTop: number, thickness: number, color: Color3, material: Enum.Material)
+		table.insert(parts, slab(name, "CrimeSites", c.X + x, c.Z + z, sizeX, sizeZ, partTop, thickness, color, material, true))
+	end
+	add("GasLot", 0, 0, 60, 70, top, 0.4, Color3.fromRGB(95, 95, 100), Enum.Material.Concrete)
+	-- Canopy over two pumps (west half), on four posts.
+	for i, p in { { -24, -8 }, { -4, -8 }, { -24, 8 }, { -4, 8 } } do
+		add(`GasPost{i}`, p[1], p[2], 1, 1, top + 14, 14, white, Enum.Material.Metal)
+	end
+	add("GasCanopy", -14, 0, 26, 22, top + 15, 1, red, Enum.Material.SmoothPlastic)
+	add("GasPump1", -14, -5, 2, 1.4, top + 5, 5, white, Enum.Material.SmoothPlastic)
+	add("GasPump2", -14, 5, 2, 1.4, top + 5, 5, white, Enum.Material.SmoothPlastic)
+	-- Kiosk on the east side, open front facing west (the pumps and the connector road).
+	local kx, hx, hz, h = 18, 6, 6, 10
+	local floor = top + 0.4
+	add("KioskFloor", kx, 0, 2 * hx, 2 * hz, floor, 0.4, Color3.fromRGB(210, 210, 200), Enum.Material.SmoothPlastic)
+	add("KioskWallBack", kx + hx + 0.5, 0, 1, 2 * hz + 2, floor + h, h, wall, Enum.Material.Brick)
+	add("KioskWallNorth", kx, -hz - 0.5, 2 * hx, 1, floor + h, h, wall, Enum.Material.Brick)
+	add("KioskWallSouth", kx, hz + 0.5, 2 * hx, 1, floor + h, h, wall, Enum.Material.Brick)
+	add("KioskRoof", kx, 0, 2 * hx + 2, 2 * hz + 2, floor + h + 1, 1, red, Enum.Material.Concrete)
+	add("KioskCounter", kx + hx - 2.5, 0, 2, 6, floor + 3.5, 3.5, Color3.fromRGB(120, 80, 50), Enum.Material.Wood)
+	add("GasRegister", kx + hx - 2.5, 1.5, 1.4, 1.4, floor + 4.5, 1, Color3.fromRGB(30, 30, 35), Enum.Material.SmoothPlastic)
+	return {
+		Id = "Gas1",
+		CrimeId = "GasStation",
+		Parts = parts,
+		Anchor = "GasRegister",
+		Prompt = CFrame.new(c.X + kx + hx - 2.5, floor + 4.6, c.Z + 1.5),
+		Area = { Center = Vector3.new(c.X + kx - 0.5, floor + h / 2, c.Z), Size = Vector3.new(2 * hx + 3, h + 4, 2 * hz) },
+	}
+end
+
+function CityLayout.crimeSites(): { CrimeSiteSpec }
+	local sites = CityLayout.atms()
+	table.insert(sites, CityLayout.gasStation())
+	return sites
+end
+
+-- Parked cars for car theft: two in the gas station lot, four on sidewalks 6 studs in from
+-- the plaza-ring roads, parallel to the road (yaw 0 = length along Z).
+CityLayout.PARKED_CARS = table.freeze({
+	table.freeze({ Id = "Parked1", X = 128, Z = -432, Yaw = 0, OnSidewalk = false }),
+	table.freeze({ Id = "Parked2", X = 128, Z = -378, Yaw = 0, OnSidewalk = false }),
+	table.freeze({ Id = "Parked3", X = -60, Z = -124, Yaw = math.pi / 2, OnSidewalk = true }),
+	table.freeze({ Id = "Parked4", X = 60, Z = 124, Yaw = -math.pi / 2, OnSidewalk = true }),
+	table.freeze({ Id = "Parked5", X = -124, Z = -150, Yaw = 0, OnSidewalk = true }),
+	table.freeze({ Id = "Parked6", X = 124, Z = 160, Yaw = math.pi, OnSidewalk = true }),
+})
+
+function CityLayout.parkedCars(): { SpawnSpec }
+	local result: { SpawnSpec } = {}
+	for _, p in CityLayout.PARKED_CARS do
+		local y = if p.OnSidewalk then CityLayout.CURB_TOP else CityLayout.ROAD_TOP
+		table.insert(result, { Name = p.Id, CFrame = CFrame.new(p.X, y, p.Z) * CFrame.Angles(0, p.Yaw, 0) })
+	end
+	return result
+end
+
 function CityLayout.createBlueprint(): Blueprint
 	local parts: { PartSpec } = {}
 	local spawns: { SpawnSpec } = {}

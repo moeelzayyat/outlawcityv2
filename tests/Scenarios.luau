@@ -110,6 +110,115 @@ registry["R1.6-Dispatch"] = function()
 	return true, string.format("B heat held at %.1f for %.1f s while the unit chased A; unit re-targeted to B after %.1f s", startHeat, unassignedSeconds, retargetAfter :: number)
 end
 
+-- S2.3: one player runs each new crime through the live services. ATM1 completes, ATM2 fails by
+-- leaving its area (no cash), Gas1 completes, Parked3 is stolen. Each completion must add to the
+-- spree; the failure must not. Wanted is reset between crimes so the unit can't bust mid-run.
+registry["S2.3-Crimes"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local CrimeService = require(Services.CrimeService) :: any
+	local ParkedCarService = require(Services.ParkedCarService) :: any
+	local SpreeService = require(Services.SpreeService) :: any
+	local VehicleService = require(Services.VehicleService) :: any
+	local CityLayout = require(ServerScriptService.Server.World.CityLayout) :: any
+	local p = waitForPlayers(1, 60)[1]
+	if not p then
+		return false, "no player joined"
+	end
+	local siteIds = table.concat(CrimeService.getSiteIds(), ",")
+	local spotIds = table.concat(ParkedCarService.getSpotIds(), ",")
+	log(`sites {siteIds}; parked spots {spotIds}`)
+	if siteIds ~= "ATM1,ATM2,ATM3,ATM4,Gas1,Store1" then
+		return false, `unexpected sites {siteIds}`
+	end
+	local areas = {}
+	for _, site in CityLayout.crimeSites() do
+		areas[site.Id] = site.Area.Center
+	end
+	local function spree(): (number, number)
+		local s = SpreeService.get(p)
+		return if s then s.Crimes else 0, if s then s.Unbanked else 0
+	end
+	local function holdout(siteId: string, holdSeconds: number, leaveAt: Vector3?): (boolean, string)
+		CrimeService.clearCooldownsForTesting()
+		WantedService.resetWanted(p)
+		place(p, areas[siteId])
+		task.wait(1.5)
+		local ok, err = CrimeService.tryStart(p, siteId)
+		if not ok then
+			return false, `{siteId} refused: {err}`
+		end
+		local stars = WantedService.getStars(p)
+		if leaveAt then
+			task.wait(1)
+			place(p, leaveAt)
+		end
+		local waited = 0
+		while CrimeService.isBusy(p) and waited < holdSeconds + 5 do
+			task.wait(0.25)
+			waited += 0.25
+		end
+		return true, `{siteId} ended after {waited} s (stars at start {stars})`
+	end
+
+	local c0, u0 = spree()
+	local ok, detail = holdout("ATM1", 6)
+	if not ok then
+		return false, detail
+	end
+	local c1, u1 = spree()
+	log(`{detail}; spree {c0}->{c1} crimes, unbanked {u0}->{u1}`)
+	if c1 ~= c0 + 1 or u1 <= u0 then
+		return false, "ATM1 completion did not reach the spree"
+	end
+
+	ok, detail = holdout("ATM2", 6, Vector3.new(0, 4, 90))
+	if not ok then
+		return false, detail
+	end
+	local c2, u2 = spree()
+	log(`{detail}; spree {c1}->{c2} crimes, unbanked {u1}->{u2}`)
+	if c2 ~= c1 or u2 ~= u1 then
+		return false, "a failed ATM smash changed the spree"
+	end
+
+	ok, detail = holdout("Gas1", 12)
+	if not ok then
+		return false, detail
+	end
+	local c3, u3 = spree()
+	log(`{detail}; spree {c2}->{c3} crimes, unbanked {u2}->{u3}`)
+	if c3 ~= c2 + 1 or u3 <= u2 then
+		return false, "the gas station completion did not reach the spree"
+	end
+
+	WantedService.resetWanted(p)
+	local spot
+	for _, s in CityLayout.parkedCars() do
+		if s.Name == "Parked3" then
+			spot = s
+		end
+	end
+	place(p, spot.CFrame.Position + Vector3.new(0, 4, 0) + spot.CFrame.RightVector * 5)
+	task.wait(1.5)
+	local stole, stealErr = ParkedCarService.trySteal(p, "Parked3")
+	if not stole then
+		return false, `Parked3 refused: {stealErr}`
+	end
+	local c4, u4 = spree()
+	local car = VehicleService.getVehicleOf(p)
+	local owned = car ~= nil and car:GetAttribute("OwnerUserId") == p.UserId
+	log(`Parked3 stolen (stars {WantedService.getStars(p)}); spree {c3}->{c4} crimes, unbanked {u3}->{u4}; getaway car owned {owned}`)
+	if c4 ~= c3 + 1 or u4 <= u3 or not owned then
+		return false, "car theft did not reach the spree or the car"
+	end
+	local again = ParkedCarService.trySteal(p, "Parked3")
+	if again then
+		return false, "the same spot was stolen twice"
+	end
+	WantedService.resetWanted(p)
+	return true, `3 crimes completed (spree {c4} crimes, {u4} unbanked), failed ATM paid nothing, empty spot refused`
+end
+
 function Scenarios.run(name: string)
 	local scenario = registry[name]
 	if not scenario then

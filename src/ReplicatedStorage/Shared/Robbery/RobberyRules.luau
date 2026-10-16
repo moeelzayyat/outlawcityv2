@@ -1,5 +1,5 @@
 --!strict
--- Pure robbery state machine. The server (RobberyService) owns clocks, positions and payouts;
+-- Pure holdout state machine (store robbery, ATM, gas station; S2.3). The server (CrimeService) owns clocks, positions and payouts;
 -- these rules only decide. Unit-tested in ServerStorage.Tests.RobberyRules.spec.
 --
 --   start ──► Holding ──(HoldSeconds, stayed alive, inside, not jailed)──► Escaping

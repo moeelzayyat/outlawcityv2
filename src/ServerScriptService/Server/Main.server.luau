@@ -25,7 +25,7 @@ local modules: { ModuleScript } = {
 	Services.SafeZoneService,
 	Services.JailService,
 	Services.WantedService,
-	Services.RobberyService,
+	Services.CrimeService,
 	Services.SpreeService,
 	Services.DealershipService,
 	Services.CombatService,
@@ -33,6 +33,7 @@ local modules: { ModuleScript } = {
 	Dev.DevToolsService,
 	Dev.MilestoneLog,
 	Services.VehicleService,
+	Services.ParkedCarService,
 	Services.VehicleValidationService,
 	Services.CharacterValidationService,
 }

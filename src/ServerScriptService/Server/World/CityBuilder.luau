@@ -157,7 +157,7 @@ function CityBuilder.buildJail(city: Instance): Folder
 end
 
 -- Adds City.Store (building, register ProximityPrompt, invisible holdout Area, sign) if
--- missing. The prompt is only a trigger: RobberyService re-validates everything on the server.
+-- missing. The prompt is only a trigger: CrimeService re-validates everything on the server.
 function CityBuilder.buildStore(city: Instance): Folder
 	local existing = city:FindFirstChild("Store")
 	if existing and existing:IsA("Folder") then
@@ -401,6 +401,68 @@ function CityBuilder.buildStreetSigns(city: Instance): Folder
 		model.Parent = signsFolder
 	end
 	return signsFolder
+end
+
+-- Crime sites (S2.3): ATMs and the gas station from CityLayout.crimeSites(). One folder per site
+-- (attributes SiteId, CrimeId) holding its parts, a CrimePrompt on the anchor part and the
+-- invisible holdout Area. Adds only missing sites.
+function CityBuilder.buildCrimeSites(city: Instance): Folder
+	local folder = city:FindFirstChild("CrimeSites")
+	if not (folder and folder:IsA("Folder")) then
+		folder = Instance.new("Folder")
+		folder.Name = "CrimeSites"
+		folder.Parent = city
+	end
+	local sitesFolder = folder :: Folder
+	for _, spec in CityLayout.crimeSites() do
+		if sitesFolder:FindFirstChild(spec.Id) then
+			continue
+		end
+		local site = Instance.new("Folder")
+		site.Name = spec.Id
+		site:SetAttribute("SiteId", spec.Id)
+		site:SetAttribute("CrimeId", spec.CrimeId)
+		for _, partSpec in spec.Parts do
+			local part = Instance.new("Part")
+			part.Name = partSpec.Name
+			part.Anchored = true
+			part.CanCollide = partSpec.CanCollide
+			part.Size = partSpec.Size
+			part.CFrame = CFrame.new(partSpec.Center)
+			part.Color = partSpec.Color
+			part.Material = partSpec.Material
+			part.TopSurface = Enum.SurfaceType.Smooth
+			part.BottomSurface = Enum.SurfaceType.Smooth
+			part.Parent = site
+		end
+		local anchor = site:FindFirstChild(spec.Anchor) :: BasePart?
+		if anchor then
+			local attachment = Instance.new("Attachment")
+			attachment.Name = "PromptAttachment"
+			attachment.Parent = anchor -- parent first: WorldCFrame is relative to the parent part
+			attachment.WorldCFrame = spec.Prompt
+			local prompt = Instance.new("ProximityPrompt")
+			prompt.Name = "CrimePrompt"
+			prompt.ActionText = "Rob"
+			prompt.HoldDuration = 1
+			prompt.MaxActivationDistance = 8
+			prompt.RequiresLineOfSight = false
+			prompt.KeyboardKeyCode = Enum.KeyCode.E
+			prompt.Parent = attachment
+		end
+		local area = Instance.new("Part")
+		area.Name = "Area"
+		area.Anchored = true
+		area.CanCollide = false
+		area.CanQuery = false
+		area.CanTouch = false
+		area.Transparency = 1
+		area.Size = spec.Area.Size
+		area.CFrame = CFrame.new(spec.Area.Center)
+		area.Parent = site
+		site.Parent = sitesFolder
+	end
+	return sitesFolder
 end
 
 return CityBuilder

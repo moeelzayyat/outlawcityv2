@@ -10,7 +10,8 @@ local WantedService = require(script.Parent.Parent.Services.WantedService)
 local JailService = require(script.Parent.Parent.Services.JailService)
 local EconomyService = require(script.Parent.Parent.Services.EconomyService)
 local DataStoreAdapter = require(script.Parent.Parent.Data.DataStoreAdapter)
-local RobberyService = require(script.Parent.Parent.Services.RobberyService)
+local CrimeService = require(script.Parent.Parent.Services.CrimeService)
+local ParkedCarService = require(script.Parent.Parent.Services.ParkedCarService)
 local SpreeService = require(script.Parent.Parent.Services.SpreeService)
 
 local DevToolsService = {}
@@ -57,7 +58,7 @@ local function run(player: Player, name: unknown, value: unknown): (boolean, str
 	elseif command.Name == "SaveNow" then
 		return EconomyService.saveNowForTesting(player), nil
 	elseif command.Name == "ClearRobberyCooldown" then
-		RobberyService.clearCooldownsForTesting()
+		CrimeService.clearCooldownsForTesting()
 		return true, nil
 	elseif command.Name == "SetCashUnavailable" then
 		return EconomyService.setUnavailableForTesting(player, (command :: any).Value), nil
@@ -66,7 +67,11 @@ local function run(player: Player, name: unknown, value: unknown): (boolean, str
 	elseif command.Name == "WriteLegacyProfile" then
 		return EconomyService.writeLegacyRecordForTesting(player), nil
 	elseif command.Name == "TryRobStore" then
-		return RobberyService.tryStart(player, "Store1")
+		return CrimeService.tryStart(player, "Store1")
+	elseif command.Name == "TryCrime" then
+		return CrimeService.tryStart(player, (command :: any).Value)
+	elseif command.Name == "StealCar" then
+		return ParkedCarService.trySteal(player, (command :: any).Value)
 	elseif command.Name == "BankSpree" then
 		return SpreeService.bank(player)
 	end

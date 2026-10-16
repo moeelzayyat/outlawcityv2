@@ -180,3 +180,20 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.2 passed"] (S2.1 pruned)
 MIRROR: Studio = src/ 127/127, manifest c263a0d2 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.3
 ```
+
+## CHECKPOINT: S2.3 CrimeConfig + CrimeService · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 304 passed, 0 failed (+ CrimeRules.spec, CrimeSites.spec; RobberyRules.spec green via the store definition) · SCRIPT ANALYSIS: 🟦 · 132/132 parse
+PLAY TEST (clients: 1, scripted ExecuteMultiplayerTestAsync(1, "S2.3-Crimes")):
+  sites ATM1–4, Gas1, Store1; parked spots Parked1–6 filled at boot
+  ATM1 holdout completes → spree +1 crime; ATM2 left its area mid-holdout → failed, spree unchanged;
+  Gas1 holdout completes → spree +1; Parked3 stolen → spree +1, the car becomes the thief's getaway car; second steal of the empty spot refused
+  verdict: "PASS 3 crimes completed (spree 3 crimes, 4050 unbanked), failed ATM paid nothing, empty spot refused"
+  (4050 = 800×1.0 + 1500×1.5 + 500×2.0, matching SpreeConfig)
+  Console (solo play): runner line, 0 game errors; sampler summaries 0 observations.
+WORLD: ATMs, gas station and parked cars are built at server start; the saved place has no new geometry, so rollback = restore point.
+KNOWN: crime HUD texts and the silent-alarm toast not screenshot-checked on phones (S2.7); prompts exercised through the server API, not by pressing E.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.3 passed"] (S2.2 pruned)
+MIRROR: Studio = src/ 132/132, manifest e0fc2ef4 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.4
+```

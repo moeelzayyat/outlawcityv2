@@ -26,6 +26,11 @@ local WantedConfig: Types.WantedConfig = {
 		StoreRobbery = { Heat = 70, Cooldown = 0 },
 		-- Re-reported each second while holding a store: no extra heat, but no decay either.
 		RobberyInProgress = { Heat = 0, Cooldown = 1 },
+		-- Crime Spree crimes (S2.3, CrimeConfig): an alarmed ATM or a stolen car = 1 star, the gas
+		-- station = 2 stars (same band as the store).
+		AtmSmash = { Heat = 25, Cooldown = 0 },
+		GasStationRobbery = { Heat = 70, Cooldown = 0 },
+		CarTheft = { Heat = 25, Cooldown = 0 },
 	},
 }
 

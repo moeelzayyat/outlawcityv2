@@ -5,7 +5,7 @@
 | Event | Payload | Publisher | Consumers | Since |
 |---|---|---|---|---|
 | `PlayerJoined` / `PlayerLeft` | `{UserId}` / `{UserId, Phase}` | Main | Analytics | R1.7 ✅ |
-| `CrimeStarted` / `CrimeCompleted` / `CrimeFailed` | `{UserId, CrimeId, LocationId, Amount?, Stars?, Reason?}` | RobberyService (→ CrimeService S2.3); `CrimeCompleted` at holdout end | Analytics (FirstCrime); SpreeService (adds the crime); Objectives S2.9 | R1.7 ✅ · S2.2 |
+| `CrimeStarted` / `CrimeCompleted` / `CrimeFailed` | `{UserId, CrimeId, LocationId, Amount?, Stars?, Reason?, Silent?}` (`Silent` on `CrimeStarted`) | CrimeService, ParkedCarService (S2.3); `CrimeCompleted` at holdout end or on the steal | Analytics (FirstCrime); SpreeService (adds the crime); Objectives S2.9 | R1.7 ✅ · S2.2 |
 | `StarsChanged` | `{UserId, Stars, Heat}` | WantedService | HUD, Analytics (S2) | R1.7 ✅ |
 | `Escaped` | `{UserId, FromStars}` | WantedService | SpreeService (keeps the spree; escaping no longer pays, S2.2) | R1.7 ✅ (replaced the Signal) |
 | `PoliceSight` | `{UserId, Seen}` — `Seen` = police hold this player's heat: a unit sees them, or they are wanted with no unit assigned (R1.6) | PoliceService (on change) | WantedService (replaced `setPoliceSightProvider`) | R1.7 ✅ |

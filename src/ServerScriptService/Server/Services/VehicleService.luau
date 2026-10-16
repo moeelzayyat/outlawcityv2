@@ -81,7 +81,7 @@ local function updateSimulation(vehicle: Model)
 	vehicle:SetAttribute("DriverUserId", if driver then driver.UserId else 0)
 	local prompt = seat:FindFirstChild("DrivePrompt") :: ProximityPrompt?
 	if prompt then
-		prompt.Enabled = occupant == nil
+		prompt.Enabled = occupant == nil and not vehicle:GetAttribute("Parked")
 	end
 end
 
@@ -163,6 +163,9 @@ local function findFreeSpawn(root: BasePart): CFrame?
 end
 
 local function sitIfFree(player: Player, vehicle: Model)
+	if vehicle:GetAttribute("Parked") then
+		return -- a parked car is stolen through its own prompt (ParkedCarService), never just sat in
+	end
 	local seat = getSeat(vehicle)
 	local humanoid = getLiveHumanoid(player)
 	if not seat or not humanoid or seat.Occupant or humanoid.SeatPart or not JailService.allows(player, "Drive") then
@@ -175,6 +178,19 @@ local function sitIfFree(player: Player, vehicle: Model)
 		return
 	end
 	seat:Sit(humanoid)
+end
+
+-- Seat and drive-prompt wiring every player car gets (spawned, parked or stolen).
+local function wire(vehicle: Model, seat: Seat)
+	seat:GetPropertyChangedSignal("Occupant"):Connect(function()
+		updateSimulation(vehicle)
+	end)
+	local prompt = seat:FindFirstChild("DrivePrompt") :: ProximityPrompt?
+	if prompt then
+		prompt.Triggered:Connect(function(who: Player)
+			sitIfFree(who, vehicle)
+		end)
+	end
 end
 
 local function spawnVehicle(player: Player, vehicleId: string): (boolean, Types.SpawnError?)
@@ -233,15 +249,7 @@ local function spawnVehicle(player: Player, vehicleId: string): (boolean, Types.
 
 	local seat = getSeat(vehicle)
 	assert(seat, "vehicle has no DriverSeat")
-	seat:GetPropertyChangedSignal("Occupant"):Connect(function()
-		updateSimulation(vehicle)
-	end)
-	local prompt = seat:FindFirstChild("DrivePrompt") :: ProximityPrompt?
-	if prompt then
-		prompt.Triggered:Connect(function(who: Player)
-			sitIfFree(who, vehicle)
-		end)
-	end
+	wire(vehicle, seat)
 	updateSimulation(vehicle)
 	-- The character is simulated by its client, which can take a moment to leave its old seat;
 	-- until it has sat in the new car once, retry briefly. Stops for good once it was seated (so
@@ -325,6 +333,52 @@ function VehicleService.start()
 			end
 		end
 	end)
+end
+
+-- Builds an unowned parked car for car theft (S2.3): its seat is locked and its drive prompt
+-- off until a thief takes it with adoptStolen.
+function VehicleService.spawnParked(vehicleId: string, cframe: CFrame, spotId: string): Model?
+	local stats = VehicleConfig.get(vehicleId)
+	if not stats then
+		return nil
+	end
+	local vehicle = VehicleFactory.build(vehicleId, stats)
+	vehicle.Name = `Parked_{spotId}`
+	vehicle:SetAttribute("OwnerUserId", 0)
+	vehicle:SetAttribute("Parked", true)
+	vehicle:PivotTo(cframe * CFrame.new(0, VehicleFactory.getRideHeight(stats) + SPAWN_DROP, 0))
+	local seat = getSeat(vehicle)
+	if not seat then
+		vehicle:Destroy()
+		return nil
+	end
+	seat.Disabled = true
+	vehicle.Parent = vehiclesFolder
+	wire(vehicle, seat)
+	updateSimulation(vehicle)
+	return vehicle
+end
+
+-- A thief takes a parked car: it becomes their car (their old one is despawned) and they are
+-- seated in it. Returns true once the seat is assigned.
+function VehicleService.adoptStolen(player: Player, vehicle: Model): boolean
+	local humanoid = getLiveHumanoid(player)
+	local seat = getSeat(vehicle)
+	if not humanoid or not seat or not vehicle:GetAttribute("Parked") or not vehicle:IsDescendantOf(vehiclesFolder) then
+		return false
+	end
+	if not JailService.allows(player, "Drive") then
+		return false
+	end
+	despawnOwnedVehicle(player.UserId)
+	vehicle:SetAttribute("Parked", nil)
+	vehicle:SetAttribute("OwnerUserId", player.UserId)
+	vehicle.Name = `Stolen_{player.UserId}`
+	seat.Disabled = false
+	vehicleByOwner[player.UserId] = vehicle
+	updateSimulation(vehicle)
+	seat:Sit(humanoid)
+	return true
 end
 
 function VehicleService.getVehicleOf(player: Player): Model?
