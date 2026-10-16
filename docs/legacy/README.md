@@ -1,0 +1,2 @@
+# Legacy documents (pre-v2.0)
+Read-only history from `moeelzayyat/outlawcity` (main 4207b61), copied 2026-10-16: DESIGN, ARCHITECTURE, ROADMAP, PROGRESS, AGENTS, plans, checklists, `audits/` (27 packages) and the old CLAUDE.md/README. Superseded by `../../architecture.md` and `../../CLAUDE.md`; the owner's hard rules inside remain in force and are restated there. Owner-approved tuning values recorded in PROGRESS/DESIGN stay in force unless `../DECISION_LOG.md` supersedes them.

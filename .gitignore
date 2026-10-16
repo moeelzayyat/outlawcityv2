@@ -1,0 +1,10 @@
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+backups/
+work/
+*.lock
+.DS_Store
+Thumbs.db
+!assets/**
