@@ -30,3 +30,20 @@ Local folder `C:\RobloxProjects\OutlawCityV2` is now a git clone of `moeelzayyat
 6. **Archive the old repo** `moeelzayyat/outlawcity` on GitHub (Settings → Archive this repository). It is history only.
 
 ---
+
+## CHECKPOINT: R1.1 Loop isolation + lifecycle · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 224 passed, 0 failed (216 + LoopGuard.spec 8)
+SCRIPT ANALYSIS: 🟦 not measurable via the Studio MCP; all 11 touched scripts parse (loadstring). See owner item 7.
+PLAY TEST (clients: 1): 3 injected faults into each of the 8 loops (Jail, Wanted, Police, Robbery, SafeZone,
+  VehicleValidation, Economy.autosave, Economy.claims) → each: failures=3, reported=1, then "recovered", iterations
+  continued (e.g. Jail 42→92 in 15 s). Jail: bust via dev tools, 6 faults into the Jail loop → released 0.10 s after due.
+  Console: 0 game errors (only Roblox CorePackages UIBlox warnings).
+NUMBERS: backoff 1 s from the 2nd consecutive failure; report once per streak.
+NOT COVERED: release of a player who leaves in the same tick as their release is a guarded race, not reproduced.
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.1 passed"] (scripts only, no world change)
+MIRROR: Studio = src/ 106/106, manifest 79b0d727 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.2
+```
+Studio-only addition: `ServerStorage.LoopGuardControl` (BindableFunction, created only when `RunService:IsStudio()`) lets the command bar inject faults and read loop stats; the command bar has its own require cache.
+7. **Static analysis (owner choice):** the Studio MCP can't read Script Analysis. Either glance at View → Script Analysis at a checkpoint, or allow me to download `luau-analyze` from the official luau-lang GitHub release so I can count warnings myself. Until then each checkpoint records static as 🟦.

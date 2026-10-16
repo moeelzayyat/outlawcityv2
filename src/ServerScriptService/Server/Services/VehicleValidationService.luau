@@ -15,6 +15,8 @@ local Validation = script.Parent.Parent.Validation
 local VehicleValidationConfig = require(Validation.VehicleValidationConfig)
 local VehicleValidationRules = require(Validation.VehicleValidationRules)
 
+local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
+
 local VehicleValidationService = {}
 
 type Track = { State: VehicleValidationRules.TrackState, Limits: VehicleValidationRules.Limits }
@@ -126,22 +128,19 @@ end
 
 function VehicleValidationService.start()
 	local lastSummary = os.clock()
-	task.spawn(function()
-		while true do
-			task.wait(VehicleValidationConfig.SampleInterval)
-			sampleAll()
-			publishTotals()
-			if os.clock() - lastSummary >= VehicleValidationConfig.SummaryInterval then
-				lastSummary = os.clock()
-				log(string.format(
-					"summary: samples=%d observations=%d alerts=%d avgLoop=%.3fms maxLoop=%.3fms",
-					totals.Samples,
-					totals.Observations,
-					totals.Alerts,
-					if totals.Loops > 0 then totals.LoopSeconds / totals.Loops * 1000 else 0,
-					totals.MaxLoopMs
-				))
-			end
+	LoopGuard.run("VehicleValidation", VehicleValidationConfig.SampleInterval, function()
+		sampleAll()
+		publishTotals()
+		if os.clock() - lastSummary >= VehicleValidationConfig.SummaryInterval then
+			lastSummary = os.clock()
+			log(string.format(
+				"summary: samples=%d observations=%d alerts=%d avgLoop=%.3fms maxLoop=%.3fms",
+				totals.Samples,
+				totals.Observations,
+				totals.Alerts,
+				if totals.Loops > 0 then totals.LoopSeconds / totals.Loops * 1000 else 0,
+				totals.MaxLoopMs
+			))
 		end
 	end)
 end

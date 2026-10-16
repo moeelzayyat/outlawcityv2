@@ -30,6 +30,7 @@ local JailService = require(Services.JailService)
 local EconomyService = require(Services.EconomyService)
 local PoliceService = require(Services.PoliceService)
 local MilestoneLog = require(script.Parent.Parent.Dev.MilestoneLog)
+local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 
 local RobberyService = {}
 
@@ -306,15 +307,12 @@ function RobberyService.start()
 			print(`[Robbery] {player.Name} {entry.Session.Id} failed: Disconnected`)
 		end
 	end)
-	task.spawn(function()
-		while true do
-			task.wait(RobberyConfig.TickInterval)
-			tick()
-			local t = now()
-			for player, pending in pendingPayouts do
-				if player.Parent == Players and t >= pending.NextTry and not pending.InFlight then
-					task.spawn(RobberyService.tryPayout, player) -- writes yield; keep the tick loop running
-				end
+	LoopGuard.run("Robbery", RobberyConfig.TickInterval, function()
+		tick()
+		local t = now()
+		for player, pending in pendingPayouts do
+			if player.Parent == Players and t >= pending.NextTry and not pending.InFlight then
+				task.spawn(RobberyService.tryPayout, player) -- writes yield; keep the tick loop running
 			end
 		end
 	end)

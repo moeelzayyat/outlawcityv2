@@ -31,7 +31,12 @@ function MilestoneLog.mark(player: Player, name: string)
 	end
 end
 
-if enabled then
+function MilestoneLog.init() end
+
+function MilestoneLog.start()
+	if not enabled then
+		return
+	end
 	Players.PlayerAdded:Connect(track)
 	for _, player in Players:GetPlayers() do
 		track(player)

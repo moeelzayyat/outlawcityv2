@@ -7,33 +7,51 @@ local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
 local Remotes = require(ReplicatedStorage.Shared.Net.Remotes)
+local LoopGuard = require(script.Parent.Util.LoopGuard)
 local Services = script.Parent.Services
+local Dev = script.Parent.Dev
 
 type Service = { init: () -> (), start: () -> () }
 
-local services: { Service } = {
-	require(Services.WorldService) :: any,
-	require(Services.PlayerStateService) :: any,
-	require(Services.SpawnService) :: any,
-	require(Services.EconomyService) :: any,
-	require(Services.SafeZoneService) :: any,
-	require(Services.JailService) :: any,
-	require(Services.WantedService) :: any,
-	require(Services.RobberyService) :: any,
-	require(Services.DealershipService) :: any,
-	require(Services.CombatService) :: any,
-	require(Services.PoliceService) :: any,
-	require(script.Parent.Dev.DevToolsService) :: any,
-	require(Services.VehicleService) :: any,
-	require(Services.VehicleValidationService) :: any,
+local modules: { ModuleScript } = {
+	Services.WorldService,
+	Services.PlayerStateService,
+	Services.SpawnService,
+	Services.EconomyService,
+	Services.SafeZoneService,
+	Services.JailService,
+	Services.WantedService,
+	Services.RobberyService,
+	Services.DealershipService,
+	Services.CombatService,
+	Services.PoliceService,
+	Dev.DevToolsService,
+	Dev.MilestoneLog,
+	Services.VehicleService,
+	Services.VehicleValidationService,
 }
 
-Remotes.createAll()
-for _, service in services do
-	service.init()
+local services: { { name: string, service: Service } } = {}
+for _, module in modules do
+	table.insert(services, { name = module.Name, service = (require :: any)(module) })
 end
-for _, service in services do
-	task.spawn(service.start)
+
+-- A failing init/start is reported and the boot continues, so one service can't take the
+-- whole server down (architecture §5).
+Remotes.createAll()
+for _, entry in services do
+	local ok, err = pcall(entry.service.init)
+	if not ok then
+		LoopGuard.report(`{entry.name}.init`, tostring(err))
+	end
+end
+for _, entry in services do
+	task.spawn(function()
+		local ok, err = pcall(entry.service.start)
+		if not ok then
+			LoopGuard.report(`{entry.name}.start`, tostring(err))
+		end
+	end)
 end
 Workspace:SetAttribute("ServerReady", true)
 

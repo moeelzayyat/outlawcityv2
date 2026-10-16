@@ -75,3 +75,6 @@ c4bebb5 (N4 sign enlargement plan) is approved-with-conditions as a change (audi
 
 ## CP — R0 stage exit · 2026-10-16 · auto-approved (unattended)
 `[Tests] 216 passed, 0 failed` (Studio play, 1 client, 2026-10-16). Next: R1.1.
+
+## CP — R1.1 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+`Server/Util/LoopGuard` isolates all eight service loops (the audit's six + Economy autosave and ledger claims); Main pcalls every `init`/`start`; `JailService.release` checks `player.Parent`; MilestoneLog and PoliceService module-scope connections moved into `start()`. `[Tests] 224 passed, 0 failed`. Static: parse-checked; Script Analysis count not measurable through the MCP (🟦, handoff).

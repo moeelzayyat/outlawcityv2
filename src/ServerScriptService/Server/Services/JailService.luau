@@ -17,6 +17,7 @@ local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local WantedService = require(script.Parent.WantedService)
 local SpawnService = require(script.Parent.SpawnService)
 local WorldService = require(script.Parent.WorldService)
+local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 
 local JailService = {}
 
@@ -113,6 +114,11 @@ end
 
 local function release(player: Player, state: JailRules.State)
 	JailRules.release(state)
+	if player.Parent ~= Players then
+		-- Left between the due check and now; nothing to respawn.
+		states[player] = nil
+		return
+	end
 	publish(player, state)
 	print(`[Jail] {player.Name} released`)
 	SpawnService.assignSpawn(player)
@@ -142,13 +148,21 @@ function JailService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		states[player] = nil
 	end)
-	task.spawn(function()
-		while true do
-			task.wait(JailConfig.CheckInterval)
-			local t = now()
-			for player, state in states do
-				if JailRules.dueForRelease(state, t) then
-					release(player, state)
+	LoopGuard.run("Jail", JailConfig.CheckInterval, function()
+		local t = now()
+		local due = {}
+		for player, state in states do
+			if JailRules.dueForRelease(state, t) then
+				table.insert(due, player)
+			end
+		end
+		-- Each release is isolated so one bad player can't hold the others in jail.
+		for _, player in due do
+			local state = states[player]
+			if state then
+				local ok, err = pcall(release, player, state)
+				if not ok then
+					LoopGuard.report("Jail.release", `{player.Name}: {err}`)
 				end
 			end
 		end

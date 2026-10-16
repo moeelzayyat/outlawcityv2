@@ -23,12 +23,12 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | Dealership + ownership + garage | Implemented | — | |
 | Onboarding (P1–P8), markers, tip | Implemented | S2.8 | |
 | Atmosphere lighting + police lights | Implemented | — | |
-| Studio-only dev tools | Implemented | — | keep gated |
+| Studio-only dev tools | Implemented | — | keep gated; + `ServerStorage.LoopGuardControl` (Studio-only BindableFunction, fault injection/stats, R1.1) |
 
 ## v2.0 additions
 | System | Status | Target |
 |---|---|---|
-| Loop isolation, module-scope cleanup | Planned | R1.1 |
+| Loop isolation, module-scope cleanup (`Server/Util/LoopGuard`: 8 loops, Main init/start pcall) | Tested | R1.1 |
 | Character sampler + payout gating | Planned | R1.3–R1.4 |
 | Spawn restrictions | Planned | R1.5 |
 | Dispatch re-target + decay freeze | Planned | R1.6 |

@@ -32,6 +32,8 @@ local ProfileSession = require(Data.ProfileSession)
 local RewardLedger = require(Data.RewardLedger)
 local DataStoreAdapter = require(Data.DataStoreAdapter)
 
+local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
+
 local EconomyService = {}
 
 type Session = {
@@ -504,29 +506,23 @@ function EconomyService.start()
 	end)
 	-- Lock heartbeat: re-save every loaded profile so its session lock stays fresh while the
 	-- player is here (reconciling first if a write was ambiguous).
-	task.spawn(function()
-		while true do
-			task.wait(EconomyConfig.AutosaveInterval)
-			for player, session in sessions do
-				local ps = session.Store
-				if session.Status == "Loaded" and not session.Leaving and ps then
-					task.spawn(function()
-						ProfileSession.save(ps, false)
-						checkClosed(player, session)
-					end)
-				end
+	LoopGuard.run("Economy.autosave", EconomyConfig.AutosaveInterval, function()
+		for player, session in sessions do
+			local ps = session.Store
+			if session.Status == "Loaded" and not session.Leaving and ps then
+				task.spawn(function()
+					ProfileSession.save(ps, false)
+					checkClosed(player, session)
+				end)
 			end
 		end
 	end)
 	-- Reward ledger claims: right after load, then periodically with bounded backoff.
-	task.spawn(function()
-		while true do
-			task.wait(2)
-			local now = os.clock()
-			for player, session in sessions do
-				if session.Status == "Loaded" and not session.Leaving and not session.Claiming and now >= session.NextClaim then
-					task.spawn(claimRewards, player, session)
-				end
+	LoopGuard.run("Economy.claims", 2, function()
+		local now = os.clock()
+		for player, session in sessions do
+			if session.Status == "Loaded" and not session.Leaving and not session.Claiming and now >= session.NextClaim then
+				task.spawn(claimRewards, player, session)
 			end
 		end
 	end)

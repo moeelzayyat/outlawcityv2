@@ -17,6 +17,8 @@ local WantedRules = require(Shared.Wanted.WantedRules)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local Signal = require(Shared.Util.Signal)
 
+local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
+
 local WantedService = {}
 
 -- Fired (player, fromStars) when a wanted episode ends by escaping (heat decayed to zero).
@@ -168,11 +170,7 @@ function WantedService.start()
 		states[player] = nil
 		devPoliceSight[player] = nil
 	end)
-	task.spawn(function()
-		while true do
-			step(task.wait(STEP_INTERVAL))
-		end
-	end)
+	LoopGuard.run("Wanted", STEP_INTERVAL, step)
 end
 
 return WantedService

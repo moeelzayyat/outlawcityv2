@@ -24,6 +24,7 @@ local VehicleFactory = require(Server.Vehicle.VehicleFactory)
 local WantedService = require(script.Parent.WantedService)
 local CombatService = require(script.Parent.CombatService)
 local JailService = require(script.Parent.JailService)
+local LoopGuard = require(Server.Util.LoopGuard)
 
 local PoliceService = {}
 
@@ -386,17 +387,12 @@ function PoliceService.init()
 	WantedService.setPoliceSightProvider(seesPlayer)
 end
 
-Players.PlayerRemoving:Connect(function(player)
-	dispatchHolds[player] = nil
-end)
-
 function PoliceService.start()
-	RunService.PreSimulation:Connect(physicsStep)
-	task.spawn(function()
-		while true do
-			tick(task.wait(TICK))
-		end
+	Players.PlayerRemoving:Connect(function(player)
+		dispatchHolds[player] = nil
 	end)
+	RunService.PreSimulation:Connect(physicsStep)
+	LoopGuard.run("Police", TICK, tick)
 end
 
 function PoliceService.getUnit(): Model?

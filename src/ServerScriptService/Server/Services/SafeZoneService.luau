@@ -11,6 +11,7 @@ local Types = require(Shared.Types)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local SafeZoneRules = require(Shared.Zones.SafeZoneRules)
 local CityLayout = require(script.Parent.Parent.World.CityLayout)
+local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 
 local SafeZoneService = {}
 
@@ -56,12 +57,9 @@ function SafeZoneService.start()
 			player:SetAttribute(PlayerAttributes.InSafeZone, false)
 		end
 	end
-	task.spawn(function()
-		while true do
-			task.wait(UPDATE_INTERVAL)
-			for _, player in Players:GetPlayers() do
-				check(player)
-			end
+	LoopGuard.run("SafeZone", UPDATE_INTERVAL, function()
+		for _, player in Players:GetPlayers() do
+			check(player)
 		end
 	end)
 end
