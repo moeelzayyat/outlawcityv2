@@ -28,6 +28,9 @@ As built (S2.3): stars come from the WantedConfig heat of the reported crime (`A
 ## Safehouses (`SafehouseConfig`, S2.4)
 Two zones: Old Town Garage (-350, -200), Highway Warehouse (-200, -420), both open to the east. Bank: inside a zone, no police unit seeing you, not observed, not jailed, for `SpreeConfig.BankSeconds` (5 s) continuously; leaving or being seen restarts it. Zone exit margin 2 studs; check 4 Hz. After a bank, stars fall to 0 over `StarCooldownSeconds` 10 s (no escape reward; a new crime cancels the cool-down).
 
+## Boards and daily objective (S2.9, D-016)
+Biggest Spree: best banked spree per player; daily (00:00 UTC), weekly (Monday 00:00 UTC), all-time; top 10; refreshed every 60 s. Daily objective rotation: Bank 3 sprees → $1,500 · Complete 8 crimes → $1,500 · Bank a $5,000 spree → $2,000; once per UTC day, no streak.
+
 ## Wanted (`WantedConfig`, as built)
 3 stars; decay delay 8 s; thresholds as approved; heat frozen while any unit sees the player **or no unit is assigned to a wanted player** (R1.6).
 

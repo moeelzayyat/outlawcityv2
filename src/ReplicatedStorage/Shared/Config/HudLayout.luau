@@ -27,6 +27,7 @@ HudLayout.Slots = table.freeze({
 
 -- Left column (not centred): X is from the left screen edge.
 HudLayout.Tip = table.freeze({ X = 12, Y = 92, W = 160, H = 96 }) :: Slot
+HudLayout.BoardButton = table.freeze({ X = 12, Y = 42, W = 90, H = 40 }) :: Slot -- leaderboards (S2.9)
 
 HudLayout.DesignHeight = 346 -- bottom of the stack (Toast) + 4
 HudLayout.DesignWidth = 560 -- narrowest screen the stack fits unscaled

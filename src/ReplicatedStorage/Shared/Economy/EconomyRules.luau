@@ -365,6 +365,29 @@ function EconomyRules.bankSpree(profile: Types.Profile, amount: any, reputation:
 end
 
 -- Counts a bust in the profile stats once per transaction id.
+-- Replaces the daily-objective progress map (S2.9). Every key must be 1..SettingKeyMaxLength
+-- characters and every value a whole number >= 0, at most MaxObjectives entries; otherwise
+-- nothing changes.
+function EconomyRules.setObjectives(profile: Types.Profile, objectives: any, config: Config): (boolean, Types.EconomyError?)
+	if type(objectives) ~= "table" then
+		return false, "InvalidAmount"
+	end
+	local copy: { [string]: number } = {}
+	local count = 0
+	for id, progress in objectives do
+		if type(id) ~= "string" or #id == 0 or #id > config.SettingKeyMaxLength or not isWholeNonNegative(progress) then
+			return false, "InvalidAmount"
+		end
+		count += 1
+		copy[id] = progress
+	end
+	if count > config.MaxObjectives then
+		return false, "InvalidAmount"
+	end
+	profile.Objectives = copy
+	return true, nil
+end
+
 function EconomyRules.noteBust(profile: Types.Profile, txId: any, config: Config): (boolean, Types.EconomyError?)
 	local ok, err = EconomyRules.validateTransactionId(txId, config)
 	if not ok then

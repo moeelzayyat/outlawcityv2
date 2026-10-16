@@ -151,3 +151,11 @@ HudLayout (design-pixel slots) + HudRules (scale, overlap) + UiRoot (Root frame 
 
 ## CP — S2.8 built (🟦) · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 Protected first spree: `PoliceDispatchRules.firstSpreeHeld` + PoliceService tracks when each wanted episode began; a player whose profile has 0 banked sprees gets no unit for `SpreeConfig.FirstSpreeDispatchDelay` (10 s). `EconomyService.getSprees` (+ Studio-only `setSpreesForTesting`). Nearest-ATM/gas marker while the player has no spree and no stars (`OnboardingRules.nearestIndex`, `siteStatus`); tip text now about banking at a safehouse. `[Tests] 327 passed, 0 failed`. Scenario `S2.8-FirstSpree` PASS (unit after 10.4 s on a first spree, 0.1 s after one banked spree). The pass item "5 fresh accounts" can't be run from Studio: 🟦 for the S3 private test.
+
+## D-016 — Biggest Spree boards and the daily objective: shape and numbers
+2026-10-16 · S2.9 · Accepted (unattended, recommendation) — flagged for the owner
+Context: architecture §13 names daily/weekly/all-time Biggest Spree boards and "one daily objective, no streak" but gives no numbers.
+Decision: boards are OrderedDataStore `BiggestSpree` scopes (`daily-<UTC day>`, `weekly-<Monday week>`, `alltime`), best banked spree per player, top 10, re-read every 60 s and pushed with `OnLeaderboard`; Studio writes to `studio-` scopes only. One objective per UTC day for everyone, rotating: Bank 3 sprees ($1,500), Complete 8 crimes ($1,500), Bank a $5,000 spree ($2,000); progress saved in profile `Objectives` (today only), reward paid once through the reward ledger (tx `objective:<day>:<id>`); claimed automatically, so `RequestObjectiveClaim` is not built. Numbers tuned in S3.
+
+## CP — S2.9 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+LeaderboardConfig/Rules/Service + ObjectiveConfig/Rules/Service + LeaderboardController (TOP button, Daily/Weekly/All-time tabs, today's objective); `EconomyRules.setObjectives`, `EconomyService.getObjectives/setObjectives`; remote `OnLeaderboard`; event `ObjectiveCompleted`. `[Tests] 336 passed, 0 failed`. Static 🟦. Scenario `S2.9-Boards` PASS.

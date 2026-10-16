@@ -25,6 +25,8 @@ Remotes.Definitions = table.freeze({
 	OnRobberyNotice = "RemoteEvent",
 	-- server -> client: (kind: "Added" | "Banked" | "Lost" | "BankFailed", payload) — Crime Spree (S2.2)
 	OnSpreeNotice = "RemoteEvent",
+	-- server -> client: (board: "Daily" | "Weekly" | "AllTime", rows: { {Rank, UserId, Name, Amount} }) — S2.9, every 60 s
+	OnLeaderboard = "RemoteEvent",
 } :: { [string]: string })
 
 function Remotes.createAll(): Folder

@@ -28,6 +28,11 @@ local PlayerAttributes = table.freeze({
 	BestSpree = "BestSpree", -- largest banked spree (EconomyService, profile v4)
 	InSafehouse = "InSafehouse", -- id of the safehouse the player stands in (SafehouseService, S2.4); absent outside
 	BankProgress = "BankProgress", -- seconds of bank progress (1 decimal) while inside one with an unbanked spree
+	ObjectiveText = "ObjectiveText", -- today's objective (ObjectiveService, S2.9)
+	ObjectiveProgress = "ObjectiveProgress",
+	ObjectiveTarget = "ObjectiveTarget",
+	ObjectiveReward = "ObjectiveReward",
+	ObjectiveDone = "ObjectiveDone", -- true once today's reward is paid
 	BankBlocked = "BankBlocked", -- "Seen" | "Observed" | "Jailed" while inside with a spree but unable to bank
 })
 

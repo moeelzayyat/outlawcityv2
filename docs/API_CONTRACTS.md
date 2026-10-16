@@ -16,10 +16,10 @@ Rules: a remote exists only with a row here, a type guard, a limiter, and an ent
 | Remote | Type | Payload | Guard | Rate |
 |---|---|---|---|---|
 | `RequestCustomize` | F | `{vehicleId, paintId, txId}` | owned car, paint in catalog, cash, GUID tx | 1 / 2 |
-| `RequestObjectiveClaim` | F | `{objectiveId, claimId}` | complete, unclaimed | 2 / 3 |
+| `RequestObjectiveClaim` | F | `{objectiveId, claimId}` | complete, unclaimed | 2 / 3 — not built: the objective pays automatically (D-016) |
 | `RequestSettings` | E | `{key, value}` | whitelist | 5 / 10 |
 | `OnSpreeNotice` | E (S→C) | ✅ S2.2: `(kind, payload)` — `Added {Amount, Unbanked, Multiplier, Crimes}` · `Banked {Amount, PeakStars, Crimes, Duration, Reputation, Pending}` · `Lost {Amount, Reason}` · `BankFailed {Amount}` | server never listens | — |
-| `OnLeaderboard` | E (S→C) | `{board, rows}` | — | 60 s |
+| `OnLeaderboard` | E (S→C) | ✅ S2.9: `(board, rows)`: board `Daily`/`Weekly`/`AllTime`, rows `{Rank, UserId, Name, Amount}` | server never listens | 60 s, and once on join |
 
 ## Attributes (server-set on Player; clients read only)
-`Status`, `SpawnProtectedUntil`, `WantedLevel`, `WantedHeat`, `WantedEvading`, `CriminalReputation`, `CombatStatus`, `InSafeZone`, `Jailed`, `Cash`, `OwnedVehicles`, `RobberyPhase` → `CrimePhase`, **`SpreeUnbanked`, `SpreeMultiplier`, `SpreeCrimes`, `ObservedAt`**, `Reputation`, `BestSpree` (S2.2, profile v4), `InSafehouse`, `BankProgress`, `BankBlocked` (S2.4, SafehouseService).
+`Status`, `SpawnProtectedUntil`, `WantedLevel`, `WantedHeat`, `WantedEvading`, `CriminalReputation`, `CombatStatus`, `InSafeZone`, `Jailed`, `Cash`, `OwnedVehicles`, `RobberyPhase` → `CrimePhase`, **`SpreeUnbanked`, `SpreeMultiplier`, `SpreeCrimes`, `ObservedAt`**, `Reputation`, `BestSpree` (S2.2, profile v4), `InSafehouse`, `BankProgress`, `BankBlocked` (S2.4, SafehouseService), `ObjectiveText`, `ObjectiveProgress`, `ObjectiveTarget`, `ObjectiveReward`, `ObjectiveDone` (S2.9, ObjectiveService).

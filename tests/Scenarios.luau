@@ -469,6 +469,137 @@ registry["S2.8-FirstSpree"] = function()
 	return true, string.format("first spree: unit after %.1f s (delay 10 s); later spree: unit after %.1f s", first, later)
 end
 
+-- S2.9: one player banks ATM sprees at the garage until today's objective is paid, then once
+-- more. The reward must be paid exactly once; every bank reaches the Biggest Spree boards (Studio
+-- scopes), and the daily board shows the player's best. Dispatch is held so no unit interferes.
+registry["S2.9-Boards"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local CrimeService = require(Services.CrimeService) :: any
+	local SpreeService = require(Services.SpreeService) :: any
+	local PoliceService = require(Services.PoliceService) :: any
+	local ObjectiveService = require(Services.ObjectiveService) :: any
+	local LeaderboardService = require(Services.LeaderboardService) :: any
+	local CityLayout = require(ServerScriptService.Server.World.CityLayout) :: any
+	local p = waitForPlayers(1, 60)[1]
+	if not p then
+		return false, "no player joined"
+	end
+	local waited = 0
+	while not ObjectiveService.get(p) and waited < 15 do
+		task.wait(0.5)
+		waited += 0.5
+	end
+	local state = ObjectiveService.get(p)
+	if not state then
+		return false, "objective state never loaded"
+	end
+	local atm, garage
+	for _, site in CityLayout.crimeSites() do
+		if site.Id == "ATM1" then
+			atm = site.Area.Center
+		end
+	end
+	for _, house in CityLayout.safehouses() do
+		if house.Id == "Garage" then
+			garage = Vector3.new((house.Zone.Min.X + house.Zone.Max.X) / 2, 4, (house.Zone.Min.Z + house.Zone.Max.Z) / 2)
+		end
+	end
+	local function cash(): number
+		return tonumber(p:GetAttribute("Cash")) or 0
+	end
+	local function cycle(): (number?, string?)
+		CrimeService.clearCooldownsForTesting()
+		place(p, atm)
+		task.wait(1.5)
+		local ok, err = CrimeService.tryStart(p, "ATM1")
+		if not ok then
+			return nil, `ATM refused: {err}`
+		end
+		local w = 0
+		while CrimeService.isBusy(p) and w < 12 do
+			task.wait(0.25)
+			w += 0.25
+		end
+		WantedService.resetWanted(p)
+		PoliceService.setDispatchHold(p, true)
+		local spree = SpreeService.get(p)
+		local amount = spree and spree.Unbanked
+		if not amount or amount <= 0 then
+			return nil, "no spree after the ATM"
+		end
+		place(p, garage)
+		w = 0
+		while SpreeService.get(p).Active and w < 12 do
+			task.wait(0.25)
+			w += 0.25
+		end
+		if SpreeService.get(p).Active then
+			return nil, "spree not banked"
+		end
+		return amount, nil
+	end
+	PoliceService.setDispatchHold(p, true)
+	local paidBefore = state.Paid
+	local start = cash()
+	local banked, best, cycles = 0, 0, 0
+	while not ObjectiveService.get(p).Paid and cycles < 5 do
+		local amount, err = cycle()
+		if not amount then
+			return false, err :: string
+		end
+		banked += amount
+		best = math.max(best, amount)
+		cycles += 1
+		task.wait(2.5) -- the objective loop saves and pays
+	end
+	local s = ObjectiveService.get(p)
+	if not s.Paid then
+		return false, `objective not done after {cycles} banks (progress {s.Progress})`
+	end
+	local reward = p:GetAttribute("ObjectiveReward") :: number
+	local afterDone = cash()
+	local expected = start + banked + (if paidBefore then 0 else reward)
+	log(`objective "{p:GetAttribute("ObjectiveText")}": done after {cycles} bank(s); banked {banked}, reward {reward}{if paidBefore then " (already paid earlier today)" else ""}; cash {start} -> {afterDone} (expected {expected})`)
+	if afterDone ~= expected then
+		return false, `cash after the objective {afterDone}, expected {expected}`
+	end
+	local extra, err = cycle()
+	if not extra then
+		return false, err :: string
+	end
+	best = math.max(best, extra)
+	task.wait(2.5)
+	local afterExtra = cash()
+	log(`one more bank of {extra}: cash {afterDone} -> {afterExtra}`)
+	if afterExtra ~= afterDone + extra then
+		return false, `the reward was paid again (cash {afterDone} -> {afterExtra}, bank {extra})`
+	end
+	local pendingWait = 0
+	while LeaderboardService.pending() > 0 and pendingWait < 20 do
+		task.wait(0.5)
+		pendingWait += 0.5
+	end
+	LeaderboardService.refreshNow()
+	local mine
+	for _, row in LeaderboardService.getRows("Daily") do
+		if row.UserId == p.UserId then
+			mine = row
+		end
+	end
+	local allTime = 0
+	for _, row in LeaderboardService.getRows("AllTime") do
+		if row.UserId == p.UserId then
+			allTime = row.Amount
+		end
+	end
+	log(`daily board: {if mine then `#{mine.Rank} {mine.Amount}` else "missing"}; all-time {allTime}; best bank this run {best}`)
+	PoliceService.setDispatchHold(p, false)
+	if not mine or mine.Amount < best or allTime < best then
+		return false, "the boards don't show the best bank"
+	end
+	return true, string.format("objective paid once (%d after %d banks), extra bank paid no reward, daily board #%d %d", reward, cycles, mine.Rank, mine.Amount)
+end
+
 function Scenarios.run(name: string)
 	local scenario = registry[name]
 	if not scenario then

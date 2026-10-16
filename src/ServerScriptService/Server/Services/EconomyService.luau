@@ -367,6 +367,19 @@ function EconomyService.getSprees(player: Player): number?
 	return if session and session.Status == "Loaded" and session.Profile then session.Profile.Stats.Sprees else nil
 end
 
+-- Saved daily-objective progress (S2.9): a copy, or nil while data isn't loaded.
+function EconomyService.getObjectives(player: Player): { [string]: number }?
+	local session = sessions[player]
+	return if session and session.Status == "Loaded" and session.Profile then table.clone(session.Profile.Objectives) else nil
+end
+
+-- Replaces the saved daily-objective map, write-through (ObjectiveService). Returns (ok, err).
+function EconomyService.setObjectives(player: Player, objectives: { [string]: number }): (boolean, Types.EconomyError?)
+	return commitChange(player, "objectives", "objectives", function(draft)
+		return EconomyRules.setObjectives(draft, objectives, EconomyConfig)
+	end)
+end
+
 function EconomyService.canAfford(player: Player, amount: number): boolean
 	local session = sessions[player]
 	return session ~= nil and session.Profile ~= nil and session.Status == "Loaded" and EconomyRules.canAfford(session.Profile, amount)

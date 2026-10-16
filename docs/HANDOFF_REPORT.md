@@ -265,3 +265,19 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.8 built"] (S2.7 built pruned; S2
 MIRROR: Studio = src/ 146/146, manifest 6828559b · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.9
 ```
+
+## CHECKPOINT: S2.9 Leaderboards + objectives · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 336 passed, 0 failed (+ Leaderboard.spec 5, Objective.spec 4) · SCRIPT ANALYSIS: 🟦 · 155/155 parse
+PLAY TEST (clients: 1, scripted ExecuteMultiplayerTestAsync(1, "S2.9-Boards"), dispatch held):
+  3 ATM sprees banked at the garage → today's objective "Bank 3 sprees" paid once (+1500, ledger tx objective:<day>:Bank3);
+  a 4th bank paid only the spree (no second reward); submissions written to the studio- scopes; refresh → daily board #1 800, all-time ≥ best
+  verdict: "PASS objective paid once (1500 after 3 banks), extra bank paid no reward, daily board #1 800"
+  solo play: TOP button at (12,42); objective attributes "Bank 3 sprees 0/3"
+RESET ON SCHEDULE: spec-checked (daily scope changes at 00:00 UTC, weekly on Monday 00:00 UTC, all-time never); not observed live across a midnight.
+NOTE: the multi-client test server's saves did not show in the next solo Play (cash 19400 both times), so cross-session persistence of objective progress is not verified in Studio.
+DECISION: D-016 (board shape, objective list and rewards) taken unattended on the architecture's recommendation — flagged for you.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.9 passed"] (S2.8 built pruned; S2.5 passed kept)
+MIRROR: Studio = src/ 155/155, manifest be462bbe · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.10 (publish substage: package for the owner)
+```

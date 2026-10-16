@@ -30,6 +30,7 @@ EventBus.Events = table.freeze({
 	SpreeUpdated = true,
 	SpreeBanked = true,
 	SpreeLost = true,
+	ObjectiveCompleted = true,
 })
 
 export type Payload = { [string]: any }

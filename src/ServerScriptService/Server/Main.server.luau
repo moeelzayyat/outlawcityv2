@@ -28,6 +28,8 @@ local modules: { ModuleScript } = {
 	Services.CrimeService,
 	Services.SpreeService,
 	Services.SafehouseService,
+	Services.LeaderboardService,
+	Services.ObjectiveService,
 	Services.DealershipService,
 	Services.CombatService,
 	Services.PoliceService,

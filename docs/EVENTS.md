@@ -10,6 +10,7 @@
 | `Escaped` | `{UserId, FromStars}` | WantedService | SpreeService (keeps the spree; escaping no longer pays, S2.2) | R1.7 ✅ (replaced the Signal) |
 | `PoliceSight` | `{UserId, Seen}` — `Seen` = police hold this player's heat: a unit sees them, or they are wanted with no unit assigned (R1.6) | PoliceService (on change) | WantedService (replaced `setPoliceSightProvider`) | R1.7 ✅ |
 | `PoliceDispatched` / `PoliceRecalled` | `{UserId, Units}` — `Units` = units now on the player | PoliceService (when a player's unit count rises / falls, S2.5) | HUD, Analytics (S2) | R1.7 ✅ · S2.5 |
+| `ObjectiveCompleted` | `{UserId, ObjectiveId, Reward}` | ObjectiveService (after the reward is paid) | Analytics (S3) | S2.9 ✅ |
 | `RoadblockPlaced` | `{UserId, X, Z, Seconds}` | PoliceService (3★ roadblock, S2.5) | HUD (S2.7), Analytics | S2.5 ✅ |
 | `Busted` | `{UserId, Stars, Unbanked}` | PoliceService (after a successful jail) | Analytics (FirstBust); SpreeService (loses the spree, counts the bust) | R1.7 ✅ · S2.2 |
 | `Jailed` / `Released` | `{UserId, Seconds?}` | JailService | HUD, Analytics (S2) | R1.7 ✅ |

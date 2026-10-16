@@ -39,6 +39,8 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | Police escalation + roadblock (unit pool, allocation, re-target, budget counters) | Tested (scripted 3 clients) | S2.5 |
 | Audio (AudioConfig, AudioService, AudioController) | Built; silent until owner approves IDs | S2.6 |
 | HUD scaling (HudLayout, HudRules, UiRoot) | Built + spec; Device Simulator check pending | S2.7 |
+| First-spree dispatch delay + nearest-crime marker | Tested (scripted 1 client) | S2.8 |
+| Biggest Spree boards + daily objective (LeaderboardService, ObjectiveService, TOP panel) | Tested (scripted 1 client) | S2.9 |
 | Audio (siren, engine, tyre, alarm, bank, bust) | Planned | S2.6 |
 | HUD UIScale root | Planned | S2.7 |
 | Protected first spree | Planned | S2.8 |

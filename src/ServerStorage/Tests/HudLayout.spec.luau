@@ -24,6 +24,7 @@ return {
 				table.insert(rects, { Name = name, Rect = HudRules.place(slot, width) })
 			end
 			table.insert(rects, { Name = "Tip", Rect = HudLayout.Tip })
+			table.insert(rects, { Name = "BoardButton", Rect = HudLayout.BoardButton })
 			for i = 1, #rects do
 				for j = i + 1, #rects do
 					Assert.truthy(not HudRules.overlaps(rects[i].Rect, rects[j].Rect), `{phone.Name}: {rects[i].Name} overlaps {rects[j].Name}`)
