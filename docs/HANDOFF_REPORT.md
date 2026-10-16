@@ -253,3 +253,15 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.7 built"] (S2.6 built pruned; S2
 MIRROR: Studio = src/ 145/145, manifest 4ace314b · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.8
 ```
+
+## CHECKPOINT: S2.8 First session (built, 🟦 fresh-account timings) · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 327 passed, 0 failed (+ FirstSession.spec 4) · SCRIPT ANALYSIS: 🟦 · 146/146 parse
+PLAY TEST: S2.8-FirstSpree (clients: 1): "PASS first spree: unit after 10.4 s (delay 10 s); later spree: unit after 0.1 s" (profile spree count set in memory, put back)
+  solo play: markers "24/7 MART · 80 studs", "ATM · 70 studs | Open: smash it" (nearest only), two SAFEHOUSE signs; tip "Rob an ATM or the store, then bank it at a SAFEHOUSE." fits its card
+NUMBERS (geometry from FirstSession.spec, not player timings): nearest crime 121 studs from the plaza (~8 s on foot); any crime site within ~512 studs of a safehouse (~9 s at Coupe cruise)
+NOT DONE: first crime ≤ 60 s / first result ≤ 4 min median over 5 fresh accounts needs real players: carried to the S3 private test.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.8 built"] (S2.7 built pruned; S2.5 passed kept)
+MIRROR: Studio = src/ 146/146, manifest 6828559b · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.9
+```

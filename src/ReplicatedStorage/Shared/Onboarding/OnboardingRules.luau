@@ -54,6 +54,29 @@ function OnboardingRules.storeStatus(cooldownUntil: number?, busy: boolean, now:
 	return "Open: rob the register"
 end
 
+-- S2.8: a crime site marker's status line, like storeStatus with the site's own call to action.
+function OnboardingRules.siteStatus(cooldownUntil: number?, busy: boolean, now: number, openText: string): string
+	if busy then
+		return "Being robbed"
+	end
+	if type(cooldownUntil) == "number" and cooldownUntil > now then
+		return `Ready in {OnboardingRules.formatClock(cooldownUntil - now)}`
+	end
+	return openText
+end
+
+-- S2.8: index of the point nearest `from` (flat distance), or nil for an empty list.
+function OnboardingRules.nearestIndex(points: { Vector3 }, from: Vector3): number?
+	local best, bestDistance = nil, math.huge
+	for i, p in points do
+		local d = Vector3.new(p.X - from.X, 0, p.Z - from.Z).Magnitude
+		if d < bestDistance then
+			best, bestDistance = i, d
+		end
+	end
+	return best
+end
+
 -- P4: the escape panel's second line. Matches WantedRules: heat only decays after DecayDelay
 -- seconds with no police sighting and no new crime, and the escape counts when the stars are gone.
 function OnboardingRules.escapeHint(evading: boolean, stars: number): string

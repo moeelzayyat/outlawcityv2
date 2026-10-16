@@ -423,6 +423,52 @@ registry["S2.4-Safehouses"] = function()
 	return true, string.format("garage banked after %.2f s, warehouse blocked in sight then banked after %.2f s, stars 0 after %.2f s, 0 escapes, repeat claims refused", garageTook, took :: number, zeroAfter :: number)
 end
 
+-- S2.8: a player with no banked spree who becomes wanted gets no unit for the first-spree delay;
+-- the same player with one banked spree gets units at once. The profile's spree count is set in
+-- memory for the test and put back afterwards.
+registry["S2.8-FirstSpree"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local PoliceService = require(Services.PoliceService) :: any
+	local EconomyService = require(Services.EconomyService) :: any
+	local p = waitForPlayers(1, 60)[1]
+	if not p then
+		return false, "no player joined"
+	end
+	local function timeToUnit(limit: number): number?
+		local started = os.clock()
+		while os.clock() - started < limit do
+			if PoliceService.unitsOn(p) > 0 then
+				return os.clock() - started
+			end
+			task.wait(0.1)
+		end
+		return nil
+	end
+	local original = EconomyService.setSpreesForTesting(p, 0)
+	if original == nil then
+		return false, "profile not loaded"
+	end
+	place(p, Vector3.new(-300, 4, -300))
+	task.wait(1)
+	WantedService.reportCrime(p, "StoreRobbery")
+	local first = timeToUnit(15)
+	WantedService.resetWanted(p)
+	task.wait(4) -- units recalled and despawned
+	EconomyService.setSpreesForTesting(p, 1)
+	WantedService.reportCrime(p, "StoreRobbery")
+	local later = timeToUnit(5)
+	WantedService.resetWanted(p)
+	EconomyService.setSpreesForTesting(p, original)
+	log(string.format("first spree: first unit after %s s; with a banked spree: after %s s (profile sprees put back to %d)", tostring(first), tostring(later), original))
+	if not first or first < 9.5 or first > 11 then
+		return false, `first-spree dispatch came after {tostring(first)} s, expected about 10`
+	end
+	if not later or later > 1 then
+		return false, `dispatch after a banked spree took {tostring(later)} s`
+	end
+	return true, string.format("first spree: unit after %.1f s (delay 10 s); later spree: unit after %.1f s", first, later)
+end
+
 function Scenarios.run(name: string)
 	local scenario = registry[name]
 	if not scenario then

@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local OnboardingConfig = require(Shared.Config.OnboardingConfig)
 local OnboardingRules = require(Shared.Onboarding.OnboardingRules)
+local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 
 local WorldMarkerController = {}
 
@@ -88,12 +89,48 @@ function WorldMarkerController.init()
 		end))
 	end
 
+	-- S2.8: the nearest ATM or gas station, while the player holds no spree and no stars (the store
+	-- keeps its own marker). Only the nearest one shows; the safehouse signs take over in a spree.
+	local crimeMarkers: { Marker } = {}
+	local sites = city and city:WaitForChild("CrimeSites", 30)
+	if sites then
+		for _, site in sites:GetChildren() do
+			local prompt = site:FindFirstChild("CrimePrompt", true)
+			local anchor = prompt and prompt.Parent and prompt.Parent.Parent
+			if anchor and anchor:IsA("BasePart") then
+				local gas = site:GetAttribute("CrimeId") == "GasStation"
+				table.insert(crimeMarkers, makeMarker(anchor, if gas then "GAS STATION" else "ATM", Color3.fromRGB(255, 170, 90), function()
+					local cooldownUntil = site:GetAttribute("RobberyCooldownUntil")
+					local busy = site:GetAttribute("RobberyBusy") == true
+					return OnboardingRules.siteStatus(if type(cooldownUntil) == "number" then cooldownUntil else nil, busy, Workspace:GetServerTimeNow(), if gas then "Open: rob the till" else "Open: smash it")
+				end))
+			end
+		end
+	end
+
 	while true do
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		for _, marker in markers do
 			local distance = if root and root:IsA("BasePart") then (root.Position - marker.Anchor.Position).Magnitude else math.huge
 			local visible = OnboardingRules.markerVisible(distance, OnboardingConfig)
+			marker.Gui.Enabled = visible
+			if visible then
+				marker.Top.Text = `{marker.Name} · {OnboardingRules.formatDistance(distance)}`
+				marker.Bottom.Text = marker.Status()
+			end
+		end
+		local unbanked = player:GetAttribute(PlayerAttributes.SpreeUnbanked)
+		local stars = player:GetAttribute(PlayerAttributes.WantedLevel)
+		local calm = not (type(unbanked) == "number" and unbanked > 0) and not (type(stars) == "number" and stars > 0)
+		local positions = {}
+		for i, marker in crimeMarkers do
+			positions[i] = marker.Anchor.Position
+		end
+		local nearest = if calm and root and root:IsA("BasePart") then OnboardingRules.nearestIndex(positions, root.Position) else nil
+		for i, marker in crimeMarkers do
+			local distance = if root and root:IsA("BasePart") then (root.Position - marker.Anchor.Position).Magnitude else math.huge
+			local visible = i == nearest and OnboardingRules.markerVisible(distance, OnboardingConfig)
 			marker.Gui.Enabled = visible
 			if visible then
 				marker.Top.Text = `{marker.Name} · {OnboardingRules.formatDistance(distance)}`

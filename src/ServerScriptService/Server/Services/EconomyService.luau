@@ -361,6 +361,12 @@ function EconomyService.getBalance(player: Player): number?
 	return if session and session.Status == "Loaded" and session.Profile then session.Profile.Cash else nil
 end
 
+-- Completed (banked) sprees from the loaded profile; nil while data isn't loaded (S2.8).
+function EconomyService.getSprees(player: Player): number?
+	local session = sessions[player]
+	return if session and session.Status == "Loaded" and session.Profile then session.Profile.Stats.Sprees else nil
+end
+
 function EconomyService.canAfford(player: Player, amount: number): boolean
 	local session = sessions[player]
 	return session ~= nil and session.Profile ~= nil and session.Status == "Loaded" and EconomyRules.canAfford(session.Profile, amount)
@@ -400,6 +406,19 @@ end
 -- Unique transaction id helper for server systems.
 function EconomyService.newTransactionId(prefix: string): string
 	return `{prefix}:{HttpService:GenerateGUID(false)}`
+end
+
+-- Studio test hook: sets the in-memory completed-spree count (first-spree tests, S2.8). Returns
+-- the previous value so a test can put it back.
+function EconomyService.setSpreesForTesting(player: Player, sprees: number): number?
+	assert(RunService:IsStudio(), "Studio-only")
+	local session = sessions[player]
+	if not (session and session.Profile) then
+		return nil
+	end
+	local before = session.Profile.Stats.Sprees
+	session.Profile.Stats.Sprees = sprees
+	return before
 end
 
 -- Studio test hook: save now (as if autosaving).

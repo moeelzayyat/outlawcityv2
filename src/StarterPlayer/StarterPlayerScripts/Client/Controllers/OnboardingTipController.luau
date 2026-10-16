@@ -19,7 +19,7 @@ local OnboardingTipController = {}
 
 local player = Players.LocalPlayer
 
-local TIP_TEXT = "Rob the 24/7 MART for cash, then escape the police. Buy faster cars at OUTLAW MOTORS. Follow the markers."
+local TIP_TEXT = "Rob an ATM or the store, then bank it at a SAFEHOUSE."
 
 function OnboardingTipController.init()
 	if not player.Character then

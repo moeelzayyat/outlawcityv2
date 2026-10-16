@@ -143,6 +143,12 @@ function PoliceDispatchRules.roadblockSpot(position: Vector3, direction: Vector3
 	return Vector3.new(road, 0, spot), "Z"
 end
 
+-- Protected first spree (S2.8): a player who has never banked a spree (`sprees` 0, or unknown)
+-- gets `delay` seconds after becoming wanted before any unit is dispatched to them.
+function PoliceDispatchRules.firstSpreeHeld(sprees: number?, wantedFor: number, delay: number): boolean
+	return (sprees == nil or sprees <= 0) and type(wantedFor) == "number" and wantedFor == wantedFor and wantedFor < delay
+end
+
 -- Wanted heat holds (counts as seen) while a unit sees the player, or while they are wanted
 -- with no unit assigned: nobody escapes just because the only unit is busy elsewhere (F2).
 function PoliceDispatchRules.heatHeld(stars: number, assigned: boolean, seen: boolean): boolean

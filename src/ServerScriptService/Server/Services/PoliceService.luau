@@ -27,6 +27,8 @@ local WantedService = require(script.Parent.WantedService)
 local CombatService = require(script.Parent.CombatService)
 local JailService = require(script.Parent.JailService)
 local LoopGuard = require(Server.Util.LoopGuard)
+local SpreeConfig = require(Shared.Config.SpreeConfig)
+local EconomyService = require(script.Parent.EconomyService)
 local EventBus = require(ReplicatedStorage.Shared.Util.EventBus)
 
 local PoliceService = {}
@@ -69,6 +71,7 @@ local dispatchHolds: { [Player]: boolean } = {}
 local roadblocks: { [Player]: Roadblock } = {}
 local roadblockReadyAt: { [Player]: number } = {}
 local publishedUnits: { [Player]: number } = {}
+local wantedSince: { [Player]: number } = {} -- when the current wanted episode began (S2.8)
 
 -- Budget (S2.5): police raycasts per physics frame and the step time of all units together.
 local budget = { Frames = 0, StepSeconds = 0, MaxFrameMs = 0, MaxRaysPerFrame = 0, TickRays = 0, MaxUnits = 0 }
@@ -289,13 +292,22 @@ local function allocate()
 	local candidates: { PoliceDispatchRules.Candidate } = {}
 	local byId: { [number]: Player } = {}
 	local assigned: { [Player]: { Unit } } = {}
+	local now = Workspace:GetServerTimeNow()
 	for _, player in Players:GetPlayers() do
 		byId[player.UserId] = player
 		assigned[player] = activeOn(player)
+		local stars = WantedService.getStars(player)
+		if stars > 0 then
+			wantedSince[player] = wantedSince[player] or now
+		else
+			wantedSince[player] = nil
+		end
+		-- Protected first spree (S2.8): no dispatch for the first seconds of a new player's first spree.
+		local firstSpree = stars > 0 and PoliceDispatchRules.firstSpreeHeld(EconomyService.getSprees(player), now - (wantedSince[player] :: number), SpreeConfig.FirstSpreeDispatchDelay)
 		table.insert(candidates, {
 			Id = player.UserId,
-			Stars = WantedService.getStars(player),
-			Held = dispatchHolds[player] == true,
+			Stars = stars,
+			Held = dispatchHolds[player] == true or firstSpree,
 			Present = true,
 			Assigned = #assigned[player],
 		})
@@ -598,6 +610,7 @@ function PoliceService.start()
 		dispatchHolds[player] = nil
 		published[player] = nil
 		publishedUnits[player] = nil
+		wantedSince[player] = nil
 		removeRoadblock(player, "player left")
 		roadblockReadyAt[player] = nil
 	end)
