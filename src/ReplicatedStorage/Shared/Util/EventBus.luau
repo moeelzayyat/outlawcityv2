@@ -15,6 +15,7 @@ EventBus.Events = table.freeze({
 	PoliceSight = true,
 	PoliceDispatched = true,
 	PoliceRecalled = true,
+	RoadblockPlaced = true,
 	Busted = true,
 	Jailed = true,
 	Released = true,

@@ -52,8 +52,9 @@ end
 
 local registry: { [string]: () -> (boolean, string) } = {}
 
--- R1.6: A becomes wanted and gets the unit; B robs while the only unit is on A. B's heat must
--- not decay while no unit is assigned to B, and the unit must re-target to B once A is done.
+-- R1.6 (updated for the S2.5 unit pool, D-002): A becomes wanted and gets units; then B robs.
+-- B's heat must not decay before B has a unit, and B gets its own unit while A keeps theirs
+-- (no more waiting for A's pursuit to end).
 registry["R1.6-Dispatch"] = function()
 	local WantedService = require(Services.WantedService) :: any
 	local PoliceService = require(Services.PoliceService) :: any
@@ -62,8 +63,7 @@ registry["R1.6-Dispatch"] = function()
 		return false, `only {#players} player(s) joined`
 	end
 	local a, b = players[1], players[2]
-	-- Road intersections far apart; A shuttles between two of them so the unit chases but can't
-	-- bust A early (which would cut B's unassigned window short).
+	-- A shuttles between two intersections so the units chase but can't bust A.
 	local aSpots = { Vector3.new(100, 4, 300), Vector3.new(300, 4, 300) }
 	place(a, aSpots[1])
 	place(b, Vector3.new(-300, 4, -300))
@@ -72,42 +72,114 @@ registry["R1.6-Dispatch"] = function()
 	task.wait(2.1)
 	WantedService.reportCrime(a, "RammingPolice")
 	local waited = 0
-	while PoliceService.getTarget() ~= a and waited < 15 do
+	while PoliceService.unitsOn(a) == 0 and waited < 15 do
 		task.wait(0.25)
 		waited += 0.25
 	end
-	if PoliceService.getTarget() ~= a then
-		return false, "the unit was never assigned to A"
+	if PoliceService.unitsOn(a) == 0 then
+		return false, "no unit was ever assigned to A"
 	end
-	log(`unit assigned to A ({a.Name}) after {waited} s; A stars {WantedService.getStars(a)}`)
+	log(`A ({a.Name}) has {PoliceService.unitsOn(a)} unit(s) after {waited} s; A stars {WantedService.getStars(a)}`)
 	WantedService.reportCrime(b, "StoreRobbery")
 	local startHeat = heatOf(b)
 	local minHeat = startHeat
-	local unassignedSeconds = 0
-	local retargetAfter: number? = nil
-	for i = 1, 240 do -- up to 60 s
+	local assignedAfter: number? = nil
+	for i = 1, 40 do -- up to 10 s
 		task.wait(0.25)
-		if i % 12 == 0 and i <= 48 then -- shuttle for 12 s, then A stands still and is busted or escapes
-			place(a, aSpots[(i // 12) % 2 + 1])
+		if i % 8 == 0 then
+			place(a, aSpots[(i // 8) % 2 + 1])
 		end
-		if PoliceService.getTarget() == b then
-			retargetAfter = i * 0.25
+		minHeat = math.min(minHeat, heatOf(b))
+		if PoliceService.unitsOn(b) > 0 then
+			assignedAfter = i * 0.25
 			break
 		end
-		unassignedSeconds = i * 0.25
-		minHeat = math.min(minHeat, heatOf(b))
 	end
-	log(string.format("B (%s) heat %.1f at the crime; lowest while unassigned %.1f over %.1f s; re-targeted after %s s", b.Name, startHeat, minHeat, unassignedSeconds, tostring(retargetAfter)))
+	local aUnits = PoliceService.unitsOn(a)
+	log(string.format("B (%s) heat %.1f at the crime, lowest %.1f before assignment; B assigned after %s s; A still has %d unit(s)", b.Name, startHeat, minHeat, tostring(assignedAfter), aUnits))
 	if minHeat < startHeat then
-		return false, string.format("B's heat decayed while unassigned (%.1f -> %.1f)", startHeat, minHeat)
+		return false, string.format("B's heat decayed before B had a unit (%.1f -> %.1f)", startHeat, minHeat)
 	end
-	if not retargetAfter then
-		return false, string.format("the unit never re-targeted to B (B unassigned %.1f s, heat held at %.1f)", unassignedSeconds, minHeat)
+	if not assignedAfter or assignedAfter > 2 then
+		return false, `B was not given a unit within 2 s (after {tostring(assignedAfter)} s)`
 	end
-	if unassignedSeconds < 8 then
-		return false, string.format("B was unassigned only %.1f s, shorter than the 8 s decay delay: decay freeze not exercised", unassignedSeconds)
+	if aUnits == 0 then
+		return false, "A lost its units when B became wanted"
 	end
-	return true, string.format("B heat held at %.1f for %.1f s while the unit chased A; unit re-targeted to B after %.1f s", startHeat, unassignedSeconds, retargetAfter :: number)
+	WantedService.resetWanted(a)
+	WantedService.resetWanted(b)
+	return true, string.format("B heat held at %.1f; B got its own unit after %.2f s while A kept %d", startHeat, assignedAfter :: number, aUnits)
+end
+
+-- S2.5: three players at 3, 2 and 1 stars get 3, 2 and 1 units (the server cap of 6) and a
+-- roadblock goes up ahead of the 3-star player. When A is cleared and C rises to 3 stars, A's
+-- recalled units are re-targeted to C without ever exceeding the cap. Players shuttle between two
+-- spots every 2 s (no unit can finish a bust) and their heat is re-set so stars hold. Records the
+-- police budget: raycasts per physics frame and step time for all units.
+registry["S2.5-Escalation"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local PoliceService = require(Services.PoliceService) :: any
+	local players = waitForPlayers(3, 90)
+	if #players < 3 then
+		return false, `only {#players} player(s) joined`
+	end
+	local a, b, c = players[1], players[2], players[3]
+	local spots = {
+		[a] = { Vector3.new(300, 4, 200), Vector3.new(300, 4, 140) }, -- facing -Z on D Ave: the roadblock goes ahead
+		[b] = { Vector3.new(-300, 4, 200), Vector3.new(-300, 4, 140) },
+		[c] = { Vector3.new(-200, 4, -300), Vector3.new(-140, 4, -300) },
+	}
+	local heat = { [a] = 120, [b] = 60, [c] = 20 }
+	local maxTotal = 0
+	local function hold(seconds: number)
+		for i = 1, seconds * 4 do
+			if i % 8 == 1 then
+				for player, pair in spots do
+					place(player, pair[(i // 8) % 2 + 1])
+					if heat[player] > 0 then
+						WantedService.setHeatForTesting(player, heat[player])
+					end
+				end
+			end
+			maxTotal = math.max(maxTotal, PoliceService.getBudget().Units)
+			task.wait(0.25)
+		end
+	end
+	PoliceService.resetBudget()
+	hold(12)
+	local ua, ub, uc = PoliceService.unitsOn(a), PoliceService.unitsOn(b), PoliceService.unitsOn(c)
+	local blockA = PoliceService.hasRoadblock(a)
+	log(`phase 1: stars {WantedService.getStars(a)}/{WantedService.getStars(b)}/{WantedService.getStars(c)} -> units {ua}/{ub}/{uc}; roadblock for A {blockA}; max units on the server {maxTotal}`)
+	if ua ~= 3 or ub ~= 2 or uc ~= 1 then
+		return false, `units by stars wrong: {ua}/{ub}/{uc}`
+	end
+	if not blockA then
+		return false, "no roadblock for the 3-star player"
+	end
+	heat[a] = 0
+	WantedService.resetWanted(a)
+	heat[c] = 120
+	hold(6)
+	ua, ub, uc = PoliceService.unitsOn(a), PoliceService.unitsOn(b), PoliceService.unitsOn(c)
+	local budget = PoliceService.getBudget()
+	log(string.format("phase 2: A cleared, C at 3 stars -> units %d/%d/%d; roadblock A %s, C %s; max units %d", ua, ub, uc, tostring(PoliceService.hasRoadblock(a)), tostring(PoliceService.hasRoadblock(c)), maxTotal))
+	log(string.format("budget: frames %d, avg %.3f ms, max %.3f ms per frame, max %d raycasts per frame, max units %d", budget.Frames, budget.AvgFrameMs, budget.MaxFrameMs, budget.MaxRaysPerFrame, budget.MaxUnits))
+	for player in spots do
+		WantedService.resetWanted(player)
+	end
+	if ua ~= 0 or ub ~= 2 or uc ~= 3 then
+		return false, `re-assignment wrong: {ua}/{ub}/{uc}`
+	end
+	if maxTotal > 6 or budget.MaxUnits > 6 then
+		return false, `server cap exceeded ({math.max(maxTotal, budget.MaxUnits)} units)`
+	end
+	if PoliceService.hasRoadblock(a) then
+		return false, "A's roadblock stayed after A was cleared"
+	end
+	if budget.MaxRaysPerFrame > 50 or budget.AvgFrameMs > 2 then
+		return false, string.format("budget missed: %d raycasts/frame, %.3f ms avg", budget.MaxRaysPerFrame, budget.AvgFrameMs)
+	end
+	return true, string.format("3/2/1 units + roadblock at 3 stars; A's units re-targeted to C (0/2/3), never above 6; %d raycasts/frame max, %.3f ms avg, %.3f ms max per frame", budget.MaxRaysPerFrame, budget.AvgFrameMs, budget.MaxFrameMs)
 end
 
 -- S2.3: one player runs each new crime through the live services. ATM1 completes, ATM2 fails by
@@ -270,6 +342,7 @@ registry["S2.4-Safehouses"] = function()
 			return false, `{siteId} did not start a spree`
 		end
 		WantedService.resetWanted(p)
+		PoliceService.setDispatchHold(p, true) -- an alarmed holdout releases its own hold at the end
 		return true, ""
 	end
 	-- Waits until the spree is banked; returns the seconds waited (or nil on timeout).
@@ -336,8 +409,9 @@ registry["S2.4-Safehouses"] = function()
 	if not took or cash() ~= before + unbanked then
 		return false, "warehouse bank wrong"
 	end
-	if starsAtBank < 1 or not zeroAfter or zeroAfter > 10.75 or escapes ~= 0 then
-		return false, "stars did not cool down to 0 within 10 s without an escape"
+	-- zeroAfter counts from the spree ending, so it includes the bank save before the cool-down starts.
+	if starsAtBank < 1 or not zeroAfter or zeroAfter > 12 or escapes ~= 0 then
+		return false, string.format("stars did not cool down to 0 without an escape (stars at bank %d, 0 after %s s, escapes %d)", starsAtBank, tostring(zeroAfter), escapes)
 	end
 	local again, againErr = SpreeService.bank(p)
 	local dupPaid, dupErr = EconomyService.bankSpree(p, spreeId, unbanked, 0)

@@ -32,7 +32,7 @@ Two zones: Old Town Garage (-350, -200), Highway Warehouse (-200, -420), both op
 3 stars; decay delay 8 s; thresholds as approved; heat frozen while any unit sees the player **or no unit is assigned to a wanted player** (R1.6).
 
 ## Police (`PoliceConfig`)
-`UnitsByStars = {1, 2, 3}` (D-002) · server cap 6 · sight range 130 · chase speed 100 · chase gain 0.25 · bust distance 8 / 2.5 s · roadblock at 3★, 250 studs ahead, 30 s.
+`UnitsByStars = {1, 2, 3}` (D-002) · server cap 6 · sight range 130 · chase speed 100 · chase gain 0.25 · bust distance 8 / 2.5 s · roadblock at 3★, 250 studs ahead on the grid road the player travels (moved back out of intersections), 30 s, next one ≥ 15 s after the last ends; barrier 32 studs across a 36-stud road. Allocation: one unit per wanted player before any second unit, highest stars first; a player in a robbery holdout keeps units already on them but gets no new ones. Budget (S2.5): ≤ 50 raycasts/frame, ≤ 2 ms.
 
 ## Character sampler (`CharacterValidationRules`, R1.3)
 On-foot: max speed 24 studs/s sustained 1 s; displacement per 0.2 s sample ≤ 24×0.2×1.5+6; vertical excluded; non-finite → observation; observation window for gating 10 s. Grace 2 s after spawn, after leaving a seat, and after an authorized server move (`authorizeMove`, jail cell). Seated players are not sampled; after leaving a seat (2 s) the exit step and momentum are allowed but a jump > 60 studs in one sample is still a teleport (`CharacterValidationConfig`).

@@ -214,3 +214,19 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.4 passed"] (S2.3 pruned)
 MIRROR: Studio = src/ 136/136, manifest 89c2ccf3 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.5
 ```
+
+## CHECKPOINT: S2.5 Police escalation · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 315 passed, 0 failed (PoliceDispatch.spec: units 1-2-3, allocate under the cap, held players, roadblock spot) · SCRIPT ANALYSIS: 🟦 · 136/136 parse
+PLAY TEST (scripted, Studio multi-client; not real network):
+  S2.5-Escalation (clients: 3): stars 3/2/1 → units 3/2/1 (server at the cap of 6) + roadblock ahead of the 3★ player;
+    A cleared + C raised to 3★ → units 0/2/3 using A's recalled units, never above 6; A's roadblock removed
+    verdict: "PASS 3/2/1 units + roadblock at 3 stars; A's units re-targeted to C (0/2/3), never above 6; 48 raycasts/frame max, 0.306 ms avg, 1.225 ms max per frame"
+  R1.6-Dispatch (clients: 2, updated): "PASS B heat held at 70.0; B got its own unit after 0.25 s while A kept 2"
+  regression: S2.4-Safehouses PASS (scenario now re-holds dispatch after each ATM; stars 0 after 10.93 s incl. the save), S2.3-Crimes PASS
+NUMBERS: police budget ≤ 50 raycasts/frame → 48 max (6 units × 4 wheel + 3 whisker rays + sight checks); ≤ 2 ms → 0.306 ms avg, 1.225 ms max per frame (Studio server, 3 clients)
+KNOWN: 48/50 rays is close to the budget (risk register row added); roadblocks only on grid roads (none on the highway or connectors); the siren stays off until the owner gives an asset (S2.6).
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.5 passed"] (S2.4 pruned)
+MIRROR: Studio = src/ 136/136, manifest 10d98ac0 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.6
+```

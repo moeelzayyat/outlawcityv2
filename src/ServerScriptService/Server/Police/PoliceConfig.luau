@@ -2,7 +2,8 @@
 -- NPC police tuning (server only). Read-only at runtime.
 local PoliceConfig = {
 	-- Dispatch
-	MaxUnits = 1, -- Phase 3D prototype: a single unit. Raise only after owner approval.
+	UnitsByStars = { 1, 2, 3 }, -- units per wanted player at 1, 2, 3+ stars (D-002, S2.5)
+	ServerUnitCap = 6, -- never more units on the server than this (D-002)
 	SpawnMinDistance = 160, -- spawn road nodes at least this far from the target...
 	SpawnMaxDistance = 450, -- ...and preferably no farther than this
 	DespawnDelay = 3, -- seconds a unit lingers after its pursuit ends
@@ -43,6 +44,18 @@ local PoliceConfig = {
 	BustRange = 18,
 	BustSeconds = 2.5,
 	BustMaxTargetSpeed = 5,
+
+	-- Roadblock (D-002, S2.5): at RoadblockStars a barrier goes up across the grid road a wanted
+	-- player is travelling, RoadblockAhead studs ahead, for RoadblockSeconds; one per player at a
+	-- time, the next no sooner than RoadblockCooldown after the last one ends.
+	RoadblockStars = 3,
+	RoadblockAhead = 250,
+	RoadblockSeconds = 30,
+	RoadblockCooldown = 15,
+
+	-- Budget (D-002, S2.5): police raycasts per physics frame and step time for all units.
+	MaxRaycastsPerFrame = 50,
+	MaxStepMs = 2,
 
 	-- Diagnostics
 	LogInterval = 5,

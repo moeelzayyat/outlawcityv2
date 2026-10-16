@@ -29,6 +29,8 @@ type DriverData = {
 	softRecoveries: number,
 	hardRecoveries: number,
 	whiskerHits: number,
+	raycasts: number, -- running count (whiskers + wheel rays) for the police budget (S2.5)
+	wheelRays: number,
 	lastAction: string,
 	chaseTargetSpeed: number?,
 }
@@ -56,6 +58,8 @@ function PoliceDriver.new(model: Model, stats: Types.VehicleStats, ignore: { Ins
 		softRecoveries = 0,
 		hardRecoveries = 0,
 		whiskerHits = 0,
+		raycasts = 0,
+		wheelRays = #stats.WheelOffsets,
 		lastAction = "Drive",
 		chaseTargetSpeed = nil,
 	}, PoliceDriver)
@@ -101,6 +105,7 @@ function PoliceDriver._whiskers(self: PoliceDriver, speed: number): (number, num
 	for _, angle in { -PoliceConfig.WhiskerAngle, 0, PoliceConfig.WhiskerAngle } do
 		local direction = (cframe * CFrame.Angles(0, -angle, 0)).LookVector * length
 		local hit = Workspace:Raycast(origin, direction, self.whiskerParams)
+		self.raycasts += 1
 		if hit and hit.Normal.Y < 0.7 then -- walls only, not the road surface
 			local closeness = 1 - hit.Distance / length
 			if angle == 0 then
@@ -182,6 +187,7 @@ function PoliceDriver.step(self: PoliceDriver, dt: number, now: number): string?
 			input = VehicleMath.clampInput(throttle, steer, false)
 		end
 	end
+	self.raycasts += self.wheelRays -- VehiclePhysics casts one suspension ray per wheel
 	self.physics:step(dt, input)
 	return nil
 end

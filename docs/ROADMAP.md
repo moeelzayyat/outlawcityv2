@@ -78,7 +78,7 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | S2.2 | SpreeService + HUD | Server spree state; `SpreeHudController` (unbanked counter, multiplier, stars in row 1); result card with Again | Play test: ATM → counter → bank → cash; bust → loss shown | Play test | ✅ |
 | S2.3 | CrimeConfig + CrimeService | Generic holdout engine; store robbery migrated as a definition; ATM ×4, gas station ×1, car theft ×6 NPC cars | Each crime: start/validate/complete/fail paths in spec; `RobberyRules.spec` still green via the definition | TestRunner, play test | ✅ |
 | S2.4 | Safehouses | Two zones; 5 s no-sight bank; idempotent grant `spree:<id>`; markers | Spec: bank once; duplicate claim refused; play test bank from both | TestRunner, play test | ✅ |
-| S2.5 | Police escalation | `UnitsByStars {1,2,3}`, server cap 6, re-target, roadblock at 3★ | 3★ → 3 units + roadblock; budget ≤ 50 raycasts/frame; ≤ 2 ms | Profiler | ⬜ |
+| S2.5 | Police escalation | `UnitsByStars {1,2,3}`, server cap 6, re-target, roadblock at 3★ | 3★ → 3 units + roadblock; budget ≤ 50 raycasts/frame; ≤ 2 ms | Profiler | ✅ |
 | S2.6 | Audio | Siren (owner asset), engine loop, tyre, alarm, bank, bust; `AudioConfig`; `ART_SOURCES.md` | All IDs Roblox-owned and listed; distance attenuation | Play test | ⬜ |
 | S2.7 | HUD UIScale | Root `ScreenGui` + `UIScale`; two rows; Device Simulator iPhone 7 + 13 Pro Max | No overlap at either size; cash in row 1 | Screenshots | ⬜ |
 | S2.8 | First session | Protected first spree (10 s dispatch delay for 0-run); markers to nearest ATM/store/safehouse; tip text | 5 fresh accounts: first crime ≤ 60 s, first result ≤ 4 min median | Console timestamps | ⬜ |
@@ -127,6 +127,7 @@ Weekly Friday update (crime, car, paint set, event spree with ×2 multiplier); m
 | Spree isn't fun | S3 second-spree < 30% | Tune multiplier/bank time; if still < 30%, shelve review |
 | Police too hard/easy | bust rate outside 30–60% | `PoliceConfig` tuning per star; dispatch delay |
 | Phone FPS in 3★ chase | < 30 FPS | cap units at 2 on touch-majority servers |
+| Police raycast budget at the 6-unit cap | S2.5 measured 48 of 50 per frame (6 units × 7 rays + sight checks) | count sight checks per tick, not per frame, or drop the centre whisker when a unit is in direct chase |
 | Portfolio bandwidth | three games | run OC third; park at any stage without loss |
 | Wrong Studio window | any | stop, re-identify, log |
 
@@ -140,4 +141,4 @@ BACKUP/RESTORE POINT · MIRROR COMMIT · APPROVAL (auto/owner) · PUBLISHED BY O
 NEXT: <ID>
 ```
 
-**Mode:** unattended (D-008) · **Current substage:** S2.5 · **Last checkpoint passed:** S2.4
+**Mode:** unattended (D-008) · **Current substage:** S2.6 · **Last checkpoint passed:** S2.5
