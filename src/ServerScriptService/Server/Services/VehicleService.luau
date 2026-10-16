@@ -13,6 +13,7 @@ local VehicleConfig = require(Shared.Config.VehicleConfig)
 local GameplayConfig = require(Shared.Config.GameplayConfig)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local VehicleSpawnRules = require(Shared.Rules.VehicleSpawnRules)
+local EventBus = require(Shared.Util.EventBus)
 local Server = script.Parent.Parent
 local VehicleFactory = require(Server.Vehicle.VehicleFactory)
 local RateLimiter = require(Server.Util.RateLimiter)
@@ -269,6 +270,7 @@ local function spawnVehicle(player: Player, vehicleId: string): (boolean, Types.
 		seatedConnection:Disconnect()
 	end)
 	MilestoneLog.mark(player, "FirstCar")
+	EventBus.publish("VehicleSpawned", { UserId = player.UserId, VehicleId = vehicleId })
 	return true, nil
 end
 

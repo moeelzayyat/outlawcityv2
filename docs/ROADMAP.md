@@ -63,7 +63,7 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | R1.4 | Payout gating | Robbery start/holdout/escape refused when observed in the last 10 s; holdout validated with `GetPartBoundsInBox`; `AlreadyPaid` shows the toast (F13) | Spec: observed player → `Rejected:Observed`; holdout outside the area box fails `LeftArea` even if the root claims inside | TestRunner, play test | ✅ |
 | R1.5 | Spawn restrictions | No spawn while wanted / in a crime / unbanked > 0; spawn within 30 studs; pad clearance includes characters | Spec + play test: V at 2★ → `Wanted`; V with a player on the pad → next pad | TestRunner, play test | ✅ |
 | R1.6 | Dispatch re-target + decay freeze | Unit follows its player; a wanted player with no unit freezes decay; 2-client Studio test | 2 clients: A rams, B robs → B's heat does not decay until a unit sees or is assigned | Studio 2 clients | ✅ |
-| R1.7 | Event bus + analytics | `EventBus`; the two hidden wires replaced; `AnalyticsService` funnel (`Joined`, `FirstCar`, `FirstCrime`, `FirstBank`, `FirstBust`, `SpreeEnded`, `Again`, `Left`) | Funnel events visible in the Analytics dashboard after a play test | Analytics | ⬜ |
+| R1.7 | Event bus + analytics | `EventBus`; the two hidden wires replaced; `AnalyticsService` funnel (`Joined`, `FirstCar`, `FirstCrime`, `FirstBank`, `FirstBust`, `SpreeEnded`, `Again`, `Left`) | Funnel events visible in the Analytics dashboard after a play test | Analytics | 🟦 (Studio ✅; dashboard check needs the first owner publish) |
 | R1.8 | Combat button hidden | Hidden until damage exists (flag) | Not present in HUD; spec unchanged | Play test | ⬜ |
 
 **R1 exit:** TestRunner ≥ 240, 0 failed; 2-client dispatch test recorded; 0 warnings. → S2.1.
@@ -140,4 +140,4 @@ BACKUP/RESTORE POINT · MIRROR COMMIT · APPROVAL (auto/owner) · PUBLISHED BY O
 NEXT: <ID>
 ```
 
-**Mode:** unattended (D-008) · **Current substage:** R1.7 · **Last checkpoint passed:** R1.6
+**Mode:** unattended (D-008) · **Current substage:** R1.8 · **Last checkpoint passed:** R1.7 (🟦 dashboard)

@@ -25,6 +25,7 @@ local WantedService = require(script.Parent.WantedService)
 local CombatService = require(script.Parent.CombatService)
 local JailService = require(script.Parent.JailService)
 local LoopGuard = require(Server.Util.LoopGuard)
+local EventBus = require(ReplicatedStorage.Shared.Util.EventBus)
 
 local PoliceService = {}
 
@@ -206,6 +207,7 @@ local function spawnFor(target: Player)
 		Stats = { Frames = 0, StepSeconds = 0, MaxStepMs = 0, Respawns = 0 },
 	}
 	logEvent(string.format("dispatched to %s from node %s (%.0f studs away)", target.Name, network.Names[nodeIndex], (spawnPosition - root.Position).Magnitude))
+	EventBus.publish("PoliceDispatched", { UserId = target.UserId, Units = 1 })
 end
 
 local function endPursuit(reason: string)
@@ -217,6 +219,7 @@ local function endPursuit(reason: string)
 	local token = current.EndToken
 	current.Driver:setRoute({}, false)
 	logEvent(`pursuit ended: {reason}`)
+	EventBus.publish("PoliceRecalled", { UserId = current.Target.UserId, Units = 0 })
 	task.delay(PoliceConfig.DespawnDelay, function()
 		if unit == current and current.Ending and current.EndToken == token then
 			despawn(reason)
@@ -227,8 +230,12 @@ end
 local function bust(target: Player)
 	-- JailService re-validates (must be wanted, no duplicate sentence), clears wanted with no
 	-- reward and holds the player in the jail cell; release is server-timed.
+	local stars = WantedService.getStars(target)
 	local jailed, err = JailService.jailForBust(target)
 	logEvent(if jailed then `BUSTED {target.Name} -> jail` else `bust of {target.Name} refused: {tostring(err)}`)
+	if jailed then
+		EventBus.publish("Busted", { UserId = target.UserId, Stars = stars, Unbanked = 0 })
+	end
 	endPursuit("busted")
 end
 
@@ -250,6 +257,7 @@ local function retarget(current: Unit, target: Player)
 	current.NextReplan = 0
 	current.FarSince = nil
 	logEvent(`re-targeted to {target.Name}`)
+	EventBus.publish("PoliceDispatched", { UserId = target.UserId, Units = 1 })
 end
 
 local function tick(dt: number)
@@ -386,12 +394,19 @@ local function physicsStep(dt: number)
 	end
 end
 
--- Heat hook for WantedService: held while the unit sees this player, or while they are wanted
--- with no unit assigned to them (R1.6).
-local function holdsHeat(player: Player): boolean
+-- PoliceSight (R1.7, replaces the old provider callback): published when a player's held state
+-- changes. Held while the unit sees them, or while they are wanted with no unit assigned (R1.6).
+local published: { [Player]: boolean } = {}
+local function publishSight()
 	local current = unit
-	local assigned = current ~= nil and not current.Ending and current.Target == player
-	return PoliceDispatchRules.heatHeld(WantedService.getStars(player), assigned, assigned and (current :: Unit).SeesTarget)
+	for _, player in Players:GetPlayers() do
+		local assigned = current ~= nil and not current.Ending and current.Target == player
+		local held = PoliceDispatchRules.heatHeld(WantedService.getStars(player), assigned, assigned and (current :: Unit).SeesTarget)
+		if published[player] ~= held then
+			published[player] = held
+			EventBus.publish("PoliceSight", { UserId = player.UserId, Seen = held })
+		end
+	end
 end
 
 function PoliceService.init()
@@ -402,15 +417,18 @@ function PoliceService.init()
 	npcFolder = Instance.new("Folder")
 	npcFolder.Name = "NpcVehicles"
 	npcFolder.Parent = Workspace
-	WantedService.setPoliceSightProvider(holdsHeat)
 end
 
 function PoliceService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		dispatchHolds[player] = nil
+		published[player] = nil
 	end)
 	RunService.PreSimulation:Connect(physicsStep)
-	LoopGuard.run("Police", TICK, tick)
+	LoopGuard.run("Police", TICK, function(dt: number)
+		tick(dt)
+		publishSight()
+	end)
 end
 
 function PoliceService.getUnit(): Model?

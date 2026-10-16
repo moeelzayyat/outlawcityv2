@@ -26,6 +26,7 @@ local Types = require(Shared.Types)
 local EconomyConfig = require(Shared.Config.EconomyConfig)
 local EconomyRules = require(Shared.Economy.EconomyRules)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
+local EventBus = require(Shared.Util.EventBus)
 local Data = script.Parent.Parent.Data
 local ProfileStore = require(Data.ProfileStore)
 local ProfileSession = require(Data.ProfileSession)
@@ -266,16 +267,21 @@ local function loadedSession(player: Player): (Session?, Types.EconomyError?)
 end
 
 -- One write-through change for a loaded player. Returns (ok, err).
-local function commitChange(player: Player, label: string, mutate: (Types.Profile) -> (boolean, string?)): (boolean, Types.EconomyError?)
+local function commitChange(player: Player, label: string, txId: any, mutate: (Types.Profile) -> (boolean, string?)): (boolean, Types.EconomyError?)
 	local session, err = loadedSession(player)
 	if not session then
 		return false, err
 	end
+	local before = (session.Profile :: Types.Profile).Cash
 	local ok, changeErr, note = ProfileSession.commit(session.Store :: ProfileSession.Session, mutate)
 	checkClosed(player, session)
 	if ok then
 		publish(player, session)
 		log(`{player.Name}: {label} -> {(session.Profile :: Types.Profile).Cash} (stored{if note then ", " .. note else ""})`)
+		local delta = (session.Profile :: Types.Profile).Cash - before
+		if delta ~= 0 then
+			EventBus.publish("CashChanged", { UserId = player.UserId, Delta = delta, Reason = label, TxId = tostring(txId) })
+		end
 	else
 		log(`{player.Name}: {label} refused: {changeErr}`)
 	end
@@ -285,13 +291,13 @@ end
 -- Server-only API. txId must be unique per real-world event; repeats are refused. Returns true
 -- only once the change is stored.
 function EconomyService.grant(player: Player, amount: number, txId: string, reason: string): (boolean, Types.EconomyError?)
-	return commitChange(player, `grant {tostring(amount)} ({reason}, tx {tostring(txId)})`, function(draft)
+	return commitChange(player, `grant {tostring(amount)} ({reason}, tx {tostring(txId)})`, txId, function(draft)
 		return EconomyRules.grant(draft, amount, txId, EconomyConfig)
 	end)
 end
 
 function EconomyService.deduct(player: Player, amount: number, txId: string, reason: string): (boolean, Types.EconomyError?)
-	return commitChange(player, `deduct {tostring(amount)} ({reason}, tx {tostring(txId)})`, function(draft)
+	return commitChange(player, `deduct {tostring(amount)} ({reason}, tx {tostring(txId)})`, txId, function(draft)
 		return EconomyRules.deduct(draft, amount, txId, EconomyConfig)
 	end)
 end
@@ -304,7 +310,7 @@ function EconomyService.grantReward(player: Player, amount: number, txId: string
 	if not recorded then
 		warn(`[Economy] {player.Name}: reward {txId} could not be recorded in the ledger ({recordErr}); paying directly`)
 	end
-	local paid, err = commitChange(player, `reward {amount} ({reason}, tx {txId})`, function(draft)
+	local paid, err = commitChange(player, `reward {amount} ({reason}, tx {txId})`, txId, function(draft)
 		return EconomyRules.payReward(draft, amount, txId, EconomyConfig)
 	end)
 	if (paid or err == "DuplicateTransaction") and recorded then
@@ -350,9 +356,13 @@ function EconomyService.purchaseVehicle(player: Player, vehicleId: string, price
 	if RunService:IsStudio() and Workspace:GetAttribute("SimulatePurchaseError") == true then
 		error("Simulated purchase error (Studio test)") -- tests that callers clean up after errors
 	end
-	return commitChange(player, `purchase {tostring(vehicleId)} for {tostring(price)} (tx {tostring(txId)})`, function(draft)
+	local ok, err = commitChange(player, `purchase {tostring(vehicleId)} for {tostring(price)} (tx {tostring(txId)})`, txId, function(draft)
 		return EconomyRules.purchaseVehicle(draft, vehicleId, price, txId, EconomyConfig)
 	end)
+	if ok then
+		EventBus.publish("PurchaseMade", { UserId = player.UserId, ItemId = tostring(vehicleId), Price = price })
+	end
+	return ok, err
 end
 
 -- Unique transaction id helper for server systems.

@@ -32,7 +32,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | Character sampler (`CharacterValidationService`, R1.3) + payout gating (`AreaCheck`, `Observed`, R1.4) | Tested | R1.3–R1.4 |
 | Spawn restrictions (`VehicleSpawnRules`: wanted / crime / unbanked; car within 30 studs; characters block pads) | Tested | R1.5 |
 | Dispatch re-target + decay freeze (`pickTarget`, `heatHeld`) | Tested (2 Studio clients) | R1.6 |
-| EventBus + AnalyticsService funnel | Planned | R1.7 |
+| EventBus + AnalyticsService funnel (hidden wires replaced; 15 events live) | Tested (Studio; dashboard 🟦) | R1.7 |
 | SpreeRules / SpreeService / Spree HUD / result card | Planned | S2.1–S2.2 |
 | CrimeConfig + CrimeService (store, ATM ×4, gas station, car theft ×6) | Planned | S2.3 |
 | Safehouses ×2 + banking | Planned | S2.4 |

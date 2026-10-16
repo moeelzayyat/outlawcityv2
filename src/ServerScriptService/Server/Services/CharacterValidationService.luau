@@ -12,6 +12,7 @@ local Shared = ReplicatedStorage.Shared
 local Rules = require(Shared.Rules.CharacterValidationRules)
 local Config = require(Shared.Config.CharacterValidationConfig)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
+local EventBus = require(Shared.Util.EventBus)
 local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 
 local CharacterValidationService = {}
@@ -61,6 +62,7 @@ local function sampleAll()
 		for _, observation in observations do
 			totals.Observations += 1
 			player:SetAttribute(PlayerAttributes.ObservedAt, now)
+			EventBus.publish("CharacterObserved", { UserId = player.UserId, Kind = observation.Kind })
 			log(`observation {observation.Kind} ({player.Name}): {observation.Detail}`)
 		end
 	end

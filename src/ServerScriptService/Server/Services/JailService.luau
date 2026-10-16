@@ -19,6 +19,7 @@ local SpawnService = require(script.Parent.SpawnService)
 local WorldService = require(script.Parent.WorldService)
 local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 local CharacterValidationService = require(script.Parent.CharacterValidationService)
+local EventBus = require(Shared.Util.EventBus)
 
 local JailService = {}
 
@@ -111,6 +112,7 @@ function JailService.jailForBust(player: Player): (boolean, Types.JailError?)
 	publish(player, state)
 	placeInCell(player)
 	print(`[Jail] {player.Name} jailed for {seconds} s in slot {state.Slot}`)
+	EventBus.publish("Jailed", { UserId = player.UserId, Seconds = seconds })
 	return true, nil
 end
 
@@ -123,6 +125,7 @@ local function release(player: Player, state: JailRules.State)
 	end
 	publish(player, state)
 	print(`[Jail] {player.Name} released`)
+	EventBus.publish("Released", { UserId = player.UserId })
 	SpawnService.assignSpawn(player)
 	player:LoadCharacter()
 end

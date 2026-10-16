@@ -1,6 +1,7 @@
 --!strict
 -- Server entry point. Creates the network contract, then boots services in a fixed order.
 -- Every service exposes init() (setup, may yield) and start() (connect runtime events).
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -8,12 +9,15 @@ local Workspace = game:GetService("Workspace")
 
 local Remotes = require(ReplicatedStorage.Shared.Net.Remotes)
 local LoopGuard = require(script.Parent.Util.LoopGuard)
+local EventBus = require(ReplicatedStorage.Shared.Util.EventBus)
+local PlayerAttributes = require(ReplicatedStorage.Shared.Player.PlayerAttributes)
 local Services = script.Parent.Services
 local Dev = script.Parent.Dev
 
 type Service = { init: () -> (), start: () -> () }
 
 local modules: { ModuleScript } = {
+	Services.AnalyticsService, -- first: its init takes over error reporting
 	Services.WorldService,
 	Services.PlayerStateService,
 	Services.SpawnService,
@@ -54,6 +58,18 @@ for _, entry in services do
 		end
 	end)
 end
+-- Session events for analytics (R1.7).
+local function onJoined(player: Player)
+	EventBus.publish("PlayerJoined", { UserId = player.UserId })
+end
+Players.PlayerAdded:Connect(onJoined)
+for _, player in Players:GetPlayers() do
+	onJoined(player)
+end
+Players.PlayerRemoving:Connect(function(player)
+	local phase = player:GetAttribute(PlayerAttributes.RobberyPhase)
+	EventBus.publish("PlayerLeft", { UserId = player.UserId, Phase = if type(phase) == "string" then phase else "Idle" })
+end)
 Workspace:SetAttribute("ServerReady", true)
 
 -- In Studio, run the unit tests on every playtest unless Workspace.RunTestsOnStart is false.

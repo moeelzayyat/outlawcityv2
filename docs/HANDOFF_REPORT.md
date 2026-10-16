@@ -128,3 +128,18 @@ MIRROR: Studio = src/ 116/116, manifest acc6b457 · APPROVAL: auto-approved (una
 NEXT: R1.7
 ```
 New tool: `ServerStorage.Tests.Scenarios` (Studio-only multi-client scenarios; see TEST_PLAN). Studio 2–8-client runs are now scriptable and unattended.
+
+## CHECKPOINT: R1.7 Event bus + analytics · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 269 passed, 0 failed (+ EventBus.spec 5, FunnelRules.spec 3)
+SCRIPT ANALYSIS: 🟦 not measurable via MCP; 121/121 scripts parse
+PLAY TEST (clients: 1): "[Analytics] Joined" → Coupe → "[Analytics] FirstCar" → robbery → "[Analytics] FirstCrime"
+  (each with Roblox's "AnalyticsService: LogOnboardingFunnelStepEvent event fired."); holdout → getaway in the parked
+  Coupe at 90 studs/s → Escaped via the bus → "escaped; paid 2000" (15400 → 17400). Console: 0 game errors.
+MULTI-CLIENT (clients: 2, Studio): R1.6-Dispatch re-run → PASS (B heat held 70.0 for 22.0 s; re-target after 22.2 s) — PoliceSight over the bus
+NOT VERIFIED: dashboard (Studio sends nothing) 🟦; "Left" (Studio stop shuts the server via BindToClose, no PlayerRemoving);
+  "FirstBust" (dev SimulateBust jails directly, not via PoliceService.bust).
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.7 passed"]
+MIRROR: Studio = src/ 121/121, manifest 474df26c · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.8
+```

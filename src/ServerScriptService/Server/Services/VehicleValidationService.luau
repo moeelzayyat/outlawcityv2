@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 
 local VehicleConfig = require(ReplicatedStorage.Shared.Config.VehicleConfig)
 local PlayerAttributes = require(ReplicatedStorage.Shared.Player.PlayerAttributes)
+local EventBus = require(ReplicatedStorage.Shared.Util.EventBus)
 local Validation = script.Parent.Parent.Validation
 local VehicleValidationConfig = require(Validation.VehicleValidationConfig)
 local VehicleValidationRules = require(Validation.VehicleValidationRules)
@@ -106,6 +107,7 @@ local function sampleAll()
 			local driver = if type(driverId) == "number" and driverId ~= 0 then Players:GetPlayerByUserId(driverId) else nil
 			if driver and observation.Kind ~= "OwnershipMismatch" then
 				driver:SetAttribute(PlayerAttributes.ObservedAt, now)
+				EventBus.publish("CharacterObserved", { UserId = driver.UserId, Kind = "Vehicle" .. observation.Kind })
 			end
 		end
 		if result.Alert then

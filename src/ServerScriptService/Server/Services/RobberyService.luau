@@ -22,6 +22,7 @@ local Remotes = require(Shared.Net.Remotes)
 local RobberyConfig = require(Shared.Config.RobberyConfig)
 local RobberyRules = require(Shared.Robbery.RobberyRules)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
+local EventBus = require(Shared.Util.EventBus)
 
 local Services = script.Parent
 local WorldService = require(Services.WorldService)
@@ -103,6 +104,7 @@ local function failSession(player: Player, entry: Live, reason: Types.RobberyFai
 	endSession(player, entry)
 	notify(player, "Failed", { Reason = reason, Id = entry.Session.Id })
 	print(`[Robbery] {player.Name} {entry.Session.Id} failed: {reason}`)
+	EventBus.publish("CrimeFailed", { UserId = player.UserId, CrimeId = "StoreRobbery", LocationId = entry.Session.StoreId, Reason = reason })
 end
 
 -- Tries to start a robbery at `storeId` for `player`. Everything is checked here, on the server.
@@ -144,6 +146,7 @@ function RobberyService.tryStart(player: Player, storeId: string): (boolean, Typ
 	publishStore(store)
 	notify(player, "Started", { Id = session.Id, HoldEndsAt = session.HoldEndsAt, Reward = session.Reward })
 	print(`[Robbery] {player.Name} started {session.Id} at {storeId}`)
+	EventBus.publish("CrimeStarted", { UserId = player.UserId, CrimeId = "StoreRobbery", LocationId = storeId })
 	MilestoneLog.mark(player, "FirstRobbery")
 	return true, nil
 end
@@ -239,6 +242,7 @@ function RobberyService.tryPayout(player: Player): Types.PayoutOutcome?
 	publish(player, nil)
 	if outcome == "Paid" then
 		notify(player, "Paid", { Id = pending.SessionId, Amount = pending.Amount })
+		EventBus.publish("CrimeCompleted", { UserId = player.UserId, CrimeId = "StoreRobbery", LocationId = pending.StoreId, Amount = pending.Amount })
 		print(`[Robbery] {player.Name} {pending.SessionId} escaped; paid {pending.Amount}`)
 	elseif outcome == "AlreadyPaid" then
 		-- An earlier attempt was stored; the player still sees the payout (F13).
@@ -289,7 +293,12 @@ function RobberyService.init()
 end
 
 function RobberyService.start()
-	WantedService.Escaped:Connect(onEscaped)
+	EventBus.subscribe("Escaped", function(payload)
+		local player = Players:GetPlayerByUserId(payload.UserId)
+		if player then
+			onEscaped(player)
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		local pending = pendingPayouts[player]
 		if pending then

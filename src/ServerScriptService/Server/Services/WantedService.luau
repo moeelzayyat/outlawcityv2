@@ -15,23 +15,20 @@ local Remotes = require(Shared.Net.Remotes)
 local WantedConfig = require(Shared.Config.WantedConfig)
 local WantedRules = require(Shared.Wanted.WantedRules)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
-local Signal = require(Shared.Util.Signal)
+local EventBus = require(Shared.Util.EventBus)
 
 local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 
 local WantedService = {}
 
--- Fired (player, fromStars) when a wanted episode ends by escaping (heat decayed to zero).
--- Never fired for busts or resets.
-WantedService.Escaped = Signal.new()
-
 local STEP_INTERVAL = 0.25
 
 local states: { [Player]: Types.WantedState } = {}
 local devPoliceSight: { [Player]: boolean } = {}
-local policeSightProvider: (Player) -> boolean = function()
-	return false
-end
+-- PoliceSight events (R1.7): true while the police hold this player's heat (a unit sees them,
+-- or they are wanted with no unit assigned, R1.6).
+local policeHolds: { [number]: boolean } = {}
+local lastStars: { [Player]: number } = {}
 local noticeRemote: RemoteEvent
 
 local function now(): number
@@ -39,6 +36,10 @@ local function now(): number
 end
 
 local function publish(player: Player, state: Types.WantedState)
+	if lastStars[player] ~= state.Stars then
+		lastStars[player] = state.Stars
+		EventBus.publish("StarsChanged", { UserId = player.UserId, Stars = state.Stars, Heat = state.Heat })
+	end
 	player:SetAttribute(PlayerAttributes.WantedLevel, state.Stars)
 	player:SetAttribute(PlayerAttributes.WantedHeat, math.floor(state.Heat * 10 + 0.5) / 10)
 	player:SetAttribute(PlayerAttributes.WantedEvading, state.Evading)
@@ -60,8 +61,7 @@ local function isSeenByPolice(player: Player): boolean
 	if devPoliceSight[player] then
 		return true
 	end
-	local ok, seen = pcall(policeSightProvider, player)
-	return ok and seen == true
+	return policeHolds[player.UserId] == true
 end
 
 local function step(dt: number)
@@ -75,7 +75,7 @@ local function step(dt: number)
 		if result.Escaped then
 			addReputation(player, result.Reputation)
 			notify(player, "Escaped", { FromStars = result.EscapedFromStars, Reputation = result.Reputation })
-			WantedService.Escaped:Fire(player, result.EscapedFromStars)
+			EventBus.publish("Escaped", { UserId = player.UserId, FromStars = result.EscapedFromStars })
 		end
 		if state.Heat ~= before or result.EvadingStarted or player:GetAttribute(PlayerAttributes.WantedEvading) ~= state.Evading then
 			publish(player, state)
@@ -122,12 +122,6 @@ function WantedService.getStars(player: Player): number
 	return if state then state.Stars else 0
 end
 
--- NPC police plug in here: provider(player) returns true while the police hold this player's
--- heat (a unit sees them, or they are wanted with no unit assigned, R1.6).
-function WantedService.setPoliceSightProvider(provider: (Player) -> boolean)
-	policeSightProvider = provider
-end
-
 -- Studio-only test hooks used by DevToolsService.
 function WantedService.setHeatForTesting(player: Player, heat: number): boolean
 	assert(RunService:IsStudio(), "setHeatForTesting is Studio-only")
@@ -170,6 +164,11 @@ function WantedService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		states[player] = nil
 		devPoliceSight[player] = nil
+		policeHolds[player.UserId] = nil
+		lastStars[player] = nil
+	end)
+	EventBus.subscribe("PoliceSight", function(payload)
+		policeHolds[payload.UserId] = payload.Seen == true
 	end)
 	LoopGuard.run("Wanted", STEP_INTERVAL, step)
 end

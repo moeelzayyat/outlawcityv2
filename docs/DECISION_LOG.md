@@ -113,3 +113,6 @@ Decision: seat exit uses a loose grace — exit step and momentum allowed, but >
 
 ## CP — R1.6 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 Unit keeps its player while wanted, re-targets (cancelling a pending despawn) to the most-wanted un-held player; wanted players with no unit have heat held (`PoliceDispatchRules.pickTarget/heatHeld`). Scripted 2-client scenario `R1.6-Dispatch`: PASS. `[Tests] 261 passed, 0 failed`. Static 🟦 (parse-checked).
+
+## CP — R1.7 checkpoint · 2026-10-16 · auto-approved (unattended) · 🟦 dashboard item pending the first owner publish
+`Shared/Util/EventBus` (catalog, plain payloads, isolated handlers) + `AnalyticsService` (onboarding funnel Joined/FirstCar/FirstCrime/FirstBank, custom FirstBust/Left; server error counter for LoopGuard/Main/bus). Hidden wires replaced: `setPoliceSightProvider` → `PoliceSight` events; `WantedService.Escaped` Signal → `Escaped` event. `[Tests] 269 passed, 0 failed`; R1.6 2-client scenario re-run PASS over the bus. "Funnel events visible in the Analytics dashboard" can't be met from Studio (Studio sends nothing) → 🟦 until the owner's first private publish.
