@@ -159,3 +159,6 @@ Decision: boards are OrderedDataStore `BiggestSpree` scopes (`daily-<UTC day>`, 
 
 ## CP — S2.9 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 LeaderboardConfig/Rules/Service + ObjectiveConfig/Rules/Service + LeaderboardController (TOP button, Daily/Weekly/All-time tabs, today's objective); `EconomyRules.setObjectives`, `EconomyService.getObjectives/setObjectives`; remote `OnLeaderboard`; event `ObjectiveCompleted`. `[Tests] 336 passed, 0 failed`. Static 🟦. Scenario `S2.9-Boards` PASS.
+
+## CP — S2.10 🟦 READY FOR OWNER TO PUBLISH · 2026-10-16 · approval: owner · published by owner: pending
+Publish package written in `HANDOFF_REPORT.md` (backup, move `ServerStorage.Backups` out, MaxPlayers 8, title A/B/C, description draft, icon/thumbnail briefs, private-first publish steps). Nothing published.

@@ -281,3 +281,28 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.9 passed"] (S2.8 built pruned; S
 MIRROR: Studio = src/ 155/155, manifest be462bbe · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.10 (publish substage: package for the owner)
 ```
+
+## S2.10 — READY FOR OWNER TO PUBLISH · 2026-10-16
+
+I never publish. Everything below is for you to do in the Outlaw City Studio window (place 132163592957463). Nothing in S2 needs the live build except this step; S3 starts after it.
+
+**Build state:** S2.1–S2.9 in Studio and on `main` (commit after 19d3c81). `[Tests] 336 passed, 0 failed` at the last Play. Studio-only tools stay off in live servers (DevTools, LoopGuardControl, test scenarios and milestone logs all check `RunService:IsStudio()`).
+
+**Before you publish**
+1. **Download a copy** of the place first (File → Download a Copy), e.g. `OutlawCity_S2_before_publish_2026-10-16.rbxl`, kept outside the repo.
+2. **Move `ServerStorage.Backups` out** so the restore points don't ship: in the Explorer, cut `ServerStorage.Backups` and paste it into the downloaded copy, or just delete it from the place you publish (git `src/` holds every checkpoint's scripts; R0 baseline also holds the original world).
+3. **MaxPlayers = 8** (D-005): Game Settings → Places → Outlaw City → Max Players 8 (Studio reports 60 today).
+4. **Sounds (optional for a private publish):** the game is silent until you approve sound IDs (owner item 4). It plays fine without them.
+5. **Check the HUD on a phone size** (owner item 7) if you want to before players see it.
+
+**Store page**
+- **Title** (A/B/C, from architecture.md): A `Crime Spree 🚔 Outlaw City` · B `Outlaw City: Crime Spree` · C `Outlaw City 🚔 Rob, Run, Bank`. Start with A; S3.1 tests the others.
+- **Description (draft):** "Rob ATMs, gas stations and the 24/7 MART to start a Crime Spree. Every crime raises your multiplier — and your wanted level. Bank your unbanked cash at a safehouse before the police bust you, or lose it all. Climb the daily, weekly and all-time Biggest Spree boards. Buy faster cars at OUTLAW MOTORS. Up to 8 players."
+- **Icon:** not made (owner item 5: pick sunset orange or night blue). Brief: muscle car mid-drift, three cruisers with light bars behind, "$12,400" floating above, no other text (ART_BIBLE).
+- **Thumbnails (3, 16:9):** 3★ roadblock escape on the highway; the ATM smash with the counter; the safehouse bank moment ("BANKED $9,600"). I can stage these shots in Studio on request; I can't upload them.
+
+**Publish**
+6. File → Publish to Roblox, **private first** (only you). Play once on PC and once on a phone: start a spree at an ATM, bank it at the Old Town Garage, open TOP.
+7. Tell me "published" and the version number; I record it here. Making it public is S3.1.
+
+**After publishing:** S3 needs the live game and real players (public test, outside sessions, the real-phone check). S3.6 is a GO/NO-GO gate where I stop and wait for you.

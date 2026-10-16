@@ -83,7 +83,7 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | S2.7 | HUD UIScale | Root `ScreenGui` + `UIScale`; two rows; Device Simulator iPhone 7 + 13 Pro Max | No overlap at either size; cash in row 1 | Screenshots | 🟦 built + spec; Device Simulator screenshots await owner |
 | S2.8 | First session | Protected first spree (10 s dispatch delay for 0-run); markers to nearest ATM/store/safehouse; tip text | 5 fresh accounts: first crime ≤ 60 s, first result ≤ 4 min median | Console timestamps | 🟦 built + scripted; 5 fresh accounts need real players |
 | S2.9 | Leaderboards + objectives | Biggest Spree daily/weekly/all-time; one daily objective, no streak | Submit/read; reset on schedule; objective once | TestRunner, play test | ✅ |
-| S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner | ⬜ |
+| S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner | 🟦 READY FOR OWNER TO PUBLISH |
 
 **S2 exit numbers:** first crime ≤ 60 s; first result ≤ 4 min; 3★ budget; 8-client Studio soak 30 min, 0 errors. → S3.
 
