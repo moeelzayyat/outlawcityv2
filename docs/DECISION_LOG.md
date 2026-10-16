@@ -165,3 +165,9 @@ Publish package written in `HANDOFF_REPORT.md` (backup, move `ServerStorage.Back
 
 ## CP — S2 exit soak · 2026-10-16 · auto-approved (unattended)
 `S2-Soak` (8 clients, 30 min) PASS: 30 min, 8 clients: crimes 102, steals 20, bank trips 214, runs 240; server errors 0; failed loop iterations 0; police max 6 units, 48 rays/frame, 0.276 ms avg / 1.549 ms max per frame; worst server frame 423 ms; memory 1683 -> 1753 MB. Stage S2 is complete except the owner-only items (publish, sound IDs, phone screenshots) and the real-player timings that move to S3.
+
+## D-016 review — 2026-10-16 · owner asked Claude to check it and keep it
+Kept as written. Each reward is about one banked spree ($800 for a one-ATM spree, $4,050 for three crimes) and well under a car ($15,000 Muscle), so the objective adds a reason to return without replacing the spree. Tuned in S3 with real data.
+
+## Publish prep — 2026-10-16 · done for the owner on request
+HUD checked in-engine at iPhone 7 (667×317 safe area) and iPhone 13 Pro Max (926×370): 0 overlaps, nothing off screen (HUD scale 0.916 / 1.0). The top bar inset measured 58 px, not the 36 px the spec assumed; `HudLayout.spec` updated and still passes (`[Tests] 336 passed, 0 failed`). `ServerStorage.Backups` removed from the place (922 instances; git `src/` holds every checkpoint and the world is rebuilt from `CityLayout`). Not reachable through the Studio MCP: Game Settings (MaxPlayers is read-only to scripts), File → Download a Copy, File → Publish. Sound IDs found and load-tested but not wired: they wait for the owner's yes on the Roblox-owned rule.

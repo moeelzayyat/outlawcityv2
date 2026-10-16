@@ -1,14 +1,14 @@
 -- HUD layout (S2.7): no two HUD slots overlap, cash sits in row 1, and the scaled stack fits the
--- safe area of iPhone 7 and iPhone 13 Pro Max in landscape. Safe areas assume a 36 px top bar
--- inset; Device Simulator screenshots are the real check (Device Simulator ≠ a real phone).
+-- safe area of iPhone 7 and iPhone 13 Pro Max in landscape. Safe areas use the 58 px top bar
+-- inset measured in Studio (2026-10-16); a real phone is the final check.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudLayout = require(ReplicatedStorage.Shared.Config.HudLayout)
 local HudRules = require(ReplicatedStorage.Shared.Rules.HudRules)
 local Assert = require(script.Parent.Assert)
 
 local PHONES = {
-	{ Name = "iPhone 7", W = 667, H = 375 - 36 },
-	{ Name = "iPhone 13 Pro Max", W = 926, H = 428 - 36 },
+	{ Name = "iPhone 7", W = 667, H = 375 - 58 },
+	{ Name = "iPhone 13 Pro Max", W = 926, H = 428 - 58 },
 }
 
 local function scaleFor(phone): number

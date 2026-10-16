@@ -319,3 +319,10 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2 exit"] (R1.8 passed and S2.5 pas
 MIRROR: Studio = src/ 155/155, manifest c78f3dc6
 NEXT: owner publishes (S2.10 package above). S3 needs the live game and real players; S3.6 is a GO/NO-GO gate. I'm stopped here.
 ```
+
+## Publish prep done for the owner · 2026-10-16
+- ✅ `ServerStorage.Backups` removed from the place (git keeps every checkpoint).
+- ✅ HUD at phone sizes, checked in the engine: iPhone 7 safe area 667×317 (scale 0.916) and iPhone 13 Pro Max 926×370 (scale 1.0), 13 HUD elements, 0 overlaps, none off screen. Real top bar inset is 58 px; spec updated.
+- ✅ D-016 reviewed and kept.
+- ⏸ Sounds: candidates load in this place; wiring waits for the owner's yes (they are from Roblox's licensed library, not uploaded by the Roblox account): Siren 9119165420 "Siren Yelp 1 (SFX)" · Engine 80317022777602 "Car-Engine-Loop" (verified group Roblox Resources) · Tyre 9120399077 "Vehicle Skids Long Heavy Tire Squeal 3 (SFX)" · Alarm 9113084849 "Alarm Bell On Carpet Constant Ring 1 (SFX)" · Bank 9113728042 "Cash Register 1 (SFX)" · Bust 9117907414 "Prison Door 2 (SFX)". All ProSoundEffects except the engine.
+- ❌ Not possible from here (Studio menus, no script API): MaxPlayers 8 (Game Settings → Places), File → Download a Copy, File → Publish to Roblox.
