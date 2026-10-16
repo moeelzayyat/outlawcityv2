@@ -6,14 +6,14 @@
 **Status:** 🟦 READY FOR OWNER TO PUBLISH (package in `HANDOFF_REPORT.md`) · **Last checkpoint passed:** S2.9 (2026-10-16)
 
 ## S2.10 — Store assets + publish (owner)
-Title A/B/C, icon, 3 thumbnails, description; the owner publishes (private first, public at S3). I never publish. While it waits: the S2 exit soak (8-client Studio session, 30 min, 0 errors), which needs no live build. Then S3 needs the live build and S3.6 is a GO/NO-GO gate: stop there.
+Title A/B/C, icon, 3 thumbnails, description; the owner publishes (private first, public at S3). I never publish. S2 exit soak done (8 clients, 30 min, 0 server errors, police budget held). **Stopped:** S3 needs the live game and real players, and S3.6 is a GO/NO-GO gate. Next action is the owner's publish.
 
 ## S2 stage notes
 - Owner `.rbxl` for the S2 stage start: handoff owner item 1 (same instruction, name `OutlawCity_S2_before_<date>.rbxl`).
 - S2 exit numbers: first crime ≤ 60 s; first result ≤ 4 min; 3★ budget; 8-client Studio soak 30 min, 0 errors.
 
 ## Carried notes (from R1)
-- Restore points: `ServerStorage.Backups["R0 baseline"]`, `["R1.1 passed"]`, `["R1.2 passed"]`, `["R1.3 passed"]`, `["R1.4 passed"]`, `["R1.5 passed"]`, `["R1.6 passed"]`, `["R1.7 passed"]`, `["R1.8 passed"]`, `["S2.5 passed"]`, `["S2.9 passed"]` (intermediate points pruned, D-015); owner `.rbxl` pending (handoff owner item 1).
+- Restore points: `ServerStorage.Backups["R0 baseline"]`, `["R1.1 passed"]`, `["R1.2 passed"]`, `["R1.3 passed"]`, `["R1.4 passed"]`, `["R1.5 passed"]`, `["R1.6 passed"]`, `["R1.7 passed"]`, `["R1.8 passed"]`, `["S2.9 passed"]`, `["S2 exit"]` (intermediate points pruned, D-015); owner `.rbxl` pending (handoff owner item 1).
 - Hash checks skip `ServerStorage.Backups`; manifest format `<path>|<len>|<fnv1a>` sorted.
 - New specs: create the ModuleScript with `Instance.new` + `.Source` (the MCP path syntax turns `X.spec` into a folder `X` with child `spec`); edit specs by literal replace via `execute_luau`.
 - Studio command bar has its own require cache: reach live service state through Studio-only bridges (`ServerStorage.LoopGuardControl`) or dev remotes.

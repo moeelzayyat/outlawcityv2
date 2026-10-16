@@ -306,3 +306,16 @@ I never publish. Everything below is for you to do in the Outlaw City Studio win
 7. Tell me "published" and the version number; I record it here. Making it public is S3.1.
 
 **After publishing:** S3 needs the live game and real players (public test, outside sessions, the real-phone check). S3.6 is a GO/NO-GO gate where I stop and wait for you.
+
+## CHECKPOINT: S2 exit soak · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+SOAK (Studio multi-client, clients: 8, scripted ExecuteMultiplayerTestAsync(8, "S2-Soak"); not real network):
+  "PASS 30 min, 8 clients: crimes 102, steals 20, bank trips 214, runs 240; server errors 0; failed loop iterations 0; police max 6 units, 48 rays/frame, 0.276 ms avg / 1.549 ms max per frame; worst server frame 423 ms; memory 1683 -> 1753 MB"
+S2 EXIT NUMBERS: 8-client 30-min soak with 0 server errors ✅ · 3★ police budget (≤ 50 rays/frame, ≤ 2 ms) ✅ 48 / 0.276 ms avg, 1.549 ms max ·
+  first crime ≤ 60 s and first result ≤ 4 min: 🟦 need real players (S3); geometry says ~8 s to the nearest crime from the plaza
+NOTES: client-side errors in the 8 test clients aren't visible to the server-side counter; the 423 ms worst server frame is one spike with 9 Studio
+  instances on one PC (not investigated further); the memory figure is the test server's total.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2 exit"] (R1.8 passed and S2.5 passed pruned; R0 baseline and S2.9 passed kept)
+MIRROR: Studio = src/ 155/155, manifest c78f3dc6
+NEXT: owner publishes (S2.10 package above). S3 needs the live game and real players; S3.6 is a GO/NO-GO gate. I'm stopped here.
+```

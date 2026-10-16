@@ -600,6 +600,117 @@ registry["S2.9-Boards"] = function()
 	return true, string.format("objective paid once (%d after %d banks), extra bank paid no reward, daily board #%d %d", reward, cycles, mine.Rank, mine.Amount)
 end
 
+-- S2 exit soak: 8 clients for 30 minutes of normal play driven by the server. Every 15 s each
+-- player does one thing in turn: a holdout crime, a car theft, a bank at a safehouse, or a run
+-- along the roads with a wanted level for the police pool to chase (busts and jail included).
+-- Counts server script errors (ScriptContext.Error), failed loop iterations (LoopGuard), the police budget and
+-- server memory. PASS needs 0 server errors and 0 failed loop iterations.
+registry["S2-Soak"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local CrimeService = require(Services.CrimeService) :: any
+	local ParkedCarService = require(Services.ParkedCarService) :: any
+	local PoliceService = require(Services.PoliceService) :: any
+	local CityLayout = require(ServerScriptService.Server.World.CityLayout) :: any
+	local ScriptContext = game:GetService("ScriptContext")
+	local Stats = game:GetService("Stats")
+	local RunService = game:GetService("RunService")
+	local DURATION = 30 * 60
+	local players = waitForPlayers(8, 180)
+	if #players < 8 then
+		return false, `only {#players} player(s) joined`
+	end
+	local errors: { string } = {}
+	local errorConnection = ScriptContext.Error:Connect(function(message, trace)
+		if #errors < 20 then
+			table.insert(errors, `{message} | {string.sub(trace, 1, 160)}`)
+		end
+	end)
+	local maxFrame = 0
+	local frameConnection = RunService.Heartbeat:Connect(function(dt)
+		maxFrame = math.max(maxFrame, dt)
+	end)
+	local areas, houses, spots = {}, {}, {}
+	for _, site in CityLayout.crimeSites() do
+		table.insert(areas, { Id = site.Id, At = site.Area.Center })
+	end
+	table.insert(areas, { Id = "Store1", At = Vector3.new(-132, 4, -60) })
+	for _, house in CityLayout.safehouses() do
+		table.insert(houses, Vector3.new((house.Zone.Min.X + house.Zone.Max.X) / 2, 4, (house.Zone.Min.Z + house.Zone.Max.Z) / 2))
+	end
+	for _, spot in CityLayout.parkedCars() do
+		table.insert(spots, spot)
+	end
+	local roads = { Vector3.new(-300, 4, -200), Vector3.new(300, 4, 200), Vector3.new(100, 4, -300), Vector3.new(-100, 4, 300), Vector3.new(300, 4, -100) }
+	local counts = { Crimes = 0, Steals = 0, Banks = 0, Runs = 0 }
+	local memoryStart = Stats:GetTotalMemoryUsageMb()
+	PoliceService.resetBudget()
+	local started = os.clock()
+	local round = 0
+	while os.clock() - started < DURATION do
+		round += 1
+		for index, p in players do
+			if p.Parent ~= Players or p:GetAttribute("Jailed") == true then
+				continue
+			end
+			local action = (round + index) % 4
+			task.spawn(function()
+				local ok, err = pcall(function()
+					if action == 0 then
+						CrimeService.clearCooldownsForTesting()
+						local site = areas[(round + index) % #areas + 1]
+						place(p, site.At)
+						task.wait(1.5)
+						if CrimeService.tryStart(p, site.Id) then
+							counts.Crimes += 1
+						end
+					elseif action == 1 then
+						local spot = spots[(round + index) % #spots + 1]
+						place(p, spot.CFrame.Position + Vector3.new(0, 4, 0) + spot.CFrame.RightVector * 5)
+						task.wait(1.5)
+						if ParkedCarService.trySteal(p, spot.Name) then
+							counts.Steals += 1
+						end
+					elseif action == 2 then
+						place(p, houses[(round + index) % #houses + 1])
+						counts.Banks += 1
+					else
+						WantedService.reportCrime(p, if index % 3 == 0 then "StoreRobbery" else "AtmSmash")
+						place(p, roads[(round + index) % #roads + 1])
+						counts.Runs += 1
+					end
+				end)
+				if not ok and #errors < 20 then
+					table.insert(errors, `scenario action {action}: {tostring(err)}`)
+				end
+			end)
+		end
+		task.wait(15)
+		if round % 8 == 0 then
+			log(string.format("%.0f min: units %d, crimes %d, steals %d, bank trips %d, runs %d, errors %d", (os.clock() - started) / 60, PoliceService.getBudget().Units, counts.Crimes, counts.Steals, counts.Banks, counts.Runs, #errors))
+		end
+	end
+	errorConnection:Disconnect()
+	frameConnection:Disconnect()
+	local faults = 0 -- loop iterations that threw (caught by LoopGuard, so not in ScriptContext.Error)
+	for _, guard in game:GetService("ServerStorage").LoopGuardControl:Invoke("stats") do
+		faults += guard.Failures
+	end
+	local budget = PoliceService.getBudget()
+	local memoryEnd = Stats:GetTotalMemoryUsageMb()
+	local summary = string.format(
+		"30 min, 8 clients: crimes %d, steals %d, bank trips %d, runs %d; server errors %d; failed loop iterations %d; police max %d units, %d rays/frame, %.3f ms avg / %.3f ms max per frame; worst server frame %.0f ms; memory %.0f -> %.0f MB",
+		counts.Crimes, counts.Steals, counts.Banks, counts.Runs, #errors, faults, budget.MaxUnits, budget.MaxRaysPerFrame, budget.AvgFrameMs, budget.MaxFrameMs, maxFrame * 1000, memoryStart, memoryEnd
+	)
+	log(summary)
+	for _, e in errors do
+		log(`error: {e}`)
+	end
+	if #errors > 0 or faults > 0 then
+		return false, summary .. " | first error: " .. tostring(errors[1])
+	end
+	return true, summary
+end
+
 function Scenarios.run(name: string)
 	local scenario = registry[name]
 	if not scenario then

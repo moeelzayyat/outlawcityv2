@@ -162,3 +162,6 @@ LeaderboardConfig/Rules/Service + ObjectiveConfig/Rules/Service + LeaderboardCon
 
 ## CP — S2.10 🟦 READY FOR OWNER TO PUBLISH · 2026-10-16 · approval: owner · published by owner: pending
 Publish package written in `HANDOFF_REPORT.md` (backup, move `ServerStorage.Backups` out, MaxPlayers 8, title A/B/C, description draft, icon/thumbnail briefs, private-first publish steps). Nothing published.
+
+## CP — S2 exit soak · 2026-10-16 · auto-approved (unattended)
+`S2-Soak` (8 clients, 30 min) PASS: 30 min, 8 clients: crimes 102, steals 20, bank trips 214, runs 240; server errors 0; failed loop iterations 0; police max 6 units, 48 rays/frame, 0.276 ms avg / 1.549 ms max per frame; worst server frame 423 ms; memory 1683 -> 1753 MB. Stage S2 is complete except the owner-only items (publish, sound IDs, phone screenshots) and the real-player timings that move to S3.
