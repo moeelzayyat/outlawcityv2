@@ -219,6 +219,136 @@ registry["S2.3-Crimes"] = function()
 	return true, `3 crimes completed (spree {c4} crimes, {u4} unbanked), failed ATM paid nothing, empty spot refused`
 end
 
+-- S2.4: one player banks at each safehouse. Garage: an ATM spree banks after BankSeconds inside.
+-- Warehouse: with 1 star and police sight on, banking is blocked; once sight drops it banks, the
+-- stars fall to 0 over the cool-down with no escape, and a repeated claim is refused. Dispatch is
+-- held so the unit can't interfere.
+registry["S2.4-Safehouses"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local CrimeService = require(Services.CrimeService) :: any
+	local SpreeService = require(Services.SpreeService) :: any
+	local PoliceService = require(Services.PoliceService) :: any
+	local EconomyService = require(Services.EconomyService) :: any
+	local CityLayout = require(ServerScriptService.Server.World.CityLayout) :: any
+	local EventBus = require(game:GetService("ReplicatedStorage").Shared.Util.EventBus) :: any
+	local p = waitForPlayers(1, 60)[1]
+	if not p then
+		return false, "no player joined"
+	end
+	PoliceService.setDispatchHold(p, true)
+	local escapes = 0
+	EventBus.subscribe("Escaped", function(payload)
+		if payload.UserId == p.UserId then
+			escapes += 1
+		end
+	end)
+	local areas, houses = {}, {}
+	for _, site in CityLayout.crimeSites() do
+		areas[site.Id] = site.Area.Center
+	end
+	for _, house in CityLayout.safehouses() do
+		houses[house.Id] = Vector3.new((house.Zone.Min.X + house.Zone.Max.X) / 2, 4, (house.Zone.Min.Z + house.Zone.Max.Z) / 2)
+	end
+	local function cash(): number
+		return tonumber(p:GetAttribute("Cash")) or 0
+	end
+	local function smash(siteId: string): (boolean, string)
+		CrimeService.clearCooldownsForTesting()
+		place(p, areas[siteId])
+		task.wait(1.5)
+		local ok, err = CrimeService.tryStart(p, siteId)
+		if not ok then
+			return false, `{siteId} refused: {err}`
+		end
+		local waited = 0
+		while CrimeService.isBusy(p) and waited < 12 do
+			task.wait(0.25)
+			waited += 0.25
+		end
+		local spree = SpreeService.get(p)
+		if not (spree and spree.Active) then
+			return false, `{siteId} did not start a spree`
+		end
+		WantedService.resetWanted(p)
+		return true, ""
+	end
+	-- Waits until the spree is banked; returns the seconds waited (or nil on timeout).
+	local function waitBanked(timeout: number): number?
+		local waited = 0
+		while waited < timeout do
+			local spree = SpreeService.get(p)
+			if not (spree and spree.Active) then
+				return waited
+			end
+			task.wait(0.25)
+			waited += 0.25
+		end
+		return nil
+	end
+
+	-- Garage
+	local ok, err = smash("ATM1")
+	if not ok then
+		return false, err
+	end
+	local unbanked = SpreeService.get(p).Unbanked
+	local before = cash()
+	place(p, houses.Garage)
+	local took = waitBanked(15)
+	task.wait(1) -- the save completes
+	log(`Garage: banked {unbanked} after {took} s inside; cash {before} -> {cash()}; InSafehouse={p:GetAttribute("InSafehouse")}`)
+	if not took or took < 4.5 or cash() ~= before + unbanked then
+		return false, `garage bank wrong (took {took}, cash {before} -> {cash()}, expected +{unbanked})`
+	end
+	local garageTook = took :: number
+
+	-- Warehouse with stars and sight
+	ok, err = smash("ATM2")
+	if not ok then
+		return false, err
+	end
+	local spreeId = SpreeService.get(p).Id
+	unbanked = SpreeService.get(p).Unbanked
+	before = cash()
+	WantedService.reportCrime(p, "AtmSmash")
+	WantedService.setPoliceSightForTesting(p, true)
+	place(p, houses.Warehouse)
+	task.wait(4)
+	local blocked, progress = p:GetAttribute("BankBlocked"), p:GetAttribute("BankProgress")
+	local stillActive = SpreeService.get(p).Active
+	log(`Warehouse in sight: BankBlocked={blocked} BankProgress={progress} spree active={stillActive}`)
+	if blocked ~= "Seen" or progress ~= 0 or not stillActive then
+		return false, "banking was not blocked by police sight"
+	end
+	WantedService.setPoliceSightForTesting(p, false)
+	took = waitBanked(15)
+	local bankedAt = os.clock()
+	local starsAtBank = WantedService.getStars(p)
+	local zeroAfter: number? = nil
+	while os.clock() - bankedAt < 14 do
+		if WantedService.getStars(p) == 0 and tonumber(p:GetAttribute("WantedHeat")) == 0 then
+			zeroAfter = os.clock() - bankedAt
+			break
+		end
+		task.wait(0.25)
+	end
+	log(string.format("Warehouse: banked %d after %s s without sight; cash %d -> %d; stars %d at bank, 0 after %s s; escapes %d", unbanked, tostring(took), before, cash(), starsAtBank, tostring(zeroAfter), escapes))
+	if not took or cash() ~= before + unbanked then
+		return false, "warehouse bank wrong"
+	end
+	if starsAtBank < 1 or not zeroAfter or zeroAfter > 10.75 or escapes ~= 0 then
+		return false, "stars did not cool down to 0 within 10 s without an escape"
+	end
+	local again, againErr = SpreeService.bank(p)
+	local dupPaid, dupErr = EconomyService.bankSpree(p, spreeId, unbanked, 0)
+	log(`repeat: SpreeService.bank -> {again} {againErr}; bankSpree same id -> {dupPaid} {dupErr}; cash {cash()}`)
+	if again or dupPaid or dupErr ~= "DuplicateTransaction" or cash() ~= before + unbanked then
+		return false, "a repeated claim was not refused"
+	end
+	PoliceService.setDispatchHold(p, false)
+	return true, string.format("garage banked after %.2f s, warehouse blocked in sight then banked after %.2f s, stars 0 after %.2f s, 0 escapes, repeat claims refused", garageTook, took :: number, zeroAfter :: number)
+end
+
 function Scenarios.run(name: string)
 	local scenario = registry[name]
 	if not scenario then

@@ -465,4 +465,50 @@ function CityBuilder.buildCrimeSites(city: Instance): Folder
 	return sitesFolder
 end
 
+-- Safehouses (S2.4): City.Safehouses.<Id> folders (attributes SafehouseId, DisplayName) holding
+-- the building's parts and an invisible Marker part for the client's sign. Adds only missing ones.
+function CityBuilder.buildSafehouses(city: Instance): Folder
+	local folder = city:FindFirstChild("Safehouses")
+	if not (folder and folder:IsA("Folder")) then
+		folder = Instance.new("Folder")
+		folder.Name = "Safehouses"
+		folder.Parent = city
+	end
+	local safehouses = folder :: Folder
+	for _, spec in CityLayout.safehouses() do
+		if safehouses:FindFirstChild(spec.Id) then
+			continue
+		end
+		local house = Instance.new("Folder")
+		house.Name = spec.Id
+		house:SetAttribute("SafehouseId", spec.Id)
+		house:SetAttribute("DisplayName", spec.Name)
+		for _, partSpec in spec.Parts do
+			local part = Instance.new("Part")
+			part.Name = partSpec.Name
+			part.Anchored = true
+			part.CanCollide = partSpec.CanCollide
+			part.Size = partSpec.Size
+			part.CFrame = CFrame.new(partSpec.Center)
+			part.Color = partSpec.Color
+			part.Material = partSpec.Material
+			part.TopSurface = Enum.SurfaceType.Smooth
+			part.BottomSurface = Enum.SurfaceType.Smooth
+			part.Parent = house
+		end
+		local marker = Instance.new("Part")
+		marker.Name = "Marker"
+		marker.Anchored = true
+		marker.CanCollide = false
+		marker.CanQuery = false
+		marker.CanTouch = false
+		marker.Transparency = 1
+		marker.Size = Vector3.one
+		marker.CFrame = CFrame.new(spec.Marker)
+		marker.Parent = house
+		house.Parent = safehouses
+	end
+	return safehouses
+end
+
 return CityBuilder

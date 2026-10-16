@@ -27,6 +27,7 @@ function WantedRules.new(): State
 		LastSeenAt = -math.huge,
 		Evading = false,
 		CrimeCooldowns = {},
+		CoolDownRate = nil,
 	}
 end
 
@@ -79,6 +80,7 @@ function WantedRules.applyCrime(state: State, crimeType: any, now: number, confi
 	state.CrimeCooldowns[crimeType] = now + crime.Cooldown
 	state.LastCrimeAt = now
 	state.Evading = false
+	state.CoolDownRate = nil -- a new crime cancels a post-bank cool-down
 	local changed = setHeatInternal(state, state.Heat + crime.Heat, config)
 	return true, nil, changed
 end
@@ -90,6 +92,7 @@ function WantedRules.setHeat(state: State, heat: any, now: number, config: Confi
 	end
 	state.LastCrimeAt = now
 	state.Evading = false
+	state.CoolDownRate = nil
 	local changed = setHeatInternal(state, heat, config)
 	if state.Heat == 0 then
 		state.PeakStars = 0
@@ -103,7 +106,19 @@ function WantedRules.reset(state: State)
 	state.Stars = 0
 	state.PeakStars = 0
 	state.Evading = false
+	state.CoolDownRate = nil
 	table.clear(state.CrimeCooldowns)
+end
+
+-- Banked at a safehouse (S2.4): heat falls to 0 over `seconds` whatever the police see, with no
+-- escape reward (the bank already paid). A new crime cancels it. False if there is no heat.
+function WantedRules.coolDown(state: State, seconds: any): boolean
+	if not isFiniteNumber(seconds) or seconds <= 0 or state.Heat <= 0 then
+		return false
+	end
+	state.CoolDownRate = state.Heat / seconds
+	state.Evading = false
+	return true
 end
 
 -- Advances time. Heat decays only after DecayDelay seconds with no crime and no police
@@ -121,6 +136,15 @@ function WantedRules.step(state: State, now: number, dt: number, seenByPolice: b
 		Reputation = 0,
 	}
 	if state.Heat <= 0 then
+		return result
+	end
+	local coolRate = state.CoolDownRate
+	if coolRate then
+		result.StarsChanged = setHeatInternal(state, state.Heat - coolRate * math.max(dt, 0), config)
+		if state.Heat <= 0 then
+			state.CoolDownRate = nil
+			state.PeakStars = 0
+		end
 		return result
 	end
 	if seenByPolice then

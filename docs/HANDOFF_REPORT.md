@@ -197,3 +197,20 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["S2.3 passed"] (S2.2 pruned)
 MIRROR: Studio = src/ 132/132, manifest e0fc2ef4 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.4
 ```
+
+## CHECKPOINT: S2.4 Safehouses · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 312 passed, 0 failed (+ Safehouse.spec 8) · SCRIPT ANALYSIS: 🟦 · 136/136 parse
+PLAY TEST (clients: 1, scripted ExecuteMultiplayerTestAsync(1, "S2.4-Safehouses"), dispatch held):
+  boot: City.Safehouses.Garage and .Warehouse built (7 instances each)
+  Garage: ATM spree → stood inside → banked after 4.75 s (poll granularity 0.25 s), cash + exactly the unbanked amount
+  Warehouse: ATM spree + 1★ + police sight on → after 4 s BankBlocked=Seen, BankProgress=0, spree still active;
+    sight off → banked after 5.00 s; stars 0 after 10.62 s (includes the save before the cool-down starts); 0 Escaped events
+  repeat: SpreeService.bank → NothingToBank; EconomyService.bankSpree same spree id → DuplicateTransaction; cash unchanged
+  verdict: "PASS garage banked after 4.75 s, warehouse blocked in sight then banked after 5.00 s, stars 0 after 10.62 s, 0 escapes, repeat claims refused"
+WORLD: both safehouses are built at server start; the saved place has no new geometry, so rollback = restore point.
+KNOWN: markers and the bank bar not screenshot-checked (screen_capture times out in play; phone sizes in S2.7); a real police unit blocking a bank is covered by the sight override, not a live chase.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.4 passed"] (S2.3 pruned)
+MIRROR: Studio = src/ 136/136, manifest 89c2ccf3 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.5
+```

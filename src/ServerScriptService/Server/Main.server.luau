@@ -27,6 +27,7 @@ local modules: { ModuleScript } = {
 	Services.WantedService,
 	Services.CrimeService,
 	Services.SpreeService,
+	Services.SafehouseService,
 	Services.DealershipService,
 	Services.CombatService,
 	Services.PoliceService,

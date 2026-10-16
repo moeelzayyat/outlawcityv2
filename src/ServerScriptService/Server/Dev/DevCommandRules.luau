@@ -20,7 +20,7 @@ export type Command =
 	| { Name: "ClearRobberyCooldown" }
 	| { Name: "SetCashUnavailable", Value: boolean } -- simulates losing cash data mid-session
 	| { Name: "TryRobStore" }
-	| { Name: "BankSpree" } -- banks the caller's spree as if at a safehouse (until S2.4)
+	| { Name: "BankSpree" } -- banks the caller's spree as if at a safehouse (Studio shortcut)
 	| { Name: "TryCrime", Value: string } -- starts the holdout crime at a site id (S2.3)
 	| { Name: "StealCar", Value: string } -- steals the parked car at a spot id (S2.3)
 	| { Name: "AddLedgerReward", Value: number } -- writes a reward straight into the ledger

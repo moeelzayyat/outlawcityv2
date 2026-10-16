@@ -500,6 +500,54 @@ function CityLayout.parkedCars(): { SpawnSpec }
 	return result
 end
 
+-- Safehouses (S2.4, architecture §10; world additions named by the roadmap substage, D-006): an
+-- old garage just west of Old Town and a warehouse between the city and the highway. Each is a
+-- walled building open on its east side (wide enough to drive in). Zone is the interior, where
+-- banking counts; Marker sits above the opening for the client's SAFEHOUSE sign.
+export type SafehouseSpec = {
+	Id: string,
+	Name: string,
+	Parts: { PartSpec },
+	Zone: Types.SafeZone,
+	Marker: Vector3,
+}
+
+-- Depth runs along X (the open side faces +X), Width along Z.
+CityLayout.SAFEHOUSES = table.freeze({
+	table.freeze({ Id = "Garage", Name = "Old Town Garage", X = -350, Z = -200, Depth = 30, Width = 24, Height = 14, Material = Enum.Material.Brick, Color = Color3.fromRGB(120, 60, 50) }),
+	table.freeze({ Id = "Warehouse", Name = "Highway Warehouse", X = -200, Z = -420, Depth = 40, Width = 34, Height = 18, Material = Enum.Material.Metal, Color = Color3.fromRGB(110, 115, 120) }),
+})
+
+function CityLayout.safehouses(): { SafehouseSpec }
+	local result: { SafehouseSpec } = {}
+	local roof = Color3.fromRGB(55, 55, 60)
+	for _, s in CityLayout.SAFEHOUSES do
+		local d, w, h = s.Depth, s.Width, s.Height
+		local function part(name: string, x: number, z: number, sizeX: number, sizeZ: number, top: number, thickness: number, color: Color3, material: Enum.Material): PartSpec
+			return slab(`{s.Id}{name}`, "Safehouses", s.X + x, s.Z + z, sizeX, sizeZ, top, thickness, color, material, true)
+		end
+		table.insert(result, {
+			Id = s.Id,
+			Name = s.Name,
+			Parts = {
+				part("Floor", 0, 0, d, w, CityLayout.ROAD_TOP, CityLayout.ROAD_TOP, Color3.fromRGB(90, 90, 95), Enum.Material.Concrete),
+				part("WallBack", -d / 2 + 0.5, 0, 1, w, h, h, s.Color, s.Material),
+				part("WallNorth", 0, -w / 2 + 0.5, d, 1, h, h, s.Color, s.Material),
+				part("WallSouth", 0, w / 2 - 0.5, d, 1, h, h, s.Color, s.Material),
+				part("Header", d / 2 - 0.5, 0, 1, w - 2, h, 3, s.Color, s.Material),
+				part("Roof", 0, 0, d + 2, w + 2, h + 1, 1, roof, Enum.Material.Concrete),
+			},
+			Zone = {
+				Name = s.Id,
+				Min = Vector3.new(s.X - d / 2 + 1, -2, s.Z - w / 2 + 1),
+				Max = Vector3.new(s.X + d / 2, h - 1, s.Z + w / 2 - 1),
+			},
+			Marker = Vector3.new(s.X + d / 2, h + 5, s.Z),
+		})
+	end
+	return result
+end
+
 function CityLayout.createBlueprint(): Blueprint
 	local parts: { PartSpec } = {}
 	local spawns: { SpawnSpec } = {}

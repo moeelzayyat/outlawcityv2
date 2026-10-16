@@ -70,6 +70,7 @@ export type WantedState = {
 	LastSeenAt: number,
 	Evading: boolean,
 	CrimeCooldowns: { [string]: number },
+	CoolDownRate: number?, -- heat lost per second during a post-bank cool-down (S2.4); nil otherwise
 }
 
 export type CrimeError = "InvalidCrime" | "Cooldown" | "NotInGame"

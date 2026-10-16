@@ -22,4 +22,4 @@ Rules: a remote exists only with a row here, a type guard, a limiter, and an ent
 | `OnLeaderboard` | E (S→C) | `{board, rows}` | — | 60 s |
 
 ## Attributes (server-set on Player; clients read only)
-`Status`, `SpawnProtectedUntil`, `WantedLevel`, `WantedHeat`, `WantedEvading`, `CriminalReputation`, `CombatStatus`, `InSafeZone`, `Jailed`, `Cash`, `OwnedVehicles`, `RobberyPhase` → `CrimePhase`, **`SpreeUnbanked`, `SpreeMultiplier`, `SpreeCrimes`, `ObservedAt`**, `Reputation`, `BestSpree` (S2.2, profile v4).
+`Status`, `SpawnProtectedUntil`, `WantedLevel`, `WantedHeat`, `WantedEvading`, `CriminalReputation`, `CombatStatus`, `InSafeZone`, `Jailed`, `Cash`, `OwnedVehicles`, `RobberyPhase` → `CrimePhase`, **`SpreeUnbanked`, `SpreeMultiplier`, `SpreeCrimes`, `ObservedAt`**, `Reputation`, `BestSpree` (S2.2, profile v4), `InSafehouse`, `BankProgress`, `BankBlocked` (S2.4, SafehouseService).

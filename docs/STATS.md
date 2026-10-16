@@ -25,6 +25,9 @@ Rounding: each crime adds `floor(base × multiplier)`; the multiplier rises afte
 
 As built (S2.3): stars come from the WantedConfig heat of the reported crime (`AtmSmash` 25, `GasStationRobbery` 70, `CarTheft` 25, `StoreRobbery` as before). Failed-attempt cooldowns: store 60 s, ATM 45 s, gas 75 s. Prompt ranges: store 10, ATM 6, gas 8 studs. Car theft is a 1.5 s hold prompt that completes on the spot; the spot refills 120 s after it empties, once clear. A silent ATM (50%) adds cash with no stars.
 
+## Safehouses (`SafehouseConfig`, S2.4)
+Two zones: Old Town Garage (-350, -200), Highway Warehouse (-200, -420), both open to the east. Bank: inside a zone, no police unit seeing you, not observed, not jailed, for `SpreeConfig.BankSeconds` (5 s) continuously; leaving or being seen restarts it. Zone exit margin 2 studs; check 4 Hz. After a bank, stars fall to 0 over `StarCooldownSeconds` 10 s (no escape reward; a new crime cancels the cool-down).
+
 ## Wanted (`WantedConfig`, as built)
 3 stars; decay delay 8 s; thresholds as approved; heat frozen while any unit sees the player **or no unit is assigned to a wanted player** (R1.6).
 

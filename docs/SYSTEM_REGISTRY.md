@@ -35,7 +35,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | EventBus + AnalyticsService funnel (hidden wires replaced; 15 events live) | Tested (Studio; dashboard 🟦) | R1.7 |
 | SpreeRules / SpreeService / Spree HUD / result card | Tested (solo; bank via dev command until S2.4) | S2.1–S2.2 |
 | CrimeConfig + CrimeService (store, ATM ×4, gas station, car theft ×6; RobberyService retired) + ParkedCarService | Tested (scripted 1 client) | S2.3 |
-| Safehouses ×2 + banking | Planned | S2.4 |
+| Safehouses ×2 + banking (SafehouseService, markers, bank bar, post-bank star cool-down) | Tested (scripted 1 client) | S2.4 |
 | Police escalation + roadblock | Planned | S2.5 |
 | Audio (siren, engine, tyre, alarm, bank, bust) | Planned | S2.6 |
 | HUD UIScale root | Planned | S2.7 |

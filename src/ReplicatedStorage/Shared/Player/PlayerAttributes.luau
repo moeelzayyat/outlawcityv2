@@ -26,6 +26,9 @@ local PlayerAttributes = table.freeze({
 	SpreeCrimes = "SpreeCrimes", -- crimes in the current spree (SpreeService)
 	Reputation = "Reputation", -- persisted reputation, earned at bank (EconomyService, profile v4)
 	BestSpree = "BestSpree", -- largest banked spree (EconomyService, profile v4)
+	InSafehouse = "InSafehouse", -- id of the safehouse the player stands in (SafehouseService, S2.4); absent outside
+	BankProgress = "BankProgress", -- seconds of bank progress (1 decimal) while inside one with an unbanked spree
+	BankBlocked = "BankBlocked", -- "Seen" | "Observed" | "Jailed" while inside with a spree but unable to bank
 })
 
 return PlayerAttributes

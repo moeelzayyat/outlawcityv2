@@ -431,6 +431,12 @@ function PoliceService.start()
 	end)
 end
 
+-- True while the unit chasing `player` can see them (safehouses bank only without sight, S2.4).
+function PoliceService.sees(player: Player): boolean
+	local current = unit
+	return current ~= nil and not current.Ending and current.Target == player and current.SeesTarget
+end
+
 function PoliceService.getUnit(): Model?
 	return if unit then unit.Model else nil
 end

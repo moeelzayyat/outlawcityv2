@@ -136,3 +136,6 @@ SpreeService + SpreeHudController; robbery cash goes into the spree at holdout e
 
 ## CP — S2.3 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 CrimeConfig + CrimeRules + CrimeService (replaces RobberyService; store migrated as a definition) and ParkedCarService. World additions named by S2.3 (D-006): ATM ×4, gas station ×1, parked cars ×6, all built at server start by WorldService/ParkedCarService (the saved place is unchanged, so the code restore point is the exact rollback). `[Tests] 304 passed, 0 failed`. Static 🟦. Scripted scenario `S2.3-Crimes` (1 client): PASS.
+
+## CP — S2.4 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+SafehouseConfig + SafehouseService + SafehouseMarkerController; `WantedRules.coolDown` (stars fall to 0 over 10 s after a bank, no escape reward; a new crime cancels it); `PoliceService.sees`; `SpreeService.stepBank`. World additions named by S2.4 (D-006): Old Town Garage (-350, -200) and Highway Warehouse (-200, -420), built at server start (saved place unchanged; the code restore point is the exact rollback). `[Tests] 312 passed, 0 failed`. Static 🟦. Scripted scenario `S2.4-Safehouses` (1 client): PASS.

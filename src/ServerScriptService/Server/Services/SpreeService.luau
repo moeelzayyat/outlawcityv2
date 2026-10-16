@@ -4,7 +4,7 @@
 -- a bust or leaving loses it, and bank() pays it through EconomyService.bankSpree — recorded in
 -- the reward ledger first and granted once per spree id ("spree:<id>"). Publishes the
 -- SpreeUnbanked / SpreeMultiplier / SpreeCrimes attributes and OnSpreeNotice for the HUD.
--- Banking at a safehouse arrives in S2.4 (SafehouseService calls bank()).
+-- Safehouses (S2.4): SafehouseService calls stepBank() every tick and bank() once it is ready.
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -135,6 +135,16 @@ function SpreeService.bank(player: Player): (boolean, string?)
 	})
 	print(`[Spree] {player.Name}: banked {result.Amount} (crimes {result.Crimes}, peak {result.PeakStars}★, {math.floor(result.Duration)}s, +{result.Reputation} rep){if paid then "" else " — recorded, payment pending"}`)
 	return true, nil
+end
+
+-- One safehouse tick (S2.4): advances or resets the player's bank progress. True once they have
+-- met the bank conditions for SpreeConfig.BankSeconds and the spree should be banked now.
+function SpreeService.stepBank(player: Player, dt: number, facts: SpreeRules.BankFacts): boolean
+	local spree = states[player]
+	if not spree or banking[player] then
+		return false
+	end
+	return SpreeRules.stepBank(spree, dt, facts, SpreeConfig.BankSeconds)
 end
 
 function SpreeService.init()

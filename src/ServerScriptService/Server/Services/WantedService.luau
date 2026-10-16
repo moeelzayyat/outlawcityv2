@@ -106,6 +106,14 @@ function WantedService.resetWanted(player: Player)
 	end
 end
 
+-- Banked at a safehouse (S2.4): stars fall to 0 over `seconds` with no escape reward.
+function WantedService.coolDown(player: Player, seconds: number)
+	local state = states[player]
+	if state and WantedRules.coolDown(state, seconds) then
+		publish(player, state)
+	end
+end
+
 -- Police bust: clears the wanted level with no reward and tells the player.
 function WantedService.bust(player: Player)
 	local state = states[player]
@@ -139,6 +147,11 @@ end
 function WantedService.setPoliceSightForTesting(player: Player, seen: boolean)
 	assert(RunService:IsStudio(), "setPoliceSightForTesting is Studio-only")
 	devPoliceSight[player] = seen or nil
+end
+
+-- True while the Studio dev sight override is on (SafehouseService treats it as police sight).
+function WantedService.isDevSighted(player: Player): boolean
+	return devPoliceSight[player] == true
 end
 
 local function onPlayerAdded(player: Player)

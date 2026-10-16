@@ -13,7 +13,7 @@
 | `Busted` | `{UserId, Stars, Unbanked}` | PoliceService (after a successful jail) | Analytics (FirstBust); SpreeService (loses the spree, counts the bust) | R1.7 ✅ · S2.2 |
 | `Jailed` / `Released` | `{UserId, Seconds?}` | JailService | HUD, Analytics (S2) | R1.7 ✅ |
 | `SpreeStarted` / `SpreeUpdated` | `{UserId, SpreeId, Unbanked, Multiplier, Crimes}` | SpreeService | Analytics (Again) | S2.2 ✅ |
-| `SpreeBanked` | `{UserId, SpreeId, Amount, PeakStars, Duration, Crimes}` | SpreeService (after `EconomyService.bankSpree` stored or recorded it) | Analytics (FirstBank, SpreeEnded); Leaderboard, Objectives S2.9 | S2.2 ✅ |
+| `SpreeBanked` | `{UserId, SpreeId, Amount, PeakStars, Duration, Crimes}` | SpreeService (after `EconomyService.bankSpree` stored or recorded it; called by SafehouseService, S2.4) | Analytics (FirstBank, SpreeEnded); Leaderboard, Objectives S2.9 | S2.2 ✅ |
 | `SpreeLost` | `{UserId, SpreeId, Amount, Reason}` (`Busted` / `Left`) | SpreeService | Analytics (SpreeEnded) | S2.2 ✅ |
 | `CashChanged` | `{UserId, Delta, Reason, TxId}` | EconomyService (every stored change with Delta ≠ 0) | HUD, Analytics (S2) | R1.7 ✅ |
 | `PurchaseMade` | `{UserId, ItemId, Price}` | EconomyService | Analytics (S2) | R1.7 ✅ |
