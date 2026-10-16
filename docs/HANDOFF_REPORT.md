@@ -143,3 +143,15 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["R1.7 passed"]
 MIRROR: Studio = src/ 121/121, manifest 474df26c · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: R1.8
 ```
+
+## CHECKPOINT: R1.8 Combat button hidden + R1 exit · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 270 passed, 0 failed (+1: toggle stays hidden)
+SCRIPT ANALYSIS: 🟦 · 121/121 scripts parse
+PLAY TEST (clients: 1): PlayerGui = CashHud, DealershipGui, DevPanel, Freecam, GarageGui, JailHud, Marker_DealerSign,
+  Marker_StoreSign, OnboardingTip, OutlawHud, RobberyHud, SafeZoneHud, WantedHud — no CombatStatus. Screenshot 🟦 (MCP screen_capture timed out twice in play mode).
+R1 EXIT: tests 270 ≥ 240 ✅ · 2-client dispatch recorded ✅ · warnings 🟦
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.8 passed"] (Backups now ~1.7k instances; prune/remove before publish — S2.10 package)
+MIRROR: Studio = src/ 121/121, manifest de531378 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.1
+```

@@ -30,8 +30,8 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | Stage | Name | Substages | Weeks | Gate | Status |
 |---|---|---|---|---|---|
 | R0 | Re-baseline | 5 | 0.5 | Decisions | ✅ |
-| R1 | Integrity | 8 | 1.5 | Numeric | 🟨 |
-| S2 | Signature: Crime Spree | 10 | 3 | Numeric + owner publish | ⬜ |
+| R1 | Integrity | 8 | 1.5 | Numeric | ✅ (static 🟦; R1.7 dashboard 🟦) |
+| S2 | Signature: Crime Spree | 10 | 3 | Numeric + owner publish | 🟨 |
 | S3 | **Public test** | 6 | 2–3 live | **GO/NO-GO** | ⬜ |
 | S4 | Content and progression | 8 | 3–4 | Standard | ⬜ |
 | S5 | Multiplayer and co-op | 6 | 2–3 | Numeric | ⬜ |
@@ -64,7 +64,7 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | R1.5 | Spawn restrictions | No spawn while wanted / in a crime / unbanked > 0; spawn within 30 studs; pad clearance includes characters | Spec + play test: V at 2★ → `Wanted`; V with a player on the pad → next pad | TestRunner, play test | ✅ |
 | R1.6 | Dispatch re-target + decay freeze | Unit follows its player; a wanted player with no unit freezes decay; 2-client Studio test | 2 clients: A rams, B robs → B's heat does not decay until a unit sees or is assigned | Studio 2 clients | ✅ |
 | R1.7 | Event bus + analytics | `EventBus`; the two hidden wires replaced; `AnalyticsService` funnel (`Joined`, `FirstCar`, `FirstCrime`, `FirstBank`, `FirstBust`, `SpreeEnded`, `Again`, `Left`) | Funnel events visible in the Analytics dashboard after a play test | Analytics | 🟦 (Studio ✅; dashboard check needs the first owner publish) |
-| R1.8 | Combat button hidden | Hidden until damage exists (flag) | Not present in HUD; spec unchanged | Play test | ⬜ |
+| R1.8 | Combat button hidden | Hidden until damage exists (flag) | Not present in HUD; spec unchanged | Play test | ✅ |
 
 **R1 exit:** TestRunner ≥ 240, 0 failed; 2-client dispatch test recorded; 0 warnings. → S2.1.
 
@@ -140,4 +140,4 @@ BACKUP/RESTORE POINT · MIRROR COMMIT · APPROVAL (auto/owner) · PUBLISHED BY O
 NEXT: <ID>
 ```
 
-**Mode:** unattended (D-008) · **Current substage:** R1.8 · **Last checkpoint passed:** R1.7 (🟦 dashboard)
+**Mode:** unattended (D-008) · **Current substage:** S2.1 · **Last checkpoint passed:** R1.8 (R1 exit)

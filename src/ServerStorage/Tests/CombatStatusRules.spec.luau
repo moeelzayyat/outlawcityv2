@@ -7,6 +7,9 @@ local Assert = require(script.Parent.Assert)
 local C = CombatConfig
 
 return {
+	["the combat toggle stays hidden until damage exists (R1.8)"] = function()
+		Assert.equal(C.ToggleVisible, false)
+	end,
 	["new players start Peaceful"] = function()
 		Assert.equal(CombatStatusRules.new().Status, "Peaceful")
 	end,

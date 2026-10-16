@@ -116,3 +116,9 @@ Unit keeps its player while wanted, re-targets (cancelling a pending despawn) to
 
 ## CP — R1.7 checkpoint · 2026-10-16 · auto-approved (unattended) · 🟦 dashboard item pending the first owner publish
 `Shared/Util/EventBus` (catalog, plain payloads, isolated handlers) + `AnalyticsService` (onboarding funnel Joined/FirstCar/FirstCrime/FirstBank, custom FirstBust/Left; server error counter for LoopGuard/Main/bus). Hidden wires replaced: `setPoliceSightProvider` → `PoliceSight` events; `WantedService.Escaped` Signal → `Escaped` event. `[Tests] 269 passed, 0 failed`; R1.6 2-client scenario re-run PASS over the bus. "Funnel events visible in the Analytics dashboard" can't be met from Studio (Studio sends nothing) → 🟦 until the owner's first private publish.
+
+## CP — R1.8 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+`CombatConfig.ToggleVisible = false`; CombatStatusController builds no GUI while off. `[Tests] 270 passed, 0 failed`; PlayerGui has no `CombatStatus`. Screenshot 🟦 (screen_capture times out during play).
+
+## CP — R1 stage exit · 2026-10-16 · auto-approved (unattended)
+TestRunner 270 ≥ 240, 0 failed ✅ · 2-client dispatch test recorded (R1.6 PASS ×2) ✅ · 0 Script Analysis warnings 🟦 (not measurable through the MCP; owner item 7). Next: S2.1.

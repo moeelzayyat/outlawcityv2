@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Net.Remotes)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
+local CombatConfig = require(Shared.Config.CombatConfig)
 
 local CombatStatusController = {}
 
@@ -30,6 +31,9 @@ local REFUSAL_TEXT: { [string]: string } = {
 local player = Players.LocalPlayer
 
 function CombatStatusController.init()
+	if not CombatConfig.ToggleVisible then
+		return -- nothing to toggle until damage exists (R1.8)
+	end
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "CombatStatus"
 	gui.ResetOnSpawn = false

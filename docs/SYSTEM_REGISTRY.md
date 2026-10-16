@@ -13,7 +13,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | Coupe (starter), Muscle ($15k), Police cruiser | Implemented | S4.1 | +Sport, +Super, +van |
 | Spawn pads (6) + civilian spawns (6) + spawn protection | Implemented | R1.5 | restrictions |
 | Wanted rules (3★, decay, escape) | Implemented | S2.1 | escape no longer pays |
-| Peaceful/Combat status (no damage) | Implemented | R1.8 hide; S5.1 damage | |
+| Peaceful/Combat status (no damage) | Implemented | R1.8 hide ✅ (`CombatConfig.ToggleVisible = false`); S5.1 damage | |
 | Safe zone (plaza) | Implemented | — | |
 | NPC police: one unit, road graph, bust | Implemented | R1.6, S2.5 | re-target, 1→3, roadblock |
 | Jail (12 s, 4 slots) | Implemented | S4.7 | SpawnLocation fix |
