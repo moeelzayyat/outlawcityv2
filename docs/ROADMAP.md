@@ -29,8 +29,8 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 
 | Stage | Name | Substages | Weeks | Gate | Status |
 |---|---|---|---|---|---|
-| R0 | Re-baseline | 5 | 0.5 | Decisions | ⬜ |
-| R1 | Integrity | 8 | 1.5 | Numeric | ⬜ |
+| R0 | Re-baseline | 5 | 0.5 | Decisions | ✅ |
+| R1 | Integrity | 8 | 1.5 | Numeric | 🟨 |
 | S2 | Signature: Crime Spree | 10 | 3 | Numeric + owner publish | ⬜ |
 | S3 | **Public test** | 6 | 2–3 live | **GO/NO-GO** | ⬜ |
 | S4 | Content and progression | 8 | 3–4 | Standard | ⬜ |
@@ -43,13 +43,13 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 
 ## 2. Stage R0 — Re-baseline (3 days)
 
-| ID | Substage | Deliverables | Passes when | Verify |
-|---|---|---|---|---|
-| R0.1 | Decisions | D-001 Crime Spree · D-002 police 1→3 by stars · D-003 siren on (Roblox-owned asset) · D-004 integrity layer (character sampler gates payouts; vehicles stay monitor-only) · D-005 MaxPlayers 8 · D-006 freeze N4/world polish · D-007 checkpoint protocol · D-008 unattended mode | All logged Accepted or Declined | Owner |
-| R0.2 | Repository | New repo with this docs set at root; `src/`, `tests/` as today; old `docs/` under `docs/legacy/`; old repo archived | Tree matches `architecture.md` §4.3 | Repo |
-| R0.3 | Studio baseline | Production window verified; export all 98 scripts; hash-check against `src/`; restore point `R0 baseline`; owner `.rbxl` | Hashes equal; restore point exists | Studio |
-| R0.4 | Owner items | MaxPlayers 8 in Game Settings; siren asset ID chosen from Roblox audio; title/icon direction (`ART_BIBLE.md`) | Written in the handoff record | Owner |
-| R0.5 | Pending batch closure | c4bebb5 recorded as approved-with-conditions and frozen (D-006) | Line in `DECISION_LOG.md` | — |
+| ID | Substage | Deliverables | Passes when | Verify | Status |
+|---|---|---|---|---|---|
+| R0.1 | Decisions | D-001 Crime Spree · D-002 police 1→3 by stars · D-003 siren on (Roblox-owned asset) · D-004 integrity layer (character sampler gates payouts; vehicles stay monitor-only) · D-005 MaxPlayers 8 · D-006 freeze N4/world polish · D-007 checkpoint protocol · D-008 unattended mode | All logged Accepted or Declined | Owner | ✅ |
+| R0.2 | Repository | New repo with this docs set at root; `src/`, `tests/` as today; old `docs/` under `docs/legacy/`; old repo archived | Tree matches `architecture.md` §4.3 | Repo | ✅ |
+| R0.3 | Studio baseline | Production window verified; export all 98 scripts; hash-check against `src/`; restore point `R0 baseline`; owner `.rbxl` | Hashes equal; restore point exists | Studio | ✅ (104 scripts; owner `.rbxl` 🟦) |
+| R0.4 | Owner items | MaxPlayers 8 in Game Settings; siren asset ID chosen from Roblox audio; title/icon direction (`ART_BIBLE.md`) | Written in the handoff record | Owner | ✅ (items 🟦 with owner) |
+| R0.5 | Pending batch closure | c4bebb5 recorded as approved-with-conditions and frozen (D-006) | Line in `DECISION_LOG.md` | — | ✅ |
 
 ---
 
@@ -140,4 +140,4 @@ BACKUP/RESTORE POINT · MIRROR COMMIT · APPROVAL (auto/owner) · PUBLISHED BY O
 NEXT: <ID>
 ```
 
-**Mode:** unattended (D-008) · **Current substage:** R0.1 · **Last checkpoint passed:** none
+**Mode:** unattended (D-008) · **Current substage:** R1.1 · **Last checkpoint passed:** R0.5

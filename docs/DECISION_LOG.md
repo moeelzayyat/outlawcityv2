@@ -54,3 +54,24 @@ Recommendation: Lighthouse Keepers (unique, built, 4 weeks to public test) → D
 ## D-010 — Persistence stays home-grown
 2026-10-16 · R1 · Accepted (design)
 Decision: keep the tested `ProfileStore/ProfileSession/RewardLedger` stack with fixes F6/F9/F10; do not migrate to loleris ProfileStore. Revisit only if multi-server tests show lock contention.
+
+## CP — R0.1 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+D-001…D-008 confirmed Accepted (owner, 2026-10-16). No Studio changes.
+
+## CP — R0.2 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+Tree at 9a10c49 matches `architecture.md` §4.3 as built (additions arrive in R1/S2). Note: existing rules live in per-domain folders (`Shared/Robbery/RobberyRules` etc.), not `Shared/Rules/`; new rules modules go in `Shared/Rules/` per §4.3 and existing ones stay put (never move a registry item). Root `tests/` is byte-identical to `src/ServerStorage/Tests/` (26 files). Archiving `moeelzayyat/outlawcity` is an owner action (handoff record).
+
+## CP — R0.3 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+Studio PlaceId 132163592957463 verified. 104 scripts in Studio = 104 in `src/` (the "98" in the roadmap predates the last batches); length + FNV-1a equal for every script, manifest hash `e4c1fd69` on both sides. Restore point `ServerStorage.Backups["R0 baseline"]` (Shared, Server, Tests, Client, Workspace.City, Lighting) matches live, script manifest `47bd2716`. Owner `.rbxl`: no "Place file downloaded" line in the current Studio log and no Outlaw City `.rbxl` on disk → owner item (handoff).
+
+## CP — R0.4 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+Owner items written in `HANDOFF_REPORT.md`: MaxPlayers 8 (Studio currently reports `Players.MaxPlayers = 60`), siren asset ID, icon palette.
+
+## R0.5 — Pending batch c4bebb5
+2026-10-16 · R0 · **Recorded**
+c4bebb5 (N4 sign enlargement plan) is approved-with-conditions as a change (audit §6: conditions a–d) and **not executed**; frozen under D-006.
+
+## CP — R0.5 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+
+## CP — R0 stage exit · 2026-10-16 · auto-approved (unattended)
+`[Tests] 216 passed, 0 failed` (Studio play, 1 client, 2026-10-16). Next: R1.1.
