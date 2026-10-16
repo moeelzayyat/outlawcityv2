@@ -11,6 +11,9 @@
 | `LossOnBust` | 100% | — | banked cash never touched |
 | `ReputationAtBank` | peakStars × crimes | cap 50 | |
 | `FirstSpreeDispatchDelay` | 10 s | — | 0-run players only |
+| `MaxUnbanked` | 1,000,000 | — | one economy transaction (`EconomyConfig.MaxTransaction`) |
+
+Rounding: each crime adds `floor(base × multiplier)`; the multiplier rises after the crime (first crime ×1.0). `SpreeRules`/`SpreeConfig` (S2.1).
 
 ## Crimes (`CrimeConfig`, S2.3)
 | Crime | Hold | Base | Stars | Cooldown | Alarm |

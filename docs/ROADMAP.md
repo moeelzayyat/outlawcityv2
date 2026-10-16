@@ -72,18 +72,18 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 
 ## 4. Stage S2 — Signature: Crime Spree (3 weeks)
 
-| ID | Substage | Deliverables | Passes when | Verify |
-|---|---|---|---|---|
-| S2.1 | SpreeRules | Pure: unbanked, multiplier (+0.5/crime, cap 4), bank conditions, loss on bust, escape keeps the spree, reputation at bank | Spec ≥ 15 cases incl. caps and NaN | TestRunner |
-| S2.2 | SpreeService + HUD | Server spree state; `SpreeHudController` (unbanked counter, multiplier, stars in row 1); result card with Again | Play test: ATM → counter → bank → cash; bust → loss shown | Play test |
-| S2.3 | CrimeConfig + CrimeService | Generic holdout engine; store robbery migrated as a definition; ATM ×4, gas station ×1, car theft ×6 NPC cars | Each crime: start/validate/complete/fail paths in spec; `RobberyRules.spec` still green via the definition | TestRunner, play test |
-| S2.4 | Safehouses | Two zones; 5 s no-sight bank; idempotent grant `spree:<id>`; markers | Spec: bank once; duplicate claim refused; play test bank from both | TestRunner, play test |
-| S2.5 | Police escalation | `UnitsByStars {1,2,3}`, server cap 6, re-target, roadblock at 3★ | 3★ → 3 units + roadblock; budget ≤ 50 raycasts/frame; ≤ 2 ms | Profiler |
-| S2.6 | Audio | Siren (owner asset), engine loop, tyre, alarm, bank, bust; `AudioConfig`; `ART_SOURCES.md` | All IDs Roblox-owned and listed; distance attenuation | Play test |
-| S2.7 | HUD UIScale | Root `ScreenGui` + `UIScale`; two rows; Device Simulator iPhone 7 + 13 Pro Max | No overlap at either size; cash in row 1 | Screenshots |
-| S2.8 | First session | Protected first spree (10 s dispatch delay for 0-run); markers to nearest ATM/store/safehouse; tip text | 5 fresh accounts: first crime ≤ 60 s, first result ≤ 4 min median | Console timestamps |
-| S2.9 | Leaderboards + objectives | Biggest Spree daily/weekly/all-time; one daily objective, no streak | Submit/read; reset on schedule; objective once | TestRunner, play test |
-| S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner |
+| ID | Substage | Deliverables | Passes when | Verify | Status |
+|---|---|---|---|---|---|
+| S2.1 | SpreeRules | Pure: unbanked, multiplier (+0.5/crime, cap 4), bank conditions, loss on bust, escape keeps the spree, reputation at bank | Spec ≥ 15 cases incl. caps and NaN | TestRunner | ✅ |
+| S2.2 | SpreeService + HUD | Server spree state; `SpreeHudController` (unbanked counter, multiplier, stars in row 1); result card with Again | Play test: ATM → counter → bank → cash; bust → loss shown | Play test | ⬜ |
+| S2.3 | CrimeConfig + CrimeService | Generic holdout engine; store robbery migrated as a definition; ATM ×4, gas station ×1, car theft ×6 NPC cars | Each crime: start/validate/complete/fail paths in spec; `RobberyRules.spec` still green via the definition | TestRunner, play test | ⬜ |
+| S2.4 | Safehouses | Two zones; 5 s no-sight bank; idempotent grant `spree:<id>`; markers | Spec: bank once; duplicate claim refused; play test bank from both | TestRunner, play test | ⬜ |
+| S2.5 | Police escalation | `UnitsByStars {1,2,3}`, server cap 6, re-target, roadblock at 3★ | 3★ → 3 units + roadblock; budget ≤ 50 raycasts/frame; ≤ 2 ms | Profiler | ⬜ |
+| S2.6 | Audio | Siren (owner asset), engine loop, tyre, alarm, bank, bust; `AudioConfig`; `ART_SOURCES.md` | All IDs Roblox-owned and listed; distance attenuation | Play test | ⬜ |
+| S2.7 | HUD UIScale | Root `ScreenGui` + `UIScale`; two rows; Device Simulator iPhone 7 + 13 Pro Max | No overlap at either size; cash in row 1 | Screenshots | ⬜ |
+| S2.8 | First session | Protected first spree (10 s dispatch delay for 0-run); markers to nearest ATM/store/safehouse; tip text | 5 fresh accounts: first crime ≤ 60 s, first result ≤ 4 min median | Console timestamps | ⬜ |
+| S2.9 | Leaderboards + objectives | Biggest Spree daily/weekly/all-time; one daily objective, no streak | Submit/read; reset on schedule; objective once | TestRunner, play test | ⬜ |
+| S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner | ⬜ |
 
 **S2 exit numbers:** first crime ≤ 60 s; first result ≤ 4 min; 3★ budget; 8-client Studio soak 30 min, 0 errors. → S3.
 
@@ -140,4 +140,4 @@ BACKUP/RESTORE POINT · MIRROR COMMIT · APPROVAL (auto/owner) · PUBLISHED BY O
 NEXT: <ID>
 ```
 
-**Mode:** unattended (D-008) · **Current substage:** S2.1 · **Last checkpoint passed:** R1.8 (R1 exit)
+**Mode:** unattended (D-008) · **Current substage:** S2.2 · **Last checkpoint passed:** S2.1

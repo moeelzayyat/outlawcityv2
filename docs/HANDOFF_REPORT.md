@@ -155,3 +155,12 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["R1.8 passed"] (Backups now ~1.7k in
 MIRROR: Studio = src/ 121/121, manifest de531378 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.1
 ```
+
+## CHECKPOINT: S2.1 SpreeRules · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 289 passed, 0 failed (+ SpreeRules.spec 19) · SCRIPT ANALYSIS: 🟦 · 124/124 parse
+PLAY TEST (clients: 1): runner only (pure rules; no runtime change)
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.1 passed"]; pruned R1.1–R1.7 (D-015) — kept R0 baseline, R1.8 passed, S2.1 passed
+MIRROR: Studio = src/ 124/124, manifest 293950ef · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.2
+```

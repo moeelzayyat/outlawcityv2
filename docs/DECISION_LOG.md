@@ -122,3 +122,11 @@ Unit keeps its player while wanted, re-targets (cancelling a pending despawn) to
 
 ## CP — R1 stage exit · 2026-10-16 · auto-approved (unattended)
 TestRunner 270 ≥ 240, 0 failed ✅ · 2-client dispatch test recorded (R1.6 PASS ×2) ✅ · 0 Script Analysis warnings 🟦 (not measurable through the MCP; owner item 7). Next: S2.1.
+
+## D-015 — Restore-point retention
+2026-10-16 · S2.1 · Accepted (unattended, recommendation)
+Context: one script snapshot per substage in `ServerStorage.Backups` grows the place (~1.7k instances after R1) and ships with every publish.
+Decision: keep `R0 baseline`, the latest stage exit and the latest substage; every checkpoint's exact scripts stay recoverable from git (`src/`, hash-checked). World/geometry changes keep a dedicated restore point until the next stage exit. Before any owner publish, the whole `Backups` folder can be moved out (S2.10 package says how).
+
+## CP — S2.1 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+`SpreeRules` + `SpreeConfig`; 19 spec cases (caps, rounding, NaN, bank conditions, bust, escape, reputation). `[Tests] 289 passed, 0 failed`. Static 🟦.
