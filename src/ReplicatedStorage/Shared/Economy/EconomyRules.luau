@@ -17,10 +17,55 @@ type Config = {
 	MaxOwnedVehicles: number,
 	VehicleIdMaxLength: number,
 	MaxPaidRewards: number,
+	PaintIdMaxLength: number,
+	MaxObjectives: number,
+	MaxSettings: number,
+	SettingKeyMaxLength: number,
 }
 
 local function isWholeFinite(n: any): boolean
 	return type(n) == "number" and n == n and n ~= math.huge and n ~= -math.huge and n % 1 == 0
+end
+
+local function isWholeNonNegative(n: any): boolean
+	return isWholeFinite(n) and n >= 0
+end
+
+local STAT_KEYS = { "Sprees", "Banked", "Busts", "PlayDays" }
+
+local function newStats(): Types.ProfileStats
+	return { Sprees = 0, Banked = 0, Busts = 0, PlayDays = 0 }
+end
+
+local function deepCopy(value: any): any
+	if type(value) ~= "table" then
+		return value
+	end
+	local copy = {}
+	for k, v in value do
+		copy[k] = deepCopy(v)
+	end
+	return copy
+end
+
+-- A full, independent copy of a profile (every field, every version). The only way profiles
+-- are copied, so a new schema field can never be dropped by a hand-written copy.
+function EconomyRules.cloneProfile(profile: Types.Profile): Types.Profile
+	return deepCopy(profile)
+end
+
+-- Makes `target` hold exactly `source`'s fields (target keeps its identity; source is adopted,
+-- not copied, so pass a fresh table).
+function EconomyRules.assignProfile(target: Types.Profile, source: Types.Profile)
+	local t = target :: any
+	for key in t do
+		if (source :: any)[key] == nil then
+			t[key] = nil
+		end
+	end
+	for key, value in source :: any do
+		t[key] = value
+	end
 end
 
 -- Amounts must be whole, finite, positive and no bigger than MaxTransaction.
@@ -45,6 +90,12 @@ function EconomyRules.newProfile(config: Config): Types.Profile
 		RecentTransactions = {},
 		OwnedVehicles = table.clone(config.StarterVehicles),
 		PaidRewards = {},
+		Reputation = 0,
+		BestSpree = 0,
+		Customization = {},
+		Stats = newStats(),
+		Objectives = {},
+		Settings = {},
 	}
 end
 
@@ -103,12 +154,77 @@ function EconomyRules.validateSaved(saved: any, config: Config): (Types.Profile?
 			end
 		end
 	end
+	-- Progression and settings (v4+, architecture §6). Older records get defaults (migration).
+	-- A v4 record missing a section or holding a bad number is damaged, not empty; bad entries
+	-- inside the maps are dropped like bad vehicle ids.
+	local reputation, bestSpree, stats = 0, 0, newStats()
+	local customization: { [string]: string } = {}
+	local objectives: { [string]: number } = {}
+	local settings: { [string]: boolean | number } = {}
+	if version >= 4 then
+		if
+			not isWholeNonNegative(saved.Reputation)
+			or not isWholeNonNegative(saved.BestSpree)
+			or type(saved.Stats) ~= "table"
+			or type(saved.Customization) ~= "table"
+			or type(saved.Objectives) ~= "table"
+			or type(saved.Settings) ~= "table"
+		then
+			return nil, "Corrupt"
+		end
+		reputation, bestSpree = saved.Reputation, saved.BestSpree
+		for _, key in STAT_KEYS do
+			local value = saved.Stats[key]
+			if value ~= nil then
+				if not isWholeNonNegative(value) then
+					return nil, "Corrupt"
+				end
+				(stats :: any)[key] = value
+			end
+		end
+		local count = 0
+		for vehicleId, paint in saved.Customization do
+			if
+				count < config.MaxOwnedVehicles
+				and type(vehicleId) == "string"
+				and #vehicleId > 0
+				and #vehicleId <= config.VehicleIdMaxLength
+				and type(paint) == "string"
+				and #paint > 0
+				and #paint <= config.PaintIdMaxLength
+			then
+				customization[vehicleId] = paint
+				count += 1
+			end
+		end
+		count = 0
+		for id, progress in saved.Objectives do
+			if count < config.MaxObjectives and type(id) == "string" and #id > 0 and #id <= config.SettingKeyMaxLength and isWholeNonNegative(progress) then
+				objectives[id] = progress
+				count += 1
+			end
+		end
+		count = 0
+		for name, value in saved.Settings do
+			local okValue = type(value) == "boolean" or (type(value) == "number" and value == value and math.abs(value) ~= math.huge)
+			if count < config.MaxSettings and type(name) == "string" and #name > 0 and #name <= config.SettingKeyMaxLength and okValue then
+				settings[name] = value
+				count += 1
+			end
+		end
+	end
 	return {
 		Version = config.ProfileVersion,
 		Cash = saved.Cash,
 		RecentTransactions = recent,
 		OwnedVehicles = owned,
 		PaidRewards = paid,
+		Reputation = reputation,
+		BestSpree = bestSpree,
+		Customization = customization,
+		Stats = stats,
+		Objectives = objectives,
+		Settings = settings,
 	}, if version < config.ProfileVersion then "Migrated" else "Existing"
 end
 

@@ -109,7 +109,15 @@ export type Profile = {
 	RecentTransactions: { string }, -- most recent last; bounded; blocks duplicate grants/deductions
 	OwnedVehicles: { string }, -- vehicle ids this player may spawn (v2+); always includes the starters
 	PaidRewards: { string }, -- (v3+) ledger reward ids already paid; kept until the ledger drops them
+	Reputation: number, -- (v4+) earned at bank (architecture §2.2)
+	BestSpree: number, -- (v4+) largest banked spree
+	Customization: { [string]: string }, -- (v4+) vehicleId -> paint id
+	Stats: ProfileStats, -- (v4+)
+	Objectives: { [string]: number }, -- (v4+) objective id -> progress
+	Settings: { [string]: boolean | number }, -- (v4+)
 }
+
+export type ProfileStats = { Sprees: number, Banked: number, Busts: number, PlayDays: number }
 
 export type EconomyError =
 	"InvalidAmount"

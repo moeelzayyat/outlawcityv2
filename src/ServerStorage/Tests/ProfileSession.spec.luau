@@ -291,4 +291,42 @@ return {
 		Assert.equal(err, "LockLost")
 		Assert.equal(s.Closed, true)
 	end,
+	["a commit stores v4 changes write-through and keeps every other field"] = function()
+		local store = fakeStore()
+		local s = session(store, 20000)
+		local ok, err = ProfileSession.commit(s, function(draft)
+			draft.Reputation += 7
+			draft.Customization.Coupe = "Red"
+			draft.Stats.Sprees += 1
+			return EconomyRules.grant(draft, 100, "spree:1", C)
+		end)
+		Assert.equal(ok, true, tostring(err))
+		local stored = store.Data.k.Profile
+		Assert.equal(stored.Reputation, 7)
+		Assert.equal(stored.Customization.Coupe, "Red")
+		Assert.equal(stored.Stats.Sprees, 1)
+		Assert.equal(stored.Cash, 20100)
+		Assert.equal(stored.Version, C.ProfileVersion)
+		Assert.equal(s.Profile.Reputation, 7)
+		Assert.equal(s.Profile.Stats.Busts, 0, "untouched v4 fields kept")
+	end,
+	["reconciling after an ambiguous write adopts the stored v4 fields"] = function()
+		local store = fakeStore()
+		local s = session(store, 1000)
+		store.CommitThenError = 1
+		local ok, err, note = ProfileSession.commit(s, function(draft)
+			local granted, why = EconomyRules.grant(draft, 50, "spree:bank-1", C)
+			if not granted then
+				return false, why
+			end
+			draft.BestSpree = 900
+			return true, nil
+		end)
+		Assert.equal(ok, true, tostring(err))
+		Assert.equal(note, "AlreadyApplied")
+		Assert.equal(s.Profile.Cash, 1050, "paid once")
+		Assert.equal(s.Profile.BestSpree, 900)
+		Assert.equal(type(s.Profile.Stats), "table")
+		Assert.equal(s.Stale, false)
+	end,
 }

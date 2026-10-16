@@ -19,6 +19,7 @@
 -- Pure apart from the injected store and wait function; unit-tested in ProfileSession.spec.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Types = require(ReplicatedStorage.Shared.Types)
+local EconomyRules = require(ReplicatedStorage.Shared.Economy.EconomyRules)
 local ProfileStore = require(script.Parent.ProfileStore)
 
 local ProfileSession = {}
@@ -105,12 +106,7 @@ function ProfileSession.run<T...>(session: Session, fn: () -> T...): (boolean, .
 end
 
 local function adopt(session: Session, stored: Types.Profile)
-	local profile = session.Profile
-	profile.Version = stored.Version
-	profile.Cash = stored.Cash
-	profile.RecentTransactions = stored.RecentTransactions
-	profile.OwnedVehicles = stored.OwnedVehicles
-	profile.PaidRewards = stored.PaidRewards
+	EconomyRules.assignProfile(session.Profile, stored)
 end
 
 -- Reads the stored profile and adopts it. Returns (ok, err): "LockLost" closes the session.
@@ -183,10 +179,7 @@ function ProfileSession.commit(session: Session, mutate: (Types.Profile) -> (boo
 		if session.Stale and not session.Closed then
 			local reconciled = reconcile(session)
 			if reconciled then
-				local probe = table.clone(session.Profile) :: any
-				probe.RecentTransactions = table.clone(session.Profile.RecentTransactions)
-				probe.OwnedVehicles = table.clone(session.Profile.OwnedVehicles)
-				probe.PaidRewards = table.clone(session.Profile.PaidRewards)
+				local probe = EconomyRules.cloneProfile(session.Profile)
 				local _, probeErr = mutate(probe)
 				if probeErr == "DuplicateTransaction" then
 					return true, nil, "AlreadyApplied"

@@ -126,18 +126,28 @@ local function claimRewards(player: Player, session: Session)
 		warn(`[Economy] {player.Name}: reward ledger has {malformed} malformed entr(y/ies); kept untouched for review`)
 	end
 	local inLedger = {}
+	local alreadyPaid = {}
+	local unpaid = 0
 	for _, r in rewards do
 		table.insert(inLedger, r.TxId)
+		if table.find((session.Profile :: Types.Profile).PaidRewards, r.TxId) then
+			table.insert(alreadyPaid, r.TxId)
+		else
+			unpaid += 1
+		end
 	end
-	local needsWrite = #rewards > 0
+	local prunable = false
 	for _, txId in (session.Profile :: Types.Profile).PaidRewards do
 		if not table.find(inLedger, txId) then
-			needsWrite = true -- something to prune
+			prunable = true
 			break
 		end
 	end
-	if not needsWrite then
-		scheduleClaim(session, true, 0)
+	if unpaid == 0 and not prunable then
+		-- Nothing to pay: rewards paid on the spot (grantReward) are settled in the ledger with no
+		-- profile write (F10: batched ledger removes).
+		local updated = #alreadyPaid == 0 or RewardLedger.remove(rewardStore, rewardKeyFor(session.Key), alreadyPaid)
+		scheduleClaim(session, updated, 0)
 		session.Claiming = false
 		return
 	end
@@ -179,6 +189,10 @@ local function tryLoad(player: Player, session: Session): boolean
 		local profile, result, detail = ProfileStore.load(store, session.Key, sessionId, os.time(), EconomyConfig)
 		if profile then
 			if player.Parent ~= Players or session.Leaving then
+				-- Left while loading: give the lock back now instead of holding it for
+				-- SessionLockTimeout (F6).
+				local released, releaseErr = ProfileStore.release(store, session.Key, sessionId)
+				log(`{player.Name}: left during load; lock {if released then "released" else "not released (" .. tostring(releaseErr) .. ")"}`)
 				return false
 			end
 			adoptLoaded(player, session, profile)
@@ -293,8 +307,13 @@ function EconomyService.grantReward(player: Player, amount: number, txId: string
 	local paid, err = commitChange(player, `reward {amount} ({reason}, tx {txId})`, function(draft)
 		return EconomyRules.payReward(draft, amount, txId, EconomyConfig)
 	end)
-	if paid or err == "DuplicateTransaction" then
-		RewardLedger.remove(rewardStore, rewardKeyFor(keyFor(player)), { txId }) -- best effort
+	if (paid or err == "DuplicateTransaction") and recorded then
+		-- Settled by the next ledger claim, not now: a second write to the ledger key right after
+		-- recording it would hit the per-key write throttle (F10).
+		local session = sessions[player]
+		if session then
+			session.NextClaim = math.min(session.NextClaim, os.clock() + EconomyConfig.LedgerSettleDelay)
+		end
 	end
 	return paid, err, recorded
 end

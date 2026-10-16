@@ -78,3 +78,11 @@ c4bebb5 (N4 sign enlargement plan) is approved-with-conditions as a change (audi
 
 ## CP — R1.1 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 `Server/Util/LoopGuard` isolates all eight service loops (the audit's six + Economy autosave and ledger claims); Main pcalls every `init`/`start`; `JailService.release` checks `player.Parent`; MilestoneLog and PoliceService module-scope connections moved into `start()`. `[Tests] 224 passed, 0 failed`. Static: parse-checked; Script Analysis count not measurable through the MCP (🟦, handoff).
+
+## D-011 — F10 scope: batch ledger removes; keep UpdateAsync reads
+2026-10-16 · R1.2 · Accepted (unattended, recommendation)
+Context: the audit's F10 fix lists "batch ledger removes into the next claim; GetAsync for reads".
+Decision: removes are batched (a reward paid on the spot leaves the ledger on the next claim ≥ `LedgerSettleDelay` 10 s later, with no extra profile write). Reads stay on cancelled `UpdateAsync`: `GetAsync` is cached per server for ~4 s, which would let the reconcile-after-ambiguous-write path read a stale profile. Revisit only if the S3 live data shows write-budget pressure.
+
+## CP — R1.2 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+F6 (lock released on leave-during-load via `ProfileStore.release`), F9 (`Corrupt` for non-table / lock-only records), F10 (batched ledger removes), profile v4 + v3→v4 migration + fixture (`ProfileMigration.spec`). `[Tests] 237 passed, 0 failed`. Live Studio migration: `loaded (Migrated) cash=11400`. Static 🟦 (parse-checked).

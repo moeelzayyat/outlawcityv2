@@ -47,3 +47,20 @@ NEXT: R1.2
 ```
 Studio-only addition: `ServerStorage.LoopGuardControl` (BindableFunction, created only when `RunService:IsStudio()`) lets the command bar inject faults and read loop stats; the command bar has its own require cache.
 7. **Static analysis (owner choice):** the Studio MCP can't read Script Analysis. Either glance at View → Script Analysis at a checkpoint, or allow me to download `luau-analyze` from the official luau-lang GitHub release so I can count warnings myself. Until then each checkpoint records static as 🟦.
+
+## CHECKPOINT: R1.2 Persistence fixes · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 237 passed, 0 failed (+ ProfileStore.spec 5, ProfileSession.spec 2, ProfileMigration.spec 6;
+  EconomyRules.spec v3 cases moved to v4, "newer schema" case now v5)
+SCRIPT ANALYSIS: 🟦 not measurable via MCP; 107/107 scripts parse
+PLAY TEST (clients: 1): join → "[Economy] Lighthouse8282: loaded (Migrated) cash=11400" (Studio store v3 → v4);
+  store robbery → escape → "reward 2000 … -> 13400 (stored)"; 14 s later the Studio DataStore shows
+  ledger {"Rewards":[]}, profile Version=4, PaidRewards=[robbery:c12762d1…], Stats all 0. Console: 0 game errors.
+NUMBERS: ledger settle delay 10 s; profile write count for a robbery payout unchanged (1); ledger writes 2 (record, settle) spaced ≥ 10 s.
+NOT COVERED live: leave-during-load (F6) needs a slow load + leave; covered by ProfileStore.spec release cases.
+OBSERVED: the escape was achieved by teleporting the character away from the cruiser — the F1 hole, closed in R1.3/R1.4.
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.2 passed"]
+MIRROR: Studio = src/ 107/107, manifest dc583350 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.3
+```
+Schema note for the owner: once any v4 server saves a profile, an older v3 build refuses that record untouched (by design). The Studio test store is already v4.

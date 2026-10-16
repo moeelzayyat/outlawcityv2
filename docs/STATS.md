@@ -35,5 +35,8 @@ Coupe top 120 · Muscle 138 · Police 128; validation limits ×1.3 + 10 (monitor
 ## Economy
 Start $500 · Muscle $15,000 · Sport $40,000 · Super $90,000 · paints $1,000–5,000 · safehouse upgrades $8,000 / $20,000.
 
+## Profile v4 (`EconomyConfig`, R1.2)
+`ProfileVersion` 4: + `Reputation`, `BestSpree` (whole ≥ 0), `Customization` (vehicleId → paint id ≤ 32 chars, ≤ `MaxOwnedVehicles` entries), `Stats{Sprees, Banked, Busts, PlayDays}` (whole ≥ 0), `Objectives` (id → progress, ≤ 20), `Settings` (name → boolean | number, ≤ 20). v1–v3 migrate with defaults; a v4 record missing a section or holding a bad number is `Corrupt` (refused untouched). `LedgerSettleDelay` 10 s (paid rewards leave the ledger on the next claim, F10).
+
 ## Test requirements
 One spec per row above; spree maths at cap and with NaN; bank idempotent per `spreeId`; bust loses only unbanked; escape keeps the spree; first-spree delay only for 0-run.

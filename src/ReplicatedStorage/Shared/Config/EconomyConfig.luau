@@ -8,10 +8,16 @@ local EconomyConfig = {
 	TransactionIdMaxLength = 64,
 	-- 1: cash only (4A). 2: + OwnedVehicles (4C). Older records are migrated on load; a record
 	-- from a NEWER version is refused untouched, so an old server can never downgrade it.
-	ProfileVersion = 3, -- 3 (audit remediation): + PaidRewards (durable reward dedupe)
+	-- 3 (audit remediation): + PaidRewards (durable reward dedupe). 4 (architecture §6): +
+	-- Reputation, BestSpree, Customization, Stats, Objectives, Settings.
+	ProfileVersion = 4,
 	StarterVehicles = table.freeze({ "Coupe" }), -- every profile owns these (new and migrated)
 	MaxOwnedVehicles = 50,
 	VehicleIdMaxLength = 32,
+	PaintIdMaxLength = 32, -- Customization: vehicleId -> paint id, at most MaxOwnedVehicles entries
+	MaxObjectives = 20, -- Objectives: objective id -> progress
+	MaxSettings = 20, -- Settings: setting name -> boolean | number
+	SettingKeyMaxLength = 32,
 
 	DataStoreName = "OutlawCity_PlayerData_v1", -- Studio uses DataStoreName .. "_Studio"
 	LoadAttempts = 3, -- tries per load round, with exponential backoff
@@ -29,6 +35,9 @@ local EconomyConfig = {
 	ClaimRetryBase = 30, -- seconds; ledger claim retry after a failure, doubling...
 	ClaimRetryMax = 900, -- ...up to this
 	ClaimIdleInterval = 300, -- seconds between ledger checks when nothing is outstanding
+	-- A reward paid on the spot is removed from the ledger by the next claim this many seconds
+	-- later, not right away: back-to-back writes to one key hit the DataStore throttle (F10).
+	LedgerSettleDelay = 10,
 	-- If the save on leave fails, the unsaved profile is kept on this server and retried.
 	OrphanRetryInterval = 10,
 	OrphanRetryLimit = 900, -- seconds; stops early if another server takes the lock

@@ -26,6 +26,12 @@ function ProfileStore.load(store: Store, key: string, sessionId: string, now: nu
 	local outcome: string = "StoreError"
 	local ok, err = pcall(function()
 		store:UpdateAsync(key, function(old: any)
+			-- Something is stored but it isn't a profile record (a non-table, or a lock with no
+			-- profile): damaged, never "new" (F9).
+			if old ~= nil and (type(old) ~= "table" or old.Profile == nil) then
+				outcome = "Corrupt"
+				return nil
+			end
 			local record = if type(old) == "table" then old else nil
 			if record and not EconomyRules.canClaimLock(record.Lock, sessionId, now, config.SessionLockTimeout) then
 				outcome = "SessionLocked"
@@ -50,14 +56,28 @@ function ProfileStore.load(store: Store, key: string, sessionId: string, now: nu
 	return profile, outcome :: any, nil
 end
 
-local function copyProfile(profile: Types.Profile): Types.Profile
-	return {
-		Version = profile.Version,
-		Cash = profile.Cash,
-		RecentTransactions = table.clone(profile.RecentTransactions),
-		OwnedVehicles = table.clone(profile.OwnedVehicles),
-		PaidRewards = table.clone(profile.PaidRewards),
-	}
+-- Drops this session's lock and leaves the stored profile as it is (a player who left while
+-- their profile was loading, F6). Returns (ok, err): "LockLost" if the lock isn't ours.
+function ProfileStore.release(store: Store, key: string, sessionId: string): (boolean, SaveError?, string?)
+	local owned = false
+	local ok, err = pcall(function()
+		store:UpdateAsync(key, function(old: any)
+			local lock = type(old) == "table" and old.Lock
+			if type(lock) ~= "table" or lock.Id ~= sessionId then
+				owned = false
+				return nil
+			end
+			owned = true
+			return { Profile = old.Profile }
+		end)
+	end)
+	if not ok then
+		return false, "StoreError", tostring(err)
+	end
+	if not owned then
+		return false, "LockLost", nil
+	end
+	return true, nil, nil
 end
 
 -- Write-through change (audit remediation): applies `mutate` to a COPY of `profile`, writes
@@ -74,7 +94,7 @@ function ProfileStore.commit(
 	now: number,
 	mutate: (Types.Profile) -> (boolean, string?)
 ): (boolean, string?, string?)
-	local draft = copyProfile(profile)
+	local draft = EconomyRules.cloneProfile(profile)
 	local ok, err = mutate(draft)
 	if not ok then
 		return false, err, nil
@@ -83,11 +103,7 @@ function ProfileStore.commit(
 	if not saved then
 		return false, saveErr, detail
 	end
-	profile.Version = draft.Version
-	profile.Cash = draft.Cash
-	profile.RecentTransactions = draft.RecentTransactions
-	profile.OwnedVehicles = draft.OwnedVehicles
-	profile.PaidRewards = draft.PaidRewards
+	EconomyRules.assignProfile(profile, draft)
 	return true, nil, nil
 end
 
@@ -103,13 +119,7 @@ function ProfileStore.save(store: Store, key: string, sessionId: string, profile
 			end
 			owned = true
 			return {
-				Profile = {
-					Version = profile.Version,
-					Cash = profile.Cash,
-					RecentTransactions = table.clone(profile.RecentTransactions),
-					OwnedVehicles = table.clone(profile.OwnedVehicles),
-					PaidRewards = table.clone(profile.PaidRewards),
-				},
+				Profile = EconomyRules.cloneProfile(profile),
 				Lock = if release then nil else { Id = sessionId, At = now },
 			}
 		end)

@@ -76,7 +76,7 @@ return {
 		Assert.equal(p.Cash, C.MaxBalance - 10)
 	end,
 	["valid saved data is kept exactly; malformed data is refused, never reset"] = function()
-		local saved = { Version = 3, Cash = 12345, RecentTransactions = { "x", "y", 5 }, OwnedVehicles = { "Coupe" }, PaidRewards = {} }
+		local saved = { Version = 4, Cash = 12345, RecentTransactions = { "x", "y", 5 }, OwnedVehicles = { "Coupe" }, PaidRewards = {}, Reputation = 0, BestSpree = 0, Customization = {}, Stats = {}, Objectives = {}, Settings = {} }
 		local p, kind = EconomyRules.validateSaved(saved, C)
 		Assert.equal(kind, "Existing")
 		Assert.equal(p.Cash, 12345, "not reset to starting cash")
@@ -108,7 +108,7 @@ return {
 		Assert.equal(EconomyRules.ownsVehicle(p, "Muscle"), false)
 	end,
 	["saved ownership is kept; junk is dropped; damaged or newer records are refused untouched"] = function()
-		local p, kind = EconomyRules.validateSaved({ Version = 3, Cash = 1, RecentTransactions = {}, OwnedVehicles = { "Muscle", 7, "Muscle", "" }, PaidRewards = {} }, C)
+		local p, kind = EconomyRules.validateSaved({ Version = 4, Cash = 1, RecentTransactions = {}, OwnedVehicles = { "Muscle", 7, "Muscle", "" }, PaidRewards = {}, Reputation = 0, BestSpree = 0, Customization = {}, Stats = {}, Objectives = {}, Settings = {} }, C)
 		Assert.equal(kind, "Existing")
 		Assert.equal(EconomyRules.ownsVehicle(p, "Muscle"), true)
 		Assert.equal(EconomyRules.ownsVehicle(p, "Coupe"), true, "starter is always owned")
@@ -116,7 +116,7 @@ return {
 		for _, bad in {
 			{ Version = 2, Cash = 1, RecentTransactions = {} }, -- v2 without its list
 			{ Version = 3, Cash = 1, RecentTransactions = {}, OwnedVehicles = {} }, -- v3 without its paid-reward list
-			{ Version = 4, Cash = 1, RecentTransactions = {}, OwnedVehicles = {}, PaidRewards = {} }, -- newer schema
+			{ Version = 5, Cash = 1, RecentTransactions = {}, OwnedVehicles = {}, PaidRewards = {}, Reputation = 0, BestSpree = 0, Customization = {}, Stats = {}, Objectives = {}, Settings = {} }, -- newer schema
 			{ Version = 0, Cash = 1 },
 			{ Version = 1.5, Cash = 1 },
 		} do
@@ -156,10 +156,10 @@ return {
 		end
 		Assert.equal(p.Cash, 14999)
 	end,
-	["v2 profiles migrate to v3 keeping cash, cars and history, with no paid rewards yet"] = function()
+	["v2 profiles migrate to the current version keeping cash, cars and history, with no paid rewards yet"] = function()
 		local p, kind = EconomyRules.validateSaved({ Version = 2, Cash = 800, RecentTransactions = { "buy:1" }, OwnedVehicles = { "Coupe", "Muscle" } }, C)
 		Assert.equal(kind, "Migrated")
-		Assert.equal(p.Version, 3)
+		Assert.equal(p.Version, C.ProfileVersion)
 		Assert.equal(p.Cash, 800)
 		Assert.equal(EconomyRules.ownsVehicle(p, "Muscle"), true)
 		Assert.equal(p.RecentTransactions[1], "buy:1")

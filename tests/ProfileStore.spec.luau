@@ -213,4 +213,64 @@ return {
 		Assert.equal(ok, false)
 		Assert.equal(err, "StoreError")
 	end,
+	["a stored value that isn't a record is Corrupt and left untouched (F9)"] = function()
+		local store = fakeStore()
+		store.Data.k = "garbage"
+		local profile, result = ProfileStore.load(store, "k", "A", 1000, C)
+		Assert.equal(profile, nil)
+		Assert.equal(result, "Corrupt")
+		Assert.equal(store.Data.k, "garbage")
+		Assert.equal(store.Writes, 0)
+	end,
+	["a lock with no profile is Corrupt and left untouched (F9)"] = function()
+		local store = fakeStore()
+		store.Data.k = { Lock = { Id = "B", At = 1 } }
+		local profile, result = ProfileStore.load(store, "k", "A", 100000, C)
+		Assert.equal(profile, nil)
+		Assert.equal(result, "Corrupt")
+		Assert.equal(store.Data.k.Lock.Id, "B")
+		Assert.equal(store.Writes, 0)
+	end,
+	["release drops this session's lock and keeps the stored profile (F6)"] = function()
+		local store = fakeStore()
+		local profile = ProfileStore.load(store, "k", "A", 1000, C)
+		profile.Cash = 1 -- in-memory only; release must not write it
+		local ok, err = ProfileStore.release(store, "k", "A")
+		Assert.equal(ok, true, tostring(err))
+		Assert.equal(store.Data.k.Lock, nil)
+		Assert.equal(store.Data.k.Profile.Cash, C.StartingCash)
+		local again, result = ProfileStore.load(store, "k", "B", 1001, C)
+		Assert.equal(result, "Existing", "another server loads at once, no lock wait")
+		Assert.equal(again.Cash, C.StartingCash)
+	end,
+	["release never touches another server's lock and reports store errors"] = function()
+		local store = fakeStore()
+		ProfileStore.load(store, "k", "A", 1000, C)
+		store.Data.k.Lock = { Id = "B", At = 1500 }
+		local ok, err = ProfileStore.release(store, "k", "A")
+		Assert.equal(ok, false)
+		Assert.equal(err, "LockLost")
+		Assert.equal(store.Data.k.Lock.Id, "B")
+		store.Fail = true
+		ok, err = ProfileStore.release(store, "k", "B")
+		Assert.equal(ok, false)
+		Assert.equal(err, "StoreError")
+	end,
+	["v4 fields survive save and load"] = function()
+		local store = fakeStore()
+		local profile = ProfileStore.load(store, "k", "A", 1000, C)
+		profile.Reputation = 12
+		profile.BestSpree = 9600
+		profile.Customization.Muscle = "NightBlue"
+		profile.Stats.Busts = 3
+		profile.Settings.Music = false
+		Assert.equal((ProfileStore.save(store, "k", "A", profile, 1001, true)), true)
+		local again, result = ProfileStore.load(store, "k", "B", 1002, C)
+		Assert.equal(result, "Existing")
+		Assert.equal(again.Reputation, 12)
+		Assert.equal(again.BestSpree, 9600)
+		Assert.equal(again.Customization.Muscle, "NightBlue")
+		Assert.equal(again.Stats.Busts, 3)
+		Assert.equal(again.Settings.Music, false)
+	end,
 }

@@ -18,7 +18,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | NPC police: one unit, road graph, bust | Implemented | R1.6, S2.5 | re-target, 1→3, roadblock |
 | Jail (12 s, 4 slots) | Implemented | S4.7 | SpawnLocation fix |
 | Vehicle validation (monitor-only) | Implemented | — | stays monitor-only |
-| Cash, persistence (home-grown store), ledger, reconciliation | Implemented | R1.2 | F6/F9/F10, v4 |
+| Cash, persistence (home-grown store), ledger, reconciliation | Tested | R1.2 | F6/F9/F10 fixed; profile v4 (R1.2) |
 | Store robbery (24/7 MART) | Implemented | S2.3 | becomes a CrimeConfig entry |
 | Dealership + ownership + garage | Implemented | — | |
 | Onboarding (P1–P8), markers, tip | Implemented | S2.8 | |
