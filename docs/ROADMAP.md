@@ -79,11 +79,11 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | S2.3 | CrimeConfig + CrimeService | Generic holdout engine; store robbery migrated as a definition; ATM ×4, gas station ×1, car theft ×6 NPC cars | Each crime: start/validate/complete/fail paths in spec; `RobberyRules.spec` still green via the definition | TestRunner, play test | ✅ |
 | S2.4 | Safehouses | Two zones; 5 s no-sight bank; idempotent grant `spree:<id>`; markers | Spec: bank once; duplicate claim refused; play test bank from both | TestRunner, play test | ✅ |
 | S2.5 | Police escalation | `UnitsByStars {1,2,3}`, server cap 6, re-target, roadblock at 3★ | 3★ → 3 units + roadblock; budget ≤ 50 raycasts/frame; ≤ 2 ms | Profiler | ✅ |
-| S2.6 | Audio | Siren (owner asset), engine loop, tyre, alarm, bank, bust; `AudioConfig`; `ART_SOURCES.md` | All IDs Roblox-owned and listed; distance attenuation | Play test | 🟦 built; IDs await owner |
+| S2.6 | Audio | Siren (owner asset), engine loop, tyre, alarm, bank, bust; `AudioConfig`; `ART_SOURCES.md` | All IDs Roblox-owned and listed; distance attenuation | Play test | ✅ (D-017) |
 | S2.7 | HUD UIScale | Root `ScreenGui` + `UIScale`; two rows; Device Simulator iPhone 7 + 13 Pro Max | No overlap at either size; cash in row 1 | Screenshots | 🟦 built + spec; Device Simulator screenshots await owner |
 | S2.8 | First session | Protected first spree (10 s dispatch delay for 0-run); markers to nearest ATM/store/safehouse; tip text | 5 fresh accounts: first crime ≤ 60 s, first result ≤ 4 min median | Console timestamps | 🟦 built + scripted; 5 fresh accounts need real players |
 | S2.9 | Leaderboards + objectives | Biggest Spree daily/weekly/all-time; one daily objective, no streak | Submit/read; reset on schedule; objective once | TestRunner, play test | ✅ |
-| S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner | 🟦 READY FOR OWNER TO PUBLISH |
+| S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner | ✅ published privately by owner 2026-10-16 (icon/thumbnails still open) |
 
 **S2 exit numbers:** first crime ≤ 60 s; first result ≤ 4 min; 3★ budget; 8-client Studio soak 30 min, 0 errors. → S3.
 

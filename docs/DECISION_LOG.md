@@ -171,3 +171,14 @@ Kept as written. Each reward is about one banked spree ($800 for a one-ATM spree
 
 ## Publish prep — 2026-10-16 · done for the owner on request
 HUD checked in-engine at iPhone 7 (667×317 safe area) and iPhone 13 Pro Max (926×370): 0 overlaps, nothing off screen (HUD scale 0.916 / 1.0). The top bar inset measured 58 px, not the 36 px the spec assumed; `HudLayout.spec` updated and still passes (`[Tests] 336 passed, 0 failed`). `ServerStorage.Backups` removed from the place (922 instances; git `src/` holds every checkpoint and the world is rebuilt from `CityLayout`). Not reachable through the Studio MCP: Game Settings (MaxPlayers is read-only to scripts), File → Download a Copy, File → Publish. Sound IDs found and load-tested but not wired: they wait for the owner's yes on the Roblox-owned rule.
+
+## D-017 — Sound sources for the Roblox-owned audio rule
+2026-10-16 · S2.6 · **Accepted by the owner** ("Yes you can use the sounds")
+Context: no Creator Store result was uploaded by the `Roblox` account itself (S2.6). Candidates came from Pro Sound Effects (free Creator Store library) and the verified Roblox Resources group.
+Decision: the six IDs in `assets/ART_SOURCES.md` are approved for this project; any other sound still needs the owner's approval and a row there.
+
+## CP — S2.6 passed · 2026-10-16 · auto-approved (unattended)
+Sounds wired (`AudioConfig.Sounds` + `ApprovedIds`). Play test (clients: 1): siren on all 3 units at 3★ (loaded, playing, InverseTapered 30–400), alarm at the store register on an alarmed robbery (25–350), cash-register sting on bank, engine loop on the driver's seat (pitch 0.80 at rest), tyre squeal present at volume 0 when not sliding; the `[Audio] waiting…` line is gone. Bust sting not heard (no spree was active at the bust) but its ID loads and it uses the same path as the bank sting. `[Tests] 336 passed, 0 failed`; 0 game errors.
+
+## CP — S2.10 published by owner · 2026-10-16
+Owner published privately after removing `ServerStorage.Backups`; backup saved as `10162026-backup1.rbxl`. That publish predates the sounds: they ship on the next publish. MaxPlayers 8 still open.

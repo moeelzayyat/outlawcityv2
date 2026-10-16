@@ -326,3 +326,9 @@ NEXT: owner publishes (S2.10 package above). S3 needs the live game and real pla
 - ✅ D-016 reviewed and kept.
 - ⏸ Sounds: candidates load in this place; wiring waits for the owner's yes (they are from Roblox's licensed library, not uploaded by the Roblox account): Siren 9119165420 "Siren Yelp 1 (SFX)" · Engine 80317022777602 "Car-Engine-Loop" (verified group Roblox Resources) · Tyre 9120399077 "Vehicle Skids Long Heavy Tire Squeal 3 (SFX)" · Alarm 9113084849 "Alarm Bell On Carpet Constant Ring 1 (SFX)" · Bank 9113728042 "Cash Register 1 (SFX)" · Bust 9117907414 "Prison Door 2 (SFX)". All ProSoundEffects except the engine.
 - ❌ Not possible from here (Studio menus, no script API): MaxPlayers 8 (Game Settings → Places), File → Download a Copy, File → Publish to Roblox.
+
+## Owner published · 2026-10-16
+- Published privately by the owner; backup copy `10162026-backup1.rbxl` saved.
+- Sounds approved (D-017) and wired after that publish, so they ship with the **next** publish (File → Publish to Roblox again). Tested in Studio: siren, alarm, bank sting, engine, tyre.
+- **MaxPlayers 8, still open.** Studio: Home → Game Settings → Places → hover "Outlaw City" → the `⋯` button → Edit → Max Players = 8 → Save. Or the Creator Hub: create.roblox.com → Creations → Outlaw City → Places → Outlaw City → Server Size / Max Players = 8.
+- Still open: icon and 3 thumbnails (owner item 5), archive the old repo (owner item 6).
