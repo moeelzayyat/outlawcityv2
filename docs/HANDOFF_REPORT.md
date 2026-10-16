@@ -28,6 +28,7 @@ Local folder `C:\RobloxProjects\OutlawCityV2` is now a git clone of `moeelzayyat
 4. **Sound IDs** (D-003, S2.6): the audio system is built but silent. No search result was uploaded by the `Roblox` account itself, so tell me which IDs (or which creators, e.g. Roblox's licensed Pro Sound Effects library) count as Roblox-owned. Candidates are listed in `assets/ART_SOURCES.md`; I need a siren, engine loop, tyre squeal, alarm, bank (cash register) and bust sting.
 5. **Icon palette** (`ART_BIBLE.md`): sunset orange or night blue; needed by S2.10.
 6. **Archive the old repo** `moeelzayyat/outlawcity` on GitHub (Settings → Archive this repository). It is history only.
+7. **HUD screenshots** (S2.7): in Studio, Test → Device → iPhone 7, then iPhone 13 Pro Max, Play, and check the top of the screen: stars and cash in the first row, nothing overlapping. I can't drive Device Simulator from here.
 
 ---
 
@@ -240,4 +241,15 @@ OWNER: item 4 (sound IDs). Nothing plays until then; nothing else waits on it.
 BACKUP/RESTORE POINT: ServerStorage.Backups["S2.6 built"] (S2.5 passed kept)
 MIRROR: Studio = src/ 141/141, manifest 8e6edbf5 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: S2.7
+```
+
+## CHECKPOINT: S2.7 HUD UIScale (built, 🟦 screenshots) · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 323 passed, 0 failed (+ HudLayout.spec 4: no slot overlaps at iPhone 7 / 13 Pro Max landscape, cash in row 1, stack fits at scale ≥ 0.9) · SCRIPT ANALYSIS: 🟦 · 145/145 parse
+PLAY TEST (clients: 1, Studio window 2004x499): every HUD ScreenGui has Root + UIScale (scale 1.000 at this size); slots read back at their HudLayout positions
+  (Badge 838,8 · Cash 1058,8 · SpawnButton 1006,42 · Counter 852,92 · Banner 842,132 · Pop 852,166 · BankBar 852,196 · Panels 852,226 · Toasts 832,306 · Tip 12,92); 0 game errors
+NOT DONE: Device Simulator screenshots at iPhone 7 and iPhone 13 Pro Max. The MCP can't switch the Device Simulator and screen_capture times out in play mode. Spec math assumes a 36 px top inset. Owner check: Test → Device → iPhone 7, Play, look at the top of the screen.
+BACKUP/RESTORE POINT: ServerStorage.Backups["S2.7 built"] (S2.6 built pruned; S2.5 passed kept)
+MIRROR: Studio = src/ 145/145, manifest 4ace314b · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: S2.8
 ```

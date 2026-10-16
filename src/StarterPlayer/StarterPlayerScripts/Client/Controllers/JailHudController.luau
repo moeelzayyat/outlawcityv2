@@ -11,6 +11,9 @@ local Shared = ReplicatedStorage.Shared
 local JailRules = require(Shared.Jail.JailRules)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local JailHudController = {}
 
 local player = Players.LocalPlayer
@@ -24,13 +27,11 @@ function JailHudController.init()
 
 	local panel = Instance.new("Frame")
 	panel.Name = "Panel"
-	panel.AnchorPoint = Vector2.new(0.5, 0)
-	panel.Position = UDim2.new(0.5, 0, 0, 136) -- below the BUSTED! banner (y 96-132)
-	panel.Size = UDim2.fromOffset(240, 92)
+	UiRoot.place(panel, HudLayout.Slots.Panel) -- the robbery panel's slot: never shown together (S2.7)
 	panel.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 	panel.BackgroundTransparency = 0.15
 	panel.Visible = false
-	panel.Parent = gui
+	panel.Parent = UiRoot.mount(gui)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 12)
 	corner.Parent = panel
@@ -38,8 +39,8 @@ function JailHudController.init()
 	local title = Instance.new("TextLabel")
 	title.Name = "Title"
 	title.Text = "IN JAIL"
-	title.Size = UDim2.new(1, 0, 0, 34)
-	title.Position = UDim2.fromOffset(0, 6)
+	title.Size = UDim2.new(1, 0, 0, 32)
+	title.Position = UDim2.fromOffset(0, 4)
 	title.BackgroundTransparency = 1
 	title.TextColor3 = Color3.fromRGB(255, 90, 90)
 	title.Font = Enum.Font.GothamBlack
@@ -48,8 +49,8 @@ function JailHudController.init()
 
 	local countdown = Instance.new("TextLabel")
 	countdown.Name = "Countdown"
-	countdown.Size = UDim2.new(1, 0, 0, 40)
-	countdown.Position = UDim2.fromOffset(0, 42)
+	countdown.Size = UDim2.new(1, 0, 0, 36)
+	countdown.Position = UDim2.fromOffset(0, 36)
 	countdown.BackgroundTransparency = 1
 	countdown.TextColor3 = Color3.new(1, 1, 1)
 	countdown.Font = Enum.Font.GothamBold

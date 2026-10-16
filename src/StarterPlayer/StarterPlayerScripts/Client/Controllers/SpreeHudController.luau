@@ -9,6 +9,9 @@ local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Net.Remotes)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local SpreeHudController = {}
 
 local player = Players.LocalPlayer
@@ -54,13 +57,12 @@ function SpreeHudController.init()
 	-- Unbanked counter: the slot under the top status row (y 96), free whenever a spree exists.
 	local counter = Instance.new("Frame")
 	counter.Name = "Counter"
-	counter.AnchorPoint = Vector2.new(0.5, 0)
-	counter.Position = UDim2.new(0.5, 0, 0, 96)
-	counter.Size = UDim2.fromOffset(300, 36)
+	UiRoot.place(counter, HudLayout.Slots.Counter)
 	counter.BackgroundColor3 = PANEL
 	counter.BackgroundTransparency = 0.2
 	counter.Visible = false
-	counter.Parent = gui
+	local root = UiRoot.mount(gui)
+	counter.Parent = root
 	corner(counter, 10)
 	local amount = label(counter, "Amount", UDim2.new(0.62, 0, 1, 0), UDim2.fromOffset(8, 0), 26, Enum.Font.GothamBlack)
 	amount.TextXAlignment = Enum.TextXAlignment.Left
@@ -86,7 +88,8 @@ function SpreeHudController.init()
 	render()
 
 	-- "+$800 UNBANKED" pop under the counter.
-	local pop = label(gui, "Pop", UDim2.fromOffset(300, 30), UDim2.new(0.5, -150, 0, 136), 22, Enum.Font.GothamBlack)
+	local pop = label(root, "Pop", UDim2.fromOffset(300, 30), UDim2.new(0.5, -150, 0, 136), 22, Enum.Font.GothamBlack)
+	UiRoot.place(pop, HudLayout.Slots.Pop)
 	pop.TextColor3 = GREEN
 	pop.Visible = false
 	local popToken = 0
@@ -112,7 +115,7 @@ function SpreeHudController.init()
 	card.BackgroundColor3 = PANEL
 	card.BackgroundTransparency = 0.05
 	card.Visible = false
-	card.Parent = gui
+	card.Parent = root
 	corner(card, 14)
 	local heading = label(card, "Heading", UDim2.new(1, 0, 0, 34), UDim2.fromOffset(0, 12), 24, Enum.Font.GothamBlack)
 	local big = label(card, "Big", UDim2.new(1, 0, 0, 44), UDim2.fromOffset(0, 46), 38, Enum.Font.GothamBlack)

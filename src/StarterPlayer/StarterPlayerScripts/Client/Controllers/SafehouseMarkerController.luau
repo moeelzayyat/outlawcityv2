@@ -14,6 +14,9 @@ local SpreeConfig = require(Shared.Config.SpreeConfig)
 local OnboardingConfig = require(Shared.Config.OnboardingConfig)
 local OnboardingRules = require(Shared.Onboarding.OnboardingRules)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local SafehouseMarkerController = {}
 
 local player = Players.LocalPlayer
@@ -65,7 +68,7 @@ local function hasSpree(): boolean
 end
 
 function SafehouseMarkerController.init()
-	-- Bank progress bar under the spree counter (counter y 96, pop y 136).
+	-- Bank progress bar in its HUD slot under the spree pop (HudLayout, S2.7).
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "SafehouseHud"
 	gui.ResetOnSpawn = false
@@ -74,14 +77,12 @@ function SafehouseMarkerController.init()
 	gui.Parent = player:WaitForChild("PlayerGui")
 	local bar = Instance.new("Frame")
 	bar.Name = "BankBar"
-	bar.AnchorPoint = Vector2.new(0.5, 0)
-	bar.Position = UDim2.new(0.5, 0, 0, 170)
-	bar.Size = UDim2.fromOffset(300, 28)
+	UiRoot.place(bar, HudLayout.Slots.BankBar)
 	bar.BackgroundColor3 = PANEL
 	bar.BackgroundTransparency = 0.2
 	bar.ClipsDescendants = true
 	bar.Visible = false
-	bar.Parent = gui
+	bar.Parent = UiRoot.mount(gui)
 	local barCorner = Instance.new("UICorner")
 	barCorner.CornerRadius = UDim.new(0, 8)
 	barCorner.Parent = bar

@@ -13,6 +13,9 @@ local VehicleController = require(script.Parent.VehicleController)
 local VehicleInputController = require(script.Parent.VehicleInputController)
 local GarageController = require(script.Parent.GarageController)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local VehicleHudController = {}
 
 local TOAST_SECONDS = 2.5
@@ -101,21 +104,21 @@ function VehicleHudController.init()
 	local spawnButton = Instance.new("TextButton")
 	spawnButton.Name = "SpawnButton"
 	spawnButton.Text = if touch then "Spawn Car" else "Spawn Car [V]"
-	spawnButton.Size = UDim2.fromOffset(160, 44)
-	-- Top centre: the top-right corner can be covered by Roblox's player list.
-	spawnButton.Position = UDim2.new(0.5, 84, 0, 8) -- right of the Combat button
-	spawnButton.AnchorPoint = Vector2.new(0.5, 0)
+	-- Top centre, row 2 (the top-right corner can be covered by Roblox's player list) (S2.7).
+	UiRoot.place(spawnButton, HudLayout.Slots.SpawnButton)
 	spawnButton.BackgroundColor3 = Color3.fromRGB(230, 160, 20)
 	spawnButton.TextColor3 = Color3.new(1, 1, 1)
 	spawnButton.Font = Enum.Font.GothamBold
 	spawnButton.TextSize = 18
-	spawnButton.Parent = gui
+	local root = UiRoot.mount(gui)
+	spawnButton.Parent = root
 	corner(spawnButton, 10)
 	spawnButton.Activated:Connect(function()
 		GarageController.spawnOrChoose() -- one car: spawn it; 2+: choose in the garage
 	end)
 
-	local toast = label(gui, "Toast", UDim2.fromOffset(380, 36), UDim2.new(0.5, 0, 0, 140), Vector2.new(0.5, 0), 16)
+	local toast = label(root, "Toast", UDim2.fromOffset(380, 36), UDim2.new(0.5, 0, 0, 140), Vector2.new(0.5, 0), 16)
+	UiRoot.place(toast, HudLayout.Slots.Toast)
 	toast.Visible = false
 	local toastToken = 0
 	local function showToast(text: string)

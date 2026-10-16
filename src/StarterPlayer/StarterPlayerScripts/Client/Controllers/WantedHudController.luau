@@ -10,6 +10,9 @@ local Remotes = require(Shared.Net.Remotes)
 local WantedConfig = require(Shared.Config.WantedConfig)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local WantedHudController = {}
 
 local STAR_SIZE = 34
@@ -29,12 +32,12 @@ function WantedHudController.init()
 	local maxStars = #WantedConfig.StarThresholds
 	local row = Instance.new("Frame")
 	row.Name = "Stars"
-	row.AnchorPoint = Vector2.new(0.5, 0)
-	row.Position = UDim2.new(0.5, 0, 0, 58)
+	UiRoot.place(row, HudLayout.Slots.Stars) -- row 1, centred (S2.7)
 	row.Size = UDim2.fromOffset(maxStars * STAR_SIZE, STAR_SIZE)
 	row.BackgroundTransparency = 1
 	row.Visible = false
-	row.Parent = gui
+	local root = UiRoot.mount(gui)
+	row.Parent = root
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Horizontal
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -57,15 +60,13 @@ function WantedHudController.init()
 
 	local banner = Instance.new("TextLabel")
 	banner.Name = "Banner"
-	banner.AnchorPoint = Vector2.new(0.5, 0)
-	banner.Position = UDim2.new(0.5, 0, 0, 96)
-	banner.Size = UDim2.fromOffset(320, 36)
+	UiRoot.place(banner, HudLayout.Slots.Banner) -- under the spree counter (S2.7)
 	banner.BackgroundTransparency = 1
 	banner.Font = Enum.Font.GothamBlack
 	banner.TextSize = 26
 	banner.TextStrokeTransparency = 0.2
 	banner.Visible = false
-	banner.Parent = gui
+	banner.Parent = root
 
 	local bannerToken = 0
 	local function showBanner(text: string, color: Color3)

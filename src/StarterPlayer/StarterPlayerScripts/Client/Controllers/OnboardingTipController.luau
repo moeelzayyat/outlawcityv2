@@ -12,6 +12,9 @@ local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local OnboardingRules = require(Shared.Onboarding.OnboardingRules)
 local UiKit = require(script.Parent.UiKit)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local OnboardingTipController = {}
 
 local player = Players.LocalPlayer
@@ -32,11 +35,11 @@ function OnboardingTipController.init()
 	local card = Instance.new("Frame")
 	card.Name = "Tip"
 	card.Active = false -- touches and clicks outside the X pass through to the game
-	card.Position = UDim2.fromOffset(12, 92)
-	card.Size = UDim2.fromOffset(250, 84)
+	card.Position = UDim2.fromOffset(HudLayout.Tip.X, HudLayout.Tip.Y) -- left column, clear of the centred stack (S2.7)
+	card.Size = UDim2.fromOffset(HudLayout.Tip.W, HudLayout.Tip.H)
 	card.BackgroundColor3 = Color3.fromRGB(22, 24, 30)
 	card.BackgroundTransparency = 0.2
-	card.Parent = gui
+	card.Parent = UiRoot.mount(gui)
 	UiKit.corner(card, 12)
 	local text = UiKit.text(card, "Text", TIP_TEXT, UDim2.new(1, -56, 1, -12), UDim2.fromOffset(10, 6), OnboardingConfig.MinTextSize)
 	text.TextXAlignment = Enum.TextXAlignment.Left

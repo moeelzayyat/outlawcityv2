@@ -15,6 +15,9 @@ local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local OnboardingConfig = require(Shared.Config.OnboardingConfig)
 local OnboardingRules = require(Shared.Onboarding.OnboardingRules)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local RobberyHudController = {}
 
 local player = Players.LocalPlayer
@@ -54,16 +57,15 @@ function RobberyHudController.init()
 	gui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets -- clear of notches and Roblox's top bar
 	gui.Parent = player:WaitForChild("PlayerGui")
 
-	-- Objective panel: same slot as the jail panel (y 136); the two can't be shown together.
+	-- Objective panel: same slot as the jail panel (HudLayout.Panel); the two can't be shown together.
 	local panel = Instance.new("Frame")
 	panel.Name = "Panel"
-	panel.AnchorPoint = Vector2.new(0.5, 0)
-	panel.Position = UDim2.new(0.5, 0, 0, 136)
-	panel.Size = UDim2.fromOffset(300, 76)
+	UiRoot.place(panel, HudLayout.Slots.Panel)
 	panel.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 	panel.BackgroundTransparency = 0.15
 	panel.Visible = false
-	panel.Parent = gui
+	local root = UiRoot.mount(gui)
+	panel.Parent = root
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 12)
 	corner.Parent = panel
@@ -90,7 +92,7 @@ function RobberyHudController.init()
 	detail.TextWrapped = true
 	detail.Parent = panel
 
-	-- Full panel on PC/tablet; compact one under the top HUD row on short phone screens.
+	-- The full panel in its HUD slot everywhere: UiRoot scales the HUD for short screens (S2.7).
 	local layoutHeight = -1
 	local function applyLayout()
 		local camera = Workspace.CurrentCamera
@@ -99,8 +101,8 @@ function RobberyHudController.init()
 			return
 		end
 		layoutHeight = height
-		local layout = OnboardingRules.robberyPanelLayout(height, OnboardingConfig)
-		panel.Position = UDim2.new(0.5, 0, 0, layout.Y)
+		local layout = OnboardingConfig.FullPanel
+		UiRoot.place(panel, HudLayout.Slots.Panel)
 		panel.Size = UDim2.fromOffset(layout.Width, layout.Height)
 		local titleHeight = layout.TitleSize + 6
 		title.TextSize = layout.TitleSize
@@ -114,9 +116,7 @@ function RobberyHudController.init()
 	-- Toast for one-off messages (alarm, rejection reason, success, failure).
 	local toast = Instance.new("TextLabel")
 	toast.Name = "Toast"
-	toast.AnchorPoint = Vector2.new(0.5, 0)
-	toast.Position = UDim2.new(0.5, 0, 0, 220)
-	toast.Size = UDim2.fromOffset(340, 40)
+	UiRoot.place(toast, HudLayout.Slots.Toast)
 	toast.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 	toast.BackgroundTransparency = 0.15
 	toast.TextColor3 = Color3.new(1, 1, 1)
@@ -124,7 +124,7 @@ function RobberyHudController.init()
 	toast.TextSize = 16
 	toast.TextWrapped = true
 	toast.Visible = false
-	toast.Parent = gui
+	toast.Parent = root
 	local toastCorner = Instance.new("UICorner")
 	toastCorner.CornerRadius = UDim.new(0, 10)
 	toastCorner.Parent = toast

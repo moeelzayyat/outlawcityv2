@@ -12,6 +12,9 @@ local Remotes = require(Shared.Net.Remotes)
 local PlayerAttributes = require(Shared.Player.PlayerAttributes)
 local CombatConfig = require(Shared.Config.CombatConfig)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local CombatStatusController = {}
 
 local PEACEFUL_COLOR = Color3.fromRGB(40, 150, 90)
@@ -41,14 +44,11 @@ function CombatStatusController.init()
 
 	local button = Instance.new("TextButton")
 	button.Name = "CombatButton"
-	button.Size = UDim2.fromOffset(160, 44)
-	button.AnchorPoint = Vector2.new(0.5, 0)
-	-- Left of the Spawn Car button in the top-centre row.
-	button.Position = UDim2.new(0.5, -84, 0, 8)
+	UiRoot.place(button, HudLayout.Slots.CombatButton) -- row 2, left of the Spawn Car button (S2.7)
 	button.TextColor3 = Color3.new(1, 1, 1)
 	button.Font = Enum.Font.GothamBold
 	button.TextSize = 16
-	button.Parent = gui
+	button.Parent = UiRoot.mount(gui)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = button

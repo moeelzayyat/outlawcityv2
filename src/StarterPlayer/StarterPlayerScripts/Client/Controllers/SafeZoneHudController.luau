@@ -6,6 +6,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlayerAttributes = require(ReplicatedStorage.Shared.Player.PlayerAttributes)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local SafeZoneHudController = {}
 
 local SAFE_COLOR = Color3.fromRGB(40, 150, 90)
@@ -22,14 +25,12 @@ function SafeZoneHudController.init()
 	local badge = Instance.new("TextLabel")
 	badge.Name = "Badge"
 	badge.Text = "SAFE ZONE"
-	-- Under the left half of the Combat button, clear of the centred wanted stars.
-	badge.Position = UDim2.new(0.5, -164, 0, 58)
-	badge.Size = UDim2.fromOffset(108, 26)
+	UiRoot.place(badge, HudLayout.Slots.SafeZoneBadge) -- row 1, left of the centred wanted stars (S2.7)
 	badge.TextColor3 = Color3.new(1, 1, 1)
 	badge.Font = Enum.Font.GothamBold
 	badge.TextSize = 13
 	badge.Visible = false
-	badge.Parent = gui
+	badge.Parent = UiRoot.mount(gui)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 8)
 	corner.Parent = badge

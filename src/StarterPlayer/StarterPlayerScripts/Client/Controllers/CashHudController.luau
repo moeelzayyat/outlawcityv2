@@ -6,6 +6,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlayerAttributes = require(ReplicatedStorage.Shared.Player.PlayerAttributes)
 
+local UiRoot = require(script.Parent.UiRoot)
+local HudLayout = require(game:GetService("ReplicatedStorage").Shared.Config.HudLayout)
+
 local CashHudController = {}
 
 local player = Players.LocalPlayer
@@ -27,16 +30,13 @@ function CashHudController.init()
 
 	local label = Instance.new("TextLabel")
 	label.Name = "Cash"
-	label.AnchorPoint = Vector2.new(1, 0)
-	-- Right of the centred wanted stars, under the Spawn Car button.
-	label.Position = UDim2.new(0.5, 164, 0, 58)
-	label.Size = UDim2.fromOffset(108, 26)
+	UiRoot.place(label, HudLayout.Slots.Cash) -- row 1, right of the centred wanted stars (S2.7)
 	label.BackgroundColor3 = Color3.fromRGB(20, 60, 30)
 	label.BackgroundTransparency = 0.2
 	label.TextColor3 = Color3.fromRGB(140, 255, 160)
 	label.Font = Enum.Font.GothamBold
 	label.TextSize = 15
-	label.Parent = gui
+	label.Parent = UiRoot.mount(gui)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 8)
 	corner.Parent = label
