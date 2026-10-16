@@ -41,6 +41,35 @@ function PoliceDispatchRules.chooseSpawnNode(
 	return beyond or farthest
 end
 
+export type Candidate = { Id: number, Stars: number, Held: boolean, Present: boolean }
+
+-- Who the unit chases this tick (R1.6, audit F2): its current target while still present and
+-- wanted; otherwise the highest-stars wanted candidate that isn't held (ties: lowest Id).
+function PoliceDispatchRules.pickTarget(currentId: number?, candidates: { Candidate }): number?
+	if currentId then
+		for _, c in candidates do
+			if c.Id == currentId and c.Present and c.Stars > 0 then
+				return currentId
+			end
+		end
+	end
+	local best: Candidate? = nil
+	for _, c in candidates do
+		if c.Present and not c.Held and c.Stars > 0 then
+			if best == nil or c.Stars > best.Stars or (c.Stars == best.Stars and c.Id < best.Id) then
+				best = c
+			end
+		end
+	end
+	return if best then best.Id else nil
+end
+
+-- Wanted heat holds (counts as seen) while a unit sees the player, or while they are wanted
+-- with no unit assigned: nobody escapes just because the only unit is busy elsewhere (F2).
+function PoliceDispatchRules.heatHeld(stars: number, assigned: boolean, seen: boolean): boolean
+	return seen or (stars > 0 and not assigned)
+end
+
 export type BustState = { Progress: number }
 
 function PoliceDispatchRules.newBustState(): BustState

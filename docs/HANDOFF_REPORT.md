@@ -113,3 +113,18 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["R1.5 passed"]
 MIRROR: Studio = src/ 115/115, manifest 4a84eec9 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: R1.6
 ```
+
+## CHECKPOINT: R1.6 Dispatch re-target + decay freeze · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 261 passed, 0 failed (+ PoliceDispatch.spec 3: keep target, re-target to most-wanted free player, heat held rules)
+SCRIPT ANALYSIS: 🟦 not measurable via MCP; 116/116 scripts parse
+PLAY TEST (clients: 1): 2★ at (-300,-300) → dispatched → sighted → BUSTED → despawn; console 0 game errors
+MULTI-CLIENT (clients: 2, Studio local server, NOT real network): StudioTestService:ExecuteMultiplayerTestAsync(2, "R1.6-Dispatch")
+  → "PASS B heat held at 70.0 for 21.8 s while the unit chased A; unit re-targeted to B after 22.0 s" (38.4 s session)
+  A: 2× RammingPolice via WantedService.reportCrime (the ram detector itself not exercised); B: StoreRobbery crime.
+NUMBERS: B unassigned 21.8 s (> 8 s decay delay) with heat 70.0 → 70.0; re-target latency ≤ 1 tick (0.25 s).
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.6 passed"]
+MIRROR: Studio = src/ 116/116, manifest acc6b457 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.7
+```
+New tool: `ServerStorage.Tests.Scenarios` (Studio-only multi-client scenarios; see TEST_PLAN). Studio 2–8-client runs are now scriptable and unattended.

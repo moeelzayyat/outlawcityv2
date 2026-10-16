@@ -64,3 +64,16 @@ if RunService:IsStudio() and Workspace:GetAttribute("RunTestsOnStart") ~= false 
 		(require :: any)(runner).run(tests)
 	end
 end
+
+-- In Studio, a multi-client scenario started with
+-- StudioTestService:ExecuteMultiplayerTestAsync(n, "<name>") runs from ServerStorage.Tests.Scenarios.
+if RunService:IsStudio() then
+	local okArgs, args = pcall(function()
+		return game:GetService("StudioTestService"):GetTestArgs()
+	end)
+	local tests = ServerStorage:FindFirstChild("Tests")
+	local scenarios = tests and tests:FindFirstChild("Scenarios")
+	if okArgs and type(args) == "string" and scenarios then
+		task.spawn((require :: any)(scenarios).run, args)
+	end
+end

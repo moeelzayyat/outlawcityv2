@@ -79,4 +79,29 @@ return {
 		Assert.equal(ok, false)
 		Assert.equal(reason, "NotWanted")
 	end,
+	["the unit keeps its target while that player is wanted (R1.6)"] = function()
+		local c = {
+			{ Id = 1, Stars = 1, Held = false, Present = true },
+			{ Id = 2, Stars = 3, Held = false, Present = true },
+		}
+		Assert.equal(PoliceDispatchRules.pickTarget(1, c), 1, "no switch to a higher-star player mid-chase")
+	end,
+	["a cleared or departed target hands the unit to the most-wanted free player (R1.6)"] = function()
+		local c = {
+			{ Id = 1, Stars = 0, Held = false, Present = true },
+			{ Id = 2, Stars = 2, Held = false, Present = true },
+			{ Id = 3, Stars = 3, Held = true, Present = true }, -- robbery holdout: police respond later
+			{ Id = 4, Stars = 2, Held = false, Present = true },
+		}
+		Assert.equal(PoliceDispatchRules.pickTarget(1, c), 2, "highest free stars, ties to the lowest id")
+		c[1].Stars, c[1].Present = 3, false
+		Assert.equal(PoliceDispatchRules.pickTarget(1, c), 2, "a target who left is dropped")
+		Assert.equal(PoliceDispatchRules.pickTarget(nil, { { Id = 9, Stars = 0, Held = false, Present = true } }), nil)
+	end,
+	["heat holds while seen or while wanted with no unit assigned (R1.6)"] = function()
+		Assert.equal(PoliceDispatchRules.heatHeld(2, false, false), true, "unassigned wanted player")
+		Assert.equal(PoliceDispatchRules.heatHeld(2, true, false), false, "assigned, unseen: decays")
+		Assert.equal(PoliceDispatchRules.heatHeld(2, true, true), true, "seen")
+		Assert.equal(PoliceDispatchRules.heatHeld(0, false, false), false, "not wanted")
+	end,
 }

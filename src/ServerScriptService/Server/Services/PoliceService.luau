@@ -36,6 +36,7 @@ type Unit = {
 	Driver: PoliceDriver.PoliceDriver,
 	Target: Player,
 	Ending: boolean,
+	EndToken: number, -- bumped when a re-target cancels a pending despawn
 	SeesTarget: boolean,
 	Bust: PoliceDispatchRules.BustState,
 	NextReplan: number,
@@ -194,6 +195,7 @@ local function spawnFor(target: Player)
 		Driver = driver,
 		Target = target,
 		Ending = false,
+		EndToken = 0,
 		SeesTarget = false,
 		Bust = PoliceDispatchRules.newBustState(),
 		NextReplan = 0,
@@ -212,10 +214,11 @@ local function endPursuit(reason: string)
 		return
 	end
 	current.Ending = true
+	local token = current.EndToken
 	current.Driver:setRoute({}, false)
 	logEvent(`pursuit ended: {reason}`)
 	task.delay(PoliceConfig.DespawnDelay, function()
-		if unit == current then
+		if unit == current and current.Ending and current.EndToken == token then
 			despawn(reason)
 		end
 	end)
@@ -237,41 +240,54 @@ function PoliceService.setDispatchHold(player: Player, held: boolean)
 	dispatchHolds[player] = if held then true else nil
 end
 
+-- Points the unit at a new player (or back at the same one), cancelling a pending despawn.
+local function retarget(current: Unit, target: Player)
+	current.Target = target
+	current.Ending = false
+	current.EndToken += 1
+	current.SeesTarget = false
+	current.Bust = PoliceDispatchRules.newBustState()
+	current.NextReplan = 0
+	current.FarSince = nil
+	logEvent(`re-targeted to {target.Name}`)
+end
+
 local function tick(dt: number)
 	local now = Workspace:GetServerTimeNow()
 	local current = unit
 
-	-- Dispatch: one unit for the most-wanted player.
+	-- Dispatch and re-target (R1.6): the unit keeps its player while they are wanted; otherwise
+	-- it takes the most-wanted player who isn't held (a robbery still in its holdout).
+	local candidates: { PoliceDispatchRules.Candidate } = {}
+	local byId: { [number]: Player } = {}
+	for _, player in Players:GetPlayers() do
+		byId[player.UserId] = player
+		table.insert(candidates, {
+			Id = player.UserId,
+			Stars = WantedService.getStars(player),
+			Held = dispatchHolds[player] == true,
+			Present = true,
+		})
+	end
+	local currentId = if current and not current.Ending and current.Target.Parent == Players then current.Target.UserId else nil
+	local pick = PoliceDispatchRules.pickTarget(currentId, candidates)
 	if not current then
-		local best, bestStars = nil :: Player?, 0
-		for _, player in Players:GetPlayers() do
-			local stars = WantedService.getStars(player)
-			if dispatchHolds[player] then
-				continue -- e.g. a store robbery still in its holdout: police respond when it ends
-			end
-			if PoliceDispatchRules.unitsFor(stars, PoliceConfig.MaxUnits) > 0 and stars > bestStars then
-				best, bestStars = player, stars
-			end
-		end
-		if best then
-			spawnFor(best)
+		if pick and PoliceDispatchRules.unitsFor(WantedService.getStars(byId[pick]), PoliceConfig.MaxUnits) > 0 then
+			spawnFor(byId[pick])
 		end
 		return
 	end
-	if current.Ending then
+	if not pick then
+		if not current.Ending then
+			endPursuit(if current.Target.Parent ~= Players then "target left" else "target no longer wanted (escaped or cleared)")
+		end
 		return
+	end
+	if current.Ending or current.Target ~= byId[pick] then
+		retarget(current, byId[pick])
 	end
 
-	-- Termination.
 	local target = current.Target
-	if target.Parent ~= Players then
-		endPursuit("target left")
-		return
-	end
-	if WantedService.getStars(target) <= 0 then
-		endPursuit("target no longer wanted (escaped or cleared)")
-		return
-	end
 	local root = targetRoot(target)
 	local chassis = current.Model.PrimaryPart
 	if not root or not chassis then
@@ -370,10 +386,12 @@ local function physicsStep(dt: number)
 	end
 end
 
--- Sighting hook for WantedService: true while the unit can see this player.
-local function seesPlayer(player: Player): boolean
+-- Heat hook for WantedService: held while the unit sees this player, or while they are wanted
+-- with no unit assigned to them (R1.6).
+local function holdsHeat(player: Player): boolean
 	local current = unit
-	return current ~= nil and not current.Ending and current.Target == player and current.SeesTarget
+	local assigned = current ~= nil and not current.Ending and current.Target == player
+	return PoliceDispatchRules.heatHeld(WantedService.getStars(player), assigned, assigned and (current :: Unit).SeesTarget)
 end
 
 function PoliceService.init()
@@ -384,7 +402,7 @@ function PoliceService.init()
 	npcFolder = Instance.new("Folder")
 	npcFolder.Name = "NpcVehicles"
 	npcFolder.Parent = Workspace
-	WantedService.setPoliceSightProvider(seesPlayer)
+	WantedService.setPoliceSightProvider(holdsHeat)
 end
 
 function PoliceService.start()
@@ -397,6 +415,11 @@ end
 
 function PoliceService.getUnit(): Model?
 	return if unit then unit.Model else nil
+end
+
+-- The player the unit is chasing (nil when there is no unit or it is ending its pursuit).
+function PoliceService.getTarget(): Player?
+	return if unit and not unit.Ending then unit.Target else nil
 end
 
 return PoliceService

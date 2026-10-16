@@ -110,3 +110,6 @@ Decision: seat exit uses a loose grace — exit step and momentum allowed, but >
 
 ## CP — R1.5 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 `VehicleSpawnRules` + VehicleService placement; characters block spots (F14); HUD texts for Wanted / InCrime / Unbanked; seat-exit fix (D-014). `[Tests] 258 passed, 0 failed`. Static 🟦 (parse-checked).
+
+## CP — R1.6 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+Unit keeps its player while wanted, re-targets (cancelling a pending despawn) to the most-wanted un-held player; wanted players with no unit have heat held (`PoliceDispatchRules.pickTarget/heatHeld`). Scripted 2-client scenario `R1.6-Dispatch`: PASS. `[Tests] 261 passed, 0 failed`. Static 🟦 (parse-checked).

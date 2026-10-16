@@ -122,7 +122,8 @@ function WantedService.getStars(player: Player): number
 	return if state then state.Stars else 0
 end
 
--- NPC police (3D) plug in here: provider(player) returns true while any unit can see them.
+-- NPC police plug in here: provider(player) returns true while the police hold this player's
+-- heat (a unit sees them, or they are wanted with no unit assigned, R1.6).
 function WantedService.setPoliceSightProvider(provider: (Player) -> boolean)
 	policeSightProvider = provider
 end
