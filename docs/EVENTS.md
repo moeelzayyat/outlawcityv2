@@ -7,10 +7,10 @@
 | `PlayerJoined` / `PlayerLeft` | `{UserId}` / `{UserId, Phase}` | Main | Analytics | R1.7 ✅ |
 | `CrimeStarted` / `CrimeCompleted` / `CrimeFailed` | `{UserId, CrimeId, LocationId, Amount?, Stars?, Reason?}` | RobberyService (→ CrimeService S2.3); `CrimeCompleted` at holdout end | Analytics (FirstCrime); SpreeService (adds the crime); Objectives S2.9 | R1.7 ✅ · S2.2 |
 | `StarsChanged` | `{UserId, Stars, Heat}` | WantedService | HUD, Analytics (S2) | R1.7 ✅ |
-| `Escaped` | `{UserId, FromStars}` | WantedService | RobberyService (payout); Spree (keep spree) S2 | R1.7 ✅ (replaced the Signal) |
+| `Escaped` | `{UserId, FromStars}` | WantedService | SpreeService (keeps the spree; escaping no longer pays, S2.2) | R1.7 ✅ (replaced the Signal) |
 | `PoliceSight` | `{UserId, Seen}` — `Seen` = police hold this player's heat: a unit sees them, or they are wanted with no unit assigned (R1.6) | PoliceService (on change) | WantedService (replaced `setPoliceSightProvider`) | R1.7 ✅ |
 | `PoliceDispatched` / `PoliceRecalled` | `{UserId, Units}` | PoliceService (dispatch, re-target / pursuit end) | HUD, Analytics (S2) | R1.7 ✅ |
-| `Busted` | `{UserId, Stars, Unbanked}` | PoliceService (after a successful jail) | Analytics (FirstBust); Spree (lose) S2 | R1.7 ✅ |
+| `Busted` | `{UserId, Stars, Unbanked}` | PoliceService (after a successful jail) | Analytics (FirstBust); SpreeService (loses the spree, counts the bust) | R1.7 ✅ · S2.2 |
 | `Jailed` / `Released` | `{UserId, Seconds?}` | JailService | HUD, Analytics (S2) | R1.7 ✅ |
 | `SpreeStarted` / `SpreeUpdated` | `{UserId, SpreeId, Unbanked, Multiplier, Crimes}` | SpreeService | Analytics (Again) | S2.2 ✅ |
 | `SpreeBanked` | `{UserId, SpreeId, Amount, PeakStars, Duration, Crimes}` | SpreeService (after `EconomyService.bankSpree` stored or recorded it) | Analytics (FirstBank, SpreeEnded); Leaderboard, Objectives S2.9 | S2.2 ✅ |
