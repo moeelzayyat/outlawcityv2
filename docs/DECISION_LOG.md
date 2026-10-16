@@ -86,3 +86,6 @@ Decision: removes are batched (a reward paid on the spot leaves the ledger on th
 
 ## CP — R1.2 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 F6 (lock released on leave-during-load via `ProfileStore.release`), F9 (`Corrupt` for non-table / lock-only records), F10 (batched ledger removes), profile v4 + v3→v4 migration + fixture (`ProfileMigration.spec`). `[Tests] 237 passed, 0 failed`. Live Studio migration: `loaded (Migrated) cash=11400`. Static 🟦 (parse-checked).
+
+## CP — R1.3 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+`CharacterValidationRules` (`Shared/Rules`, first module in the v2.0 Rules folder) + `CharacterValidationConfig` + `CharacterValidationService` (5 Hz, monitor + `ObservedAt`). `[Tests] 244 passed, 0 failed`. Live: 0 observations across walking, car spawn/exit, jail and release; a 100-stud hop observed. Static 🟦 (parse-checked).

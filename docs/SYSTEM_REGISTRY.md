@@ -29,7 +29,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 | System | Status | Target |
 |---|---|---|
 | Loop isolation, module-scope cleanup (`Server/Util/LoopGuard`: 8 loops, Main init/start pcall) | Tested | R1.1 |
-| Character sampler + payout gating | Planned | R1.3–R1.4 |
+| Character sampler (`CharacterValidationService`, R1.3) + payout gating (R1.4) | Tested (sampler) | R1.3–R1.4 |
 | Spawn restrictions | Planned | R1.5 |
 | Dispatch re-target + decay freeze | Planned | R1.6 |
 | EventBus + AnalyticsService funnel | Planned | R1.7 |

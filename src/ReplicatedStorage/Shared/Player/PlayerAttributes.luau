@@ -19,6 +19,7 @@ local PlayerAttributes = table.freeze({
 	RobberyPhase = "RobberyPhase", -- "Holding" | "Escaping" | "PayoutPending" while a robbery is live or unpaid (else nil)
 	RobberyHoldEndsAt = "RobberyHoldEndsAt", -- server time the holdout completes
 	RobberyReward = "RobberyReward", -- cash promised for escaping (display only)
+	ObservedAt = "ObservedAt", -- server time of the last character observation (CharacterValidationService); absent if none
 })
 
 return PlayerAttributes

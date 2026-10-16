@@ -18,6 +18,7 @@ local WantedService = require(script.Parent.WantedService)
 local SpawnService = require(script.Parent.SpawnService)
 local WorldService = require(script.Parent.WorldService)
 local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
+local CharacterValidationService = require(script.Parent.CharacterValidationService)
 
 local JailService = {}
 
@@ -57,6 +58,7 @@ local function placeInCell(player: Player)
 		for _, delay in { 0, 0.3 } do
 			task.delay(delay, function()
 				if character.Parent and JailService.isJailed(player) then
+					CharacterValidationService.authorizeMove(player)
 					character:PivotTo(target)
 				end
 			end)

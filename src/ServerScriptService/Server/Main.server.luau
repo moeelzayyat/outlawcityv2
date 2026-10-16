@@ -29,6 +29,7 @@ local modules: { ModuleScript } = {
 	Dev.MilestoneLog,
 	Services.VehicleService,
 	Services.VehicleValidationService,
+	Services.CharacterValidationService,
 }
 
 local services: { { name: string, service: Service } } = {}

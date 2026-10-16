@@ -64,3 +64,18 @@ MIRROR: Studio = src/ 107/107, manifest dc583350 · APPROVAL: auto-approved (una
 NEXT: R1.3
 ```
 Schema note for the owner: once any v4 server saves a profile, an older v3 build refuses that record untouched (by design). The Studio test store is already v4.
+
+## CHECKPOINT: R1.3 Character sampler · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 244 passed, 0 failed (+ CharacterValidation.spec 7: 3 min generated play → 0; 100-stud hop → Teleport;
+  NaN/inf → InvalidState; sustained overspeed vs burst; grace; vertical fall; payout window)
+SCRIPT ANALYSIS: 🟦 not measurable via MCP; 111/111 scripts parse
+PLAY TEST (clients: 1): 20 s MoveTo walk with jumps, Coupe spawn (server seats at a pad) + exit, bust → cell → release:
+  ObservedAt stayed nil; summary "samples=266 observations=0". Client PivotTo +100 studs → 2 observations
+  ("moved 64 studs in 0.22 s", "moved 36 studs in 0.22 s"), ObservedAt set. Console: 0 game errors.
+NUMBERS: CharacterValidation loop avg 0.014–0.015 ms, max 0.025 ms (1 player).
+KNOWN LIMITS: a character flung by a car or standing on a moving vehicle can be observed (payouts gated 10 s, nothing else).
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.3 passed"]
+MIRROR: Studio = src/ 111/111, manifest daa605df · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.4
+```

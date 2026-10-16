@@ -27,7 +27,7 @@
 `UnitsByStars = {1, 2, 3}` (D-002) · server cap 6 · sight range 130 · chase speed 100 · chase gain 0.25 · bust distance 8 / 2.5 s · roadblock at 3★, 250 studs ahead, 30 s.
 
 ## Character sampler (`CharacterValidationRules`, R1.3)
-On-foot: max speed 24 studs/s sustained 1 s; displacement per 0.2 s sample ≤ 24×0.2×1.5+6; vertical excluded; non-finite → observation; observation window for gating 10 s.
+On-foot: max speed 24 studs/s sustained 1 s; displacement per 0.2 s sample ≤ 24×0.2×1.5+6; vertical excluded; non-finite → observation; observation window for gating 10 s. Grace 2 s after spawn, after leaving a seat, and after an authorized server move (`authorizeMove`, jail cell). Seated players are not sampled (`CharacterValidationConfig`).
 
 ## Vehicles (as built)
 Coupe top 120 · Muscle 138 · Police 128; validation limits ×1.3 + 10 (monitor-only).
