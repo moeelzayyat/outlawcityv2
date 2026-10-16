@@ -53,7 +53,7 @@ local function sampleAll()
 			tracks[character] = state
 		end
 		if humanoid.SeatPart then
-			Rules.grant(state, now, Config.SeatGraceSeconds)
+			Rules.grantLoose(state, now, Config.SeatGraceSeconds)
 			continue
 		end
 		totals.Samples += 1

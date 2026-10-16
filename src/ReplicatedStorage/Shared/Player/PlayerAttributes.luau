@@ -20,6 +20,7 @@ local PlayerAttributes = table.freeze({
 	RobberyHoldEndsAt = "RobberyHoldEndsAt", -- server time the holdout completes
 	RobberyReward = "RobberyReward", -- cash promised for escaping (display only)
 	ObservedAt = "ObservedAt", -- server time of the last character observation (CharacterValidationService); absent if none
+	SpreeUnbanked = "SpreeUnbanked", -- unbanked spree cash (S2.2); absent until sprees exist
 })
 
 return PlayerAttributes

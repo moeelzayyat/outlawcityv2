@@ -10,6 +10,9 @@ local Shared = ReplicatedStorage.Shared
 local Remotes = require(Shared.Net.Remotes)
 local Types = require(Shared.Types)
 local VehicleConfig = require(Shared.Config.VehicleConfig)
+local GameplayConfig = require(Shared.Config.GameplayConfig)
+local PlayerAttributes = require(Shared.Player.PlayerAttributes)
+local VehicleSpawnRules = require(Shared.Rules.VehicleSpawnRules)
 local Server = script.Parent.Parent
 local VehicleFactory = require(Server.Vehicle.VehicleFactory)
 local RateLimiter = require(Server.Util.RateLimiter)
@@ -28,6 +31,10 @@ local SPAWN_CLEARANCE = Vector3.new(10, 8, 16)
 local SPAWN_DROP = 0.5
 local SEAT_RETRIES = 10 -- re-seat attempts after a spawn (covers a client still leaving its old seat)
 local SEAT_RETRY_INTERVAL = 0.1
+local NEARBY_RADII = { 10, 16, 24 } -- studs from the player tried when no pad is in range
+local NEARBY_DIRECTIONS = 8
+local GROUND_PROBE = 60 -- studs; a nearby spot needs ground within this drop
+local MAX_GROUND_STEP = 8 -- and no more than this above/below the player's feet
 
 local vehiclesFolder: Folder
 local vehicleByOwner: { [number]: Model } = {}
@@ -85,21 +92,73 @@ local function despawnOwnedVehicle(userId: number)
 	end
 end
 
-local function findFreeSpawn(nearPosition: Vector3): CFrame?
-	local candidates = WorldService.getVehicleSpawnCFrames()
-	table.sort(candidates, function(a, b)
-		return (a.Position - nearPosition).Magnitude < (b.Position - nearPosition).Magnitude
-	end)
-	local params = OverlapParams.new()
-	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = { vehiclesFolder }
-	for _, cframe in candidates do
-		local box = cframe + Vector3.new(0, SPAWN_CLEARANCE.Y / 2, 0)
-		if #Workspace:GetPartBoundsInBox(box, SPAWN_CLEARANCE, params) == 0 then
-			return cframe
+-- Cars and characters both block a spawn spot (F14).
+local function movingBlockers(): { Instance }
+	local list: { Instance } = { vehiclesFolder }
+	for _, other in Players:GetPlayers() do
+		if other.Character then
+			table.insert(list, other.Character)
 		end
 	end
-	return nil
+	return list
+end
+
+local function padClear(cframe: CFrame, blockers: { Instance }): boolean
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = blockers
+	return #Workspace:GetPartBoundsInBox(cframe + Vector3.new(0, SPAWN_CLEARANCE.Y / 2, 0), SPAWN_CLEARANCE, params) == 0
+end
+
+-- A spot beside the player: solid ground near their feet and nothing collidable in the box.
+local function nearbySpot(root: BasePart, offset: Vector3, blockers: { Instance }): CFrame?
+	local probe = RaycastParams.new()
+	probe.FilterType = Enum.RaycastFilterType.Exclude
+	probe.FilterDescendantsInstances = blockers
+	local from = root.Position + offset + Vector3.new(0, MAX_GROUND_STEP, 0)
+	local hit = Workspace:Raycast(from, Vector3.new(0, -GROUND_PROBE, 0), probe)
+	local feet = root.Position.Y - 3
+	if not hit or math.abs(hit.Position.Y - feet) > MAX_GROUND_STEP then
+		return nil
+	end
+	local look = root.CFrame.LookVector
+	local flatLook = Vector3.new(look.X, 0, look.Z)
+	local facing = if flatLook.Magnitude > 0.01 then flatLook.Unit else Vector3.new(0, 0, -1)
+	local cframe = CFrame.lookAt(hit.Position, hit.Position + facing)
+	local params = OverlapParams.new()
+	params.RespectCanCollide = true -- markers, zones and lights don't block; walls and cars do
+	local box = cframe + Vector3.new(0, SPAWN_CLEARANCE.Y / 2 + 0.6, 0)
+	if #Workspace:GetPartBoundsInBox(box, SPAWN_CLEARANCE, params) > 0 then
+		return nil
+	end
+	return cframe
+end
+
+-- Where the car goes (R1.5): a free pad within VehicleSpawnMaxDistance, else a clear spot
+-- beside the player within the same distance. Never a far pad.
+local function findFreeSpawn(root: BasePart): CFrame?
+	local blockers = movingBlockers()
+	local padFrames = WorldService.getVehicleSpawnCFrames()
+	local pads: { VehicleSpawnRules.Spot } = {}
+	for index, cframe in padFrames do
+		pads[index] = { Position = cframe.Position, Free = padClear(cframe, blockers) }
+	end
+	local nearbyFrames: { CFrame } = {}
+	local nearby: { VehicleSpawnRules.Spot } = {}
+	for _, radius in NEARBY_RADII do
+		for i = 0, NEARBY_DIRECTIONS - 1 do
+			local angle = i * 2 * math.pi / NEARBY_DIRECTIONS
+			local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius
+			local cframe = nearbySpot(root, offset, blockers)
+			table.insert(nearbyFrames, cframe or CFrame.new(root.Position + offset))
+			table.insert(nearby, { Position = root.Position + offset, Free = cframe ~= nil })
+		end
+	end
+	local choice = VehicleSpawnRules.choose(root.Position, pads, nearby, GameplayConfig.VehicleSpawnMaxDistance)
+	if not choice then
+		return nil
+	end
+	return if choice.Kind == "Pad" then padFrames[choice.Index] else nearbyFrames[choice.Index]
 end
 
 local function sitIfFree(player: Player, vehicle: Model)
@@ -128,6 +187,17 @@ local function spawnVehicle(player: Player, vehicleId: string): (boolean, Types.
 	if not JailService.allows(player, "SpawnVehicle") then
 		return false, "Jailed"
 	end
+	-- No car while wanted, mid-crime or holding unbanked cash (F3): a fresh car (and the old
+	-- pad teleport) must never be an escape tool. Server-set attributes only.
+	local phase = player:GetAttribute(PlayerAttributes.RobberyPhase)
+	local allowed, refusal = VehicleSpawnRules.canSpawn({
+		WantedLevel = tonumber(player:GetAttribute(PlayerAttributes.WantedLevel)) or 0,
+		InCrime = phase == "Holding" or phase == "Escaping",
+		Unbanked = tonumber(player:GetAttribute(PlayerAttributes.SpreeUnbanked)) or 0,
+	})
+	if not allowed then
+		return false, refusal :: any
+	end
 	local humanoid = getLiveHumanoid(player)
 	local root = humanoid and humanoid.RootPart
 	if not humanoid or not root then
@@ -147,7 +217,7 @@ local function spawnVehicle(player: Player, vehicleId: string): (boolean, Types.
 		humanoid.Sit = false
 	end
 	despawnOwnedVehicle(player.UserId)
-	local spawnCFrame = findFreeSpawn(root.Position)
+	local spawnCFrame = findFreeSpawn(root)
 	if not spawnCFrame then
 		spawnLimiter:reset(player.UserId)
 		return false, "NoFreeSpawn"

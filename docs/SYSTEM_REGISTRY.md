@@ -30,7 +30,7 @@ Status: `Planned` · `In Development` · `Implemented` (solo-tested) · `Tested`
 |---|---|---|
 | Loop isolation, module-scope cleanup (`Server/Util/LoopGuard`: 8 loops, Main init/start pcall) | Tested | R1.1 |
 | Character sampler (`CharacterValidationService`, R1.3) + payout gating (`AreaCheck`, `Observed`, R1.4) | Tested | R1.3–R1.4 |
-| Spawn restrictions | Planned | R1.5 |
+| Spawn restrictions (`VehicleSpawnRules`: wanted / crime / unbanked; car within 30 studs; characters block pads) | Tested | R1.5 |
 | Dispatch re-target + decay freeze | Planned | R1.6 |
 | EventBus + AnalyticsService funnel | Planned | R1.7 |
 | SpreeRules / SpreeService / Spree HUD / result card | Planned | S2.1–S2.2 |

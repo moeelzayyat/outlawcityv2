@@ -18,13 +18,16 @@ local VehicleHudController = {}
 local TOAST_SECONDS = 2.5
 local ERROR_TEXT: { [string]: string } = {
 	Cooldown = "Wait a moment before spawning again.",
-	NoFreeSpawn = "All spawn pads are blocked. Try again shortly.",
+	NoFreeSpawn = "No room for a car here. Move to an open street.",
 	NotAlive = "You need to be alive to spawn a car.",
 	UnknownVehicle = "That vehicle is not available.",
 	BadRequest = "Spawn request was rejected.",
 	NetworkError = "Could not reach the server.",
 	Jailed = "You can't spawn a car while in jail.",
 	NotOwned = "You don't own that car. Buy it at the dealership.",
+	Wanted = "No new car while the police want you. Lose them first.",
+	InCrime = "Finish the robbery first.",
+	Unbanked = "Bank your cash before getting a new car.",
 }
 
 local function corner(parent: Instance, radius: number)

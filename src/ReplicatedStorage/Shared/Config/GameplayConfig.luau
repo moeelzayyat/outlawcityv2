@@ -6,5 +6,7 @@ local GameplayConfig = {}
 GameplayConfig.SpawnProtectionSeconds = 5
 -- A civilian spawn counts as occupied if a character or vehicle is within this many studs.
 GameplayConfig.SpawnClearance = 8
+-- A spawned car appears within this many studs of the player (pad or beside them; R1.5, F3).
+GameplayConfig.VehicleSpawnMaxDistance = 30
 
 return table.freeze(GameplayConfig)

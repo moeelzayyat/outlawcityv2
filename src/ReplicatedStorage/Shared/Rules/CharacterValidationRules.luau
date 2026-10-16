@@ -6,7 +6,7 @@
 local CharacterValidationRules = {}
 
 export type Sample = { Time: number, Position: Vector3, Velocity: Vector3 }
-export type State = { Last: Sample?, OverspeedTime: number, GraceUntil: number }
+export type State = { Last: Sample?, OverspeedTime: number, GraceUntil: number, LooseUntil: number }
 export type Observation = { Kind: string, Detail: string }
 
 type Config = {
@@ -14,6 +14,7 @@ type Config = {
 	SustainSeconds: number,
 	DisplacementFactor: number,
 	DisplacementSlack: number,
+	LooseMaxJump: number,
 }
 
 local function finite(n: number): boolean
@@ -29,13 +30,21 @@ local function flat(v: Vector3): Vector3
 end
 
 function CharacterValidationRules.new(now: number, graceSeconds: number): State
-	return { Last = nil, OverspeedTime = 0, GraceUntil = now + graceSeconds }
+	return { Last = nil, OverspeedTime = 0, GraceUntil = now + graceSeconds, LooseUntil = 0 }
 end
 
 -- Authorized server move (spawn, seat, jail cell): skip judgement for a while and start a
 -- fresh baseline afterwards.
 function CharacterValidationRules.grant(state: State, now: number, seconds: number)
 	state.GraceUntil = math.max(state.GraceUntil, now + seconds)
+	state.Last = nil
+	state.OverspeedTime = 0
+end
+
+-- Leaving a seat: the exit step and the car's momentum are allowed for a while, but a jump
+-- bigger than LooseMaxJump in one sample is still a teleport (no free teleport after exiting).
+function CharacterValidationRules.grantLoose(state: State, now: number, seconds: number)
+	state.LooseUntil = math.max(state.LooseUntil, now + seconds)
 	state.Last = nil
 	state.OverspeedTime = 0
 end
@@ -51,11 +60,12 @@ function CharacterValidationRules.observe(state: State, sample: Sample, config: 
 		state.OverspeedTime = 0
 		return observations
 	end
+	local loose = sample.Time < state.LooseUntil
 	local last = state.Last
 	local dt = if last then sample.Time - last.Time else 0
 	if last and dt > 0 then
 		local distance = flat(sample.Position - last.Position).Magnitude
-		local allowed = config.MaxSpeed * dt * config.DisplacementFactor + config.DisplacementSlack
+		local allowed = if loose then config.LooseMaxJump else config.MaxSpeed * dt * config.DisplacementFactor + config.DisplacementSlack
 		if distance > allowed then
 			table.insert(observations, {
 				Kind = "Teleport",
@@ -63,7 +73,7 @@ function CharacterValidationRules.observe(state: State, sample: Sample, config: 
 			})
 		end
 		local speed = flat(sample.Velocity).Magnitude
-		if speed > config.MaxSpeed then
+		if speed > config.MaxSpeed and not loose then
 			state.OverspeedTime += dt
 			if state.OverspeedTime >= config.SustainSeconds then
 				table.insert(observations, {

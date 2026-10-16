@@ -41,7 +41,7 @@ export type VehicleInput = {
 }
 
 -- Error codes returned by RequestSpawnVehicle.
-export type SpawnError = "BadRequest" | "UnknownVehicle" | "NotAlive" | "Cooldown" | "NoFreeSpawn" | "Jailed" | "NotOwned"
+export type SpawnError = "BadRequest" | "UnknownVehicle" | "NotAlive" | "Cooldown" | "NoFreeSpawn" | "Jailed" | "NotOwned" | "Wanted" | "InCrime" | "Unbanked"
 
 -- Why a dealership purchase was refused (EconomyError values pass through).
 export type PurchaseError = "BadRequest" | "NotForSale" | "TooFar" | "NotAlive" | "Jailed" | "Busy" | "Cooldown" | EconomyError

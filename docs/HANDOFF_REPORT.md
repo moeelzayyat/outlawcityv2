@@ -96,3 +96,20 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["R1.4 passed"]
 MIRROR: Studio = src/ 113/113, manifest 57d1f952 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: R1.5
 ```
+
+## CHECKPOINT: R1.5 Spawn restrictions · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 258 passed, 0 failed (+ VehicleSpawn.spec 6; + CharacterValidation.spec "leaving a seat allows exit momentum but not a teleport")
+SCRIPT ANALYSIS: 🟦 not measurable via MCP; 115/115 scripts parse
+PLAY TEST (clients: 1):
+  V at 2★ → false, "Wanted"
+  V from the plaza (stood at 20,0; nearest pad ~47 studs) → car 9.8 studs away, seated
+  V standing on pad PlazaSE (own character blocks it) → car 9.8 studs from the pad, not on it
+  V 12 studs beside free pad PlazaNE → car 0.2 studs from the pad centre
+  exit car → no observation; exit then client teleport +300 → "moved 300 studs in 0.20 s (allowed 60)"
+  Console: 0 game errors.
+NOT COVERED: "another player on the pad" needs 2 clients; covered by the same code path (all characters are blockers) and VehicleSpawn.spec.
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.5 passed"]
+MIRROR: Studio = src/ 115/115, manifest 4a84eec9 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.6
+```

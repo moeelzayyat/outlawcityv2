@@ -97,3 +97,16 @@ Decision: a VehicleValidation movement observation (Teleport, ExtremeTeleport, S
 
 ## CP — R1.4 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 Robbery start/holdout/escape refused for observed players (`Observed`); holdout uses `Server/Crime/AreaCheck` (bounds query over the character's parts); `AlreadyPaid` shows the toast (F13). `[Tests] 251 passed, 0 failed`. Static 🟦 (parse-checked).
+
+## D-013 — "Spawn within 30 studs" keeps the one-tap car
+2026-10-16 · R1.5 · Accepted (unattended, recommendation)
+Context: pads exist only at the plaza (~47 studs from the civilian spawns) and the highway ends; a pad-only 30-stud rule would leave most of the map without a car.
+Decision: the car goes on the nearest free pad within 30 studs, else on a clear spot beside the player within 30 studs (ground within ±8 studs of their feet, no collidable part in the car box). No far pads, ever. One tap still works anywhere with room.
+
+## D-014 — Seat-exit grace judges big jumps (R1.3 hole found in R1.5)
+2026-10-16 · R1.5 · Accepted (unattended, recommendation)
+Context: the 2 s grace after leaving a seat skipped all judging, so "exit car → teleport" was free.
+Decision: seat exit uses a loose grace — exit step and momentum allowed, but > 60 studs in one sample is a Teleport. Authorized server moves (spawn, jail cell) keep the full grace.
+
+## CP — R1.5 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+`VehicleSpawnRules` + VehicleService placement; characters block spots (F14); HUD texts for Wanted / InCrime / Unbanked; seat-exit fix (D-014). `[Tests] 258 passed, 0 failed`. Static 🟦 (parse-checked).

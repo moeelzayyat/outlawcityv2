@@ -5,7 +5,7 @@ Rules: a remote exists only with a row here, a type guard, a limiter, and an ent
 ## Existing (validated today)
 | Remote | Type | Client sends | Server validates | v2.0 change |
 |---|---|---|---|---|
-| `RequestSpawnVehicle` | F | `vehicleId` | type/len, known, `PlayerSpawnable`, ownership, not jailed, alive, 3 s limiter, free pad | **+ refuse while wanted / in crime / unbanked > 0; spawn ≤ 30 studs; pad clearance includes characters** |
+| `RequestSpawnVehicle` | F | `vehicleId` | type/len, known, `PlayerSpawnable`, ownership, not jailed, alive, 3 s limiter, free spot | ✅ R1.5: refused while wanted (`Wanted`) / robbery Holding·Escaping (`InCrime`) / `SpreeUnbanked` > 0 (`Unbanked`); car on a free pad ≤ 30 studs, else a clear spot beside the player ≤ 30 studs; characters block spots |
 | `RequestExitVehicle` | E | — | 0.5 s limiter; in a DriverSeat under `Workspace.Vehicles` | — |
 | `RequestSetCombatStatus` | F | `target` | limiter, string ≤ 16, names, jail, wanted lock, 30 s cooldown | hidden in HUD until S5 |
 | `RequestPurchaseVehicle` | F | `vehicleId` | type/len, server price, in-flight guard before yield, 1 s limiter, alive, not jailed, desk ≤ 20 studs, GUID tx | distance also checked against the server-side last-good sample |

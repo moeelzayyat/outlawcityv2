@@ -96,4 +96,13 @@ return {
 		Assert.equal(Rules.isObserved(0 / 0, 100, Config.ObservationWindow), false)
 		Assert.equal(Rules.isObserved("95", 100, Config.ObservationWindow), false)
 	end,
+	["leaving a seat allows exit momentum but not a teleport"] = function()
+		local state = settled(Vector3.zero)
+		Rules.grantLoose(state, 10, Config.SeatGraceSeconds) -- seated until t=10
+		Assert.equal(#Rules.observe(state, sample(10.2, Vector3.new(4.5, 0, 0), Vector3.new(120, 0, 0)), Config), 0, "exit step")
+		Assert.equal(#Rules.observe(state, sample(10.4, Vector3.new(28.5, 0, 0), Vector3.new(120, 0, 0)), Config), 0, "momentum")
+		local observations = Rules.observe(state, sample(10.6, Vector3.new(330, 0, 0)), Config)
+		Assert.equal(#observations, 1)
+		Assert.equal(observations[1].Kind, "Teleport")
+	end,
 }
