@@ -9,7 +9,7 @@ Rules: a remote exists only with a row here, a type guard, a limiter, and an ent
 | `RequestExitVehicle` | E | — | 0.5 s limiter; in a DriverSeat under `Workspace.Vehicles` | — |
 | `RequestSetCombatStatus` | F | `target` | limiter, string ≤ 16, names, jail, wanted lock, 30 s cooldown | hidden in HUD until S5 |
 | `RequestPurchaseVehicle` | F | `vehicleId` | type/len, server price, in-flight guard before yield, 1 s limiter, alive, not jailed, desk ≤ 20 studs, GUID tx | distance also checked against the server-side last-good sample |
-| `OnWantedNotice`, `OnRobberyNotice` | E (S→C) | — | server never listens | `OnSpreeNotice` added |
+| `OnWantedNotice`, `OnRobberyNotice` | E (S→C) | — | server never listens | `OnSpreeNotice` added · R1.4: robbery `Rejected`/`Failed` reason may be `Observed`; `Paid` is also sent for `AlreadyPaid` (F13) |
 | `DevRemotes.RequestDevCommand` | F | `(name, value)` | `IsStudio` ×2, `DevCommandRules` | + 1 s limiter |
 
 ## New (S2+)

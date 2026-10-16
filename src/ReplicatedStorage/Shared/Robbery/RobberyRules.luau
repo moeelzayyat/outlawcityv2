@@ -6,6 +6,8 @@
 --                 │                                                            │
 --                 └──► Failed (Died | Busted | LeftArea | Disconnected)        ├──(escaped police)──► Paid (once)
 --                                                                              └──► Failed (Died | Busted | Disconnected | EscapeTimedOut)
+-- Any phase fails with Observed while the character sampler has observed the player in the
+-- last 10 s (R1.4, D-004); an observed player can't start, hold or be paid.
 local Types = require(script.Parent.Parent.Types)
 
 local RobberyRules = {}
@@ -30,8 +32,9 @@ export type StartFacts = {
 	DistanceToRegister: number,
 	HasActiveSession: boolean,
 	CashReady: boolean, -- the player's cash profile is loaded, so a reward can be recorded
+	Observed: boolean?, -- observed by the character/vehicle sampler in the last 10 s (R1.4)
 }
-export type TickFacts = { Connected: boolean, Alive: boolean, Jailed: boolean, InArea: boolean }
+export type TickFacts = { Connected: boolean, Alive: boolean, Jailed: boolean, InArea: boolean, Observed: boolean? }
 type Config = {
 	HoldSeconds: number,
 	Reward: number,
@@ -52,6 +55,9 @@ function RobberyRules.canStart(store: StoreState, facts: StartFacts, now: number
 	end
 	if facts.Jailed then
 		return false, "Jailed"
+	end
+	if facts.Observed then
+		return false, "Observed"
 	end
 	if facts.InSafeZone then
 		return false, "InSafeZone"
@@ -122,6 +128,8 @@ function RobberyRules.tick(session: Session, store: StoreState?, facts: TickFact
 			return fail(session, store, "Died", config)
 		elseif facts.Jailed then
 			return fail(session, store, "Busted", config)
+		elseif facts.Observed then
+			return fail(session, store, "Observed", config)
 		elseif not facts.InArea then
 			return fail(session, store, "LeftArea", config)
 		elseif now >= session.HoldEndsAt then
@@ -137,6 +145,8 @@ function RobberyRules.tick(session: Session, store: StoreState?, facts: TickFact
 			return fail(session, store, "Disconnected", config)
 		elseif facts.Jailed then
 			return fail(session, store, "Busted", config)
+		elseif facts.Observed then
+			return fail(session, store, "Observed", config)
 		elseif not facts.Alive then
 			return fail(session, store, "Died", config)
 		elseif now > session.EscapeDeadline then
@@ -146,13 +156,19 @@ function RobberyRules.tick(session: Session, store: StoreState?, facts: TickFact
 	return nil, nil
 end
 
--- The player escaped the police. Pays exactly once, and only from the Escaping phase.
-function RobberyRules.onEscaped(session: Session): boolean
+-- The player escaped the police. Pays exactly once, and only from the Escaping phase; an
+-- observed player's escape fails the session instead (R1.4). Returns (pay, failReason?).
+function RobberyRules.onEscaped(session: Session, observed: boolean?): (boolean, Types.RobberyFailReason?)
 	if session.Phase ~= "Escaping" then
-		return false
+		return false, nil
+	end
+	if observed then
+		session.Phase = "Failed"
+		session.FailReason = "Observed"
+		return false, "Observed"
 	end
 	session.Phase = "Paid"
-	return true
+	return true, nil
 end
 
 -- Classifies the result of EconomyService.grant for a robbery reward. Only temporary failures

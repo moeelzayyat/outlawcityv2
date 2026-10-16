@@ -79,3 +79,20 @@ BACKUP/RESTORE POINT: ServerStorage.Backups["R1.3 passed"]
 MIRROR: Studio = src/ 111/111, manifest daa605df · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
 NEXT: R1.4
 ```
+
+## CHECKPOINT: R1.4 Payout gating · 2026-10-16 · STUDIO: placeId 132163592957463 verified
+```text
+TESTS: [Tests] 251 passed, 0 failed (+ RobberyRules.spec 3 Observed cases; + AreaCheck.spec 4 incl. root inside / body outside → not inside)
+SCRIPT ANALYSIS: 🟦 not measurable via MCP; 113/113 scripts parse
+PLAY TEST (clients: 1):
+  1. teleport into the store → TryRobStore → false, "Observed"
+  2. wait 11 s, rob, hold 16.5 s standing still → "holdout complete; escaping" (AreaCheck passes a real character)
+  3. teleport away (the R1.2 exploit) → "[Robbery] … failed: Observed" within 0.5 s, cash unchanged 13400
+  4. rob again, getaway in the Coupe at 90 studs/s (limit 166) → "escaped; paid 2000" → 15400; VehicleValidation samples=85 observations=0
+  Console: 0 game errors.
+NUMBERS: observation → robbery failure ≤ 0.5 s; CharacterValidation avg 0.015–0.017 ms/loop.
+NOT PLAY-TESTED: the AlreadyPaid toast (needs an ambiguous write at payout); code path is one notify call.
+BACKUP/RESTORE POINT: ServerStorage.Backups["R1.4 passed"]
+MIRROR: Studio = src/ 113/113, manifest 57d1f952 · APPROVAL: auto-approved (unattended) · PUBLISHED BY OWNER: n.a.
+NEXT: R1.5
+```

@@ -29,6 +29,7 @@ local REJECT_TEXT: { [string]: string } = {
 	StoreBusy = "Someone is already robbing this store.",
 	AlreadyRobbing = "You're already on a robbery.",
 	CashUnavailable = "Your cash data isn't loaded right now. Try again in a moment.",
+	Observed = "Unusual movement detected. Try again in a few seconds.",
 }
 local FAIL_TEXT: { [string]: string } = {
 	Died = "Robbery failed: you died. No cash.",
@@ -36,6 +37,7 @@ local FAIL_TEXT: { [string]: string } = {
 	LeftArea = "Robbery failed: you left the store too early. No cash.",
 	Disconnected = "Robbery failed: disconnected.",
 	EscapeTimedOut = "Robbery failed: you didn't escape in time. No cash.",
+	Observed = "Robbery failed: unusual movement detected. No cash.",
 }
 
 local function money(amount: number): string

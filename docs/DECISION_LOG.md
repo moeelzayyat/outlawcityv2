@@ -89,3 +89,11 @@ F6 (lock released on leave-during-load via `ProfileStore.release`), F9 (`Corrupt
 
 ## CP — R1.3 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
 `CharacterValidationRules` (`Shared/Rules`, first module in the v2.0 Rules folder) + `CharacterValidationConfig` + `CharacterValidationService` (5 Hz, monitor + `ObservedAt`). `[Tests] 244 passed, 0 failed`. Live: 0 observations across walking, car spawn/exit, jail and release; a 100-stud hop observed. Static 🟦 (parse-checked).
+
+## D-012 — Vehicle observations stamp the driver's ObservedAt
+2026-10-16 · R1.4 · Accepted (unattended, recommendation)
+Context: architecture §7 / D-004: vehicles stay monitor-only "but the same observation flag gates payouts".
+Decision: a VehicleValidation movement observation (Teleport, ExtremeTeleport, SustainedOverspeed, InvalidState) stamps the driver's `ObservedAt`; `OwnershipMismatch` (network-owner lag) does not. Cars are still never reset or corrected. Watch item: if honest chases get refused at S3, this stamp is the first suspect (3 lines in `VehicleValidationService.sampleAll`).
+
+## CP — R1.4 passed · 2026-10-16 · auto-approved (unattended) · published by owner: n.a.
+Robbery start/holdout/escape refused for observed players (`Observed`); holdout uses `Server/Crime/AreaCheck` (bounds query over the character's parts); `AlreadyPaid` shows the toast (F13). `[Tests] 251 passed, 0 failed`. Static 🟦 (parse-checked).

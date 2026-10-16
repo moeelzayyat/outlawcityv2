@@ -29,6 +29,8 @@ local WantedService = require(Services.WantedService)
 local JailService = require(Services.JailService)
 local EconomyService = require(Services.EconomyService)
 local PoliceService = require(Services.PoliceService)
+local CharacterValidationService = require(Services.CharacterValidationService)
+local AreaCheck = require(script.Parent.Parent.Crime.AreaCheck)
 local MilestoneLog = require(script.Parent.Parent.Dev.MilestoneLog)
 local LoopGuard = require(script.Parent.Parent.Util.LoopGuard)
 
@@ -86,12 +88,6 @@ local function isAlive(character: Model?): boolean
 	return humanoid ~= nil and humanoid.Health > 0 and rootOf(character) ~= nil
 end
 
-local function insideArea(area: BasePart, position: Vector3): boolean
-	local localPos = area.CFrame:PointToObjectSpace(position)
-	local half = area.Size / 2
-	return math.abs(localPos.X) <= half.X and math.abs(localPos.Y) <= half.Y and math.abs(localPos.Z) <= half.Z
-end
-
 local function endSession(player: Player, entry: Live)
 	if live[player] == entry then
 		live[player] = nil
@@ -127,6 +123,7 @@ function RobberyService.tryStart(player: Player, storeId: string): (boolean, Typ
 		DistanceToRegister = if root then (root.Position - store.Register.Position).Magnitude else math.huge,
 		HasActiveSession = live[player] ~= nil or pendingPayouts[player] ~= nil,
 		CashReady = EconomyService.getStatus(player) == "Loaded",
+		Observed = CharacterValidationService.isObserved(player),
 	}
 	local ok, err = RobberyRules.canStart(store.State, facts, t, RobberyConfig)
 	if not ok then
@@ -158,12 +155,13 @@ local function tick()
 		local store = stores[session.StoreId]
 		local character = player.Character
 		local sameCharacter = character == entry.Character
-		local root = rootOf(character)
 		local facts: RobberyRules.TickFacts = {
 			Connected = player.Parent == Players,
 			Alive = sameCharacter and isAlive(character), -- a reset or respawn counts as death
 			Jailed = JailService.isJailed(player),
-			InArea = store ~= nil and root ~= nil and insideArea(store.Area, root.Position),
+			-- Server bounds query over the character's parts, not the root position alone (R1.4).
+			InArea = store ~= nil and character ~= nil and AreaCheck.characterInside(store.Area, character),
+			Observed = CharacterValidationService.isObserved(player),
 		}
 		local event, reason = RobberyRules.tick(session, store and store.State, facts, t, RobberyConfig)
 		if event == "Failed" then
@@ -190,7 +188,11 @@ local function onEscaped(player: Player)
 		return -- not robbing: an ordinary escape pays nothing
 	end
 	local session = entry.Session
-	if not RobberyRules.onEscaped(session) then
+	local pay, reason = RobberyRules.onEscaped(session, CharacterValidationService.isObserved(player))
+	if not pay then
+		if reason then
+			failSession(player, entry, reason) -- observed: the escape never pays (R1.4)
+		end
 		return -- still holding (or already settled): never pays
 	end
 	endSession(player, entry)
@@ -239,6 +241,8 @@ function RobberyService.tryPayout(player: Player): Types.PayoutOutcome?
 		notify(player, "Paid", { Id = pending.SessionId, Amount = pending.Amount })
 		print(`[Robbery] {player.Name} {pending.SessionId} escaped; paid {pending.Amount}`)
 	elseif outcome == "AlreadyPaid" then
+		-- An earlier attempt was stored; the player still sees the payout (F13).
+		notify(player, "Paid", { Id = pending.SessionId, Amount = pending.Amount })
 		print(`[Robbery] {player.Name} {pending.SessionId} already paid (duplicate tx refused)`)
 	else
 		notify(player, "PayoutFailed", { Id = pending.SessionId, Reason = err })

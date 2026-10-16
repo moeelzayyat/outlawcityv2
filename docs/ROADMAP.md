@@ -60,7 +60,7 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | R1.1 | Loop isolation + lifecycle | `pcall` per iteration in the six loops with backoff; `JailService.release` guards `player.Parent`; module-scope connections moved into `start()` | Injected error in each loop → loop continues, error reported once; jail still releases | Tests with fakes, play test | ✅ |
 | R1.2 | Persistence fixes | Lock released on leave-during-load (F6); `Corrupt` for non-table / `{Lock}`-only (F9); ledger removes batched (F10); profile v4 schema + migration + fixture | `ProfileStore.spec` +4; `ProfileSession.spec` +2; migration fixture; no double-apply in the traced paths | TestRunner | ✅ |
 | R1.3 | Character sampler | `CharacterValidationRules` + `CharacterValidationService` (5 Hz, on-foot speed/displacement caps, non-finite); observations logged; `ObservedAt` attribute | Spec: 3 min of generated normal play → 0 observations; 100-stud hop → observation; NaN rejected | TestRunner | ✅ |
-| R1.4 | Payout gating | Robbery start/holdout/escape refused when observed in the last 10 s; holdout validated with `GetPartBoundsInBox`; `AlreadyPaid` shows the toast (F13) | Spec: observed player → `Rejected:Observed`; holdout outside the area box fails `LeftArea` even if the root claims inside | TestRunner, play test | ⬜ |
+| R1.4 | Payout gating | Robbery start/holdout/escape refused when observed in the last 10 s; holdout validated with `GetPartBoundsInBox`; `AlreadyPaid` shows the toast (F13) | Spec: observed player → `Rejected:Observed`; holdout outside the area box fails `LeftArea` even if the root claims inside | TestRunner, play test | ✅ |
 | R1.5 | Spawn restrictions | No spawn while wanted / in a crime / unbanked > 0; spawn within 30 studs; pad clearance includes characters | Spec + play test: V at 2★ → `Wanted`; V with a player on the pad → next pad | TestRunner, play test | ⬜ |
 | R1.6 | Dispatch re-target + decay freeze | Unit follows its player; a wanted player with no unit freezes decay; 2-client Studio test | 2 clients: A rams, B robs → B's heat does not decay until a unit sees or is assigned | Studio 2 clients | ⬜ |
 | R1.7 | Event bus + analytics | `EventBus`; the two hidden wires replaced; `AnalyticsService` funnel (`Joined`, `FirstCar`, `FirstCrime`, `FirstBank`, `FirstBust`, `SpreeEnded`, `Again`, `Left`) | Funnel events visible in the Analytics dashboard after a play test | Analytics | ⬜ |
@@ -140,4 +140,4 @@ BACKUP/RESTORE POINT · MIRROR COMMIT · APPROVAL (auto/owner) · PUBLISHED BY O
 NEXT: <ID>
 ```
 
-**Mode:** unattended (D-008) · **Current substage:** R1.4 · **Last checkpoint passed:** R1.3
+**Mode:** unattended (D-008) · **Current substage:** R1.5 · **Last checkpoint passed:** R1.4

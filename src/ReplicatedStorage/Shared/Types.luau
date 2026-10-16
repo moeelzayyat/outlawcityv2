@@ -140,8 +140,8 @@ export type EconomyError =
 export type RobberyPhase = "Holding" | "Escaping" | "Paid" | "Failed"
 -- What to do with a payout attempt's result: settle it, or keep the reward pending and retry.
 export type PayoutOutcome = "Paid" | "AlreadyPaid" | "Retry" | "Rejected"
-export type RobberyStartError = "Dead" | "Jailed" | "InSafeZone" | "InVehicle" | "TooFar" | "StoreCooldown" | "StoreBusy" | "AlreadyRobbing" | "CashUnavailable"
-export type RobberyFailReason = "Died" | "Busted" | "LeftArea" | "Disconnected" | "EscapeTimedOut"
+export type RobberyStartError = "Dead" | "Jailed" | "InSafeZone" | "InVehicle" | "TooFar" | "StoreCooldown" | "StoreBusy" | "AlreadyRobbing" | "CashUnavailable" | "Observed"
+export type RobberyFailReason = "Died" | "Busted" | "LeftArea" | "Disconnected" | "EscapeTimedOut" | "Observed"
 
 -- Errors from JailService.jailForBust.
 export type JailError = "NotInGame" | "NotWanted" | "AlreadyJailed"

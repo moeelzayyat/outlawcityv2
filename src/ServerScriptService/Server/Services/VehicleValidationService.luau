@@ -4,13 +4,15 @@
 -- MONITOR-ONLY: samples every vehicle at 5 Hz, runs VehicleValidationRules, and logs
 -- observations and alerts to the Output and to ServerStorage.Diagnostics. It never resets,
 -- moves, kicks or punishes anyone. Future rewards for driving must come from server-validated
--- gameplay events, not from client claims.
+-- gameplay events, not from client claims. A movement observation (not an ownership lag) also
+-- stamps the driver's ObservedAt, which gates payouts for 10 s (D-004, architecture §7).
 local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local VehicleConfig = require(ReplicatedStorage.Shared.Config.VehicleConfig)
+local PlayerAttributes = require(ReplicatedStorage.Shared.Player.PlayerAttributes)
 local Validation = script.Parent.Parent.Validation
 local VehicleValidationConfig = require(Validation.VehicleValidationConfig)
 local VehicleValidationRules = require(Validation.VehicleValidationRules)
@@ -100,6 +102,11 @@ local function sampleAll()
 		for _, observation in result.Observations do
 			totals.Observations += 1
 			log(`observation {observation.Kind} ({ownerName(vehicle)}, {vehicle.Name}): {observation.Detail}`)
+			local driverId = vehicle:GetAttribute("DriverUserId")
+			local driver = if type(driverId) == "number" and driverId ~= 0 then Players:GetPlayerByUserId(driverId) else nil
+			if driver and observation.Kind ~= "OwnershipMismatch" then
+				driver:SetAttribute(PlayerAttributes.ObservedAt, now)
+			end
 		end
 		if result.Alert then
 			totals.Alerts += 1
