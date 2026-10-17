@@ -91,9 +91,9 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 
 ## 5. Stage S3 — PUBLIC TEST (2–3 weeks) — GO/NO-GO
 
-| ID | Substage | Deliverables | Passes when |
-|---|---|---|---|
-| S3.1 | List publicly + diagnostic ads; icon/title A/B via flags | Playthrough per variant after 48 h |
+| ID | Substage | Deliverables | Passes when | Status |
+|---|---|---|---|---|
+| S3.1 | List publicly + diagnostic ads; icon/title A/B via flags | Playthrough per variant after 48 h | 🟨 public since 2026-10-17; no ads (D-018); store page fixes open |
 | S3.2 | 5 outside sessions incl. 2 phones, one unassisted | Observer sheets; funnel |
 | S3.3 | Two weekly iterations (balance: bust rate, multiplier, police) | Shipped; logged |
 | S3.4 | Signal read: bounce, D1, co-play, qualified sessions; spree completion, bank rate, bust rate | Written review |

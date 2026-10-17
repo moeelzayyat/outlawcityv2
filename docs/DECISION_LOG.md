@@ -187,3 +187,6 @@ Owner published privately after removing `ServerStorage.Backups`; backup saved a
 2026-10-17 · **Accepted by the owner** ("Always do the recommended decision by you for better unattended experience")
 Decision: when a decision comes up, Claude takes its own recommendation, logs it here as "Accepted (owner standing preference, recommendation)" and continues. Publishing, making the game public and spending (ads, monetization) stay with the owner per the hard rules.
 Applied now: MaxPlayers stays 8 (D-005; owner sets it in Game Settings); no ads in the first public week (S3.1).
+
+## S3 started · 2026-10-17
+Live page (signed out) loads: "Outlaw City" by @Lighthouse8282, Maturity "Content May Vary • Ages 16+", Server Size 50, empty description, genre N/A, 3 visits. Recommendations taken (D-018): re-answer the maturity questionnaire so the game isn't gated to 16+ (the content is non-violent: no weapons, blood or gambling), server size 8 (D-005), title A and the S2.10 description, no ads in week 1. All four are Creator Hub settings only the owner can change.

@@ -1,12 +1,12 @@
 # CURRENT PHASE
 
 **Mode:** UNATTENDED (D-008) — run substages back to back; stop only at publish substages (write the package, continue elsewhere) and GO/NO-GO gates.
-**Stage:** S2 — Signature: Crime Spree
-**Substage:** S2.10 — Store assets + publish (owner)
-**Status:** 🟦 READY FOR OWNER TO PUBLISH (package in `HANDOFF_REPORT.md`) · **Last checkpoint passed:** S2.9 (2026-10-16)
+**Stage:** S3 — Public test (GO/NO-GO at S3.6)
+**Substage:** S3.1 — List publicly
+**Status:** 🟨 public since 2026-10-17 · **Last checkpoint passed:** S2 exit (2026-10-16)
 
-## S2.10 — Store assets + publish (owner)
-Title A/B/C, icon, 3 thumbnails, description; the owner publishes (private first, public at S3). I never publish. S2 exit soak done (8 clients, 30 min, 0 server errors, police budget held). **Stopped:** S3 needs the live game and real players, and S3.6 is a GO/NO-GO gate. Next action is the owner's publish.
+## S3.1 — List publicly
+Public and playable. Open owner fixes: maturity label (shows Ages 16+), server size 8, title/description, icon and thumbnails. No ads in week 1 (D-018). Next: S3.2 outside sessions and the first weekly signal read once real sessions exist. S3.6 is a gate: stop there.
 
 ## S2 stage notes
 - Owner `.rbxl` for the S2 stage start: handoff owner item 1 (same instruction, name `OutlawCity_S2_before_<date>.rbxl`).

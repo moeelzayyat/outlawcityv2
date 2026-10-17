@@ -335,3 +335,12 @@ NEXT: owner publishes (S2.10 package above). S3 needs the live game and real pla
 
 ## Live check · 2026-10-17
 Owner published again (sounds ship in this version). Signed-out check of roblox.com/games/132163592957463: "This experience is not accessible because it is unrated". S3 needs the owner to complete the Maturity & Compliance questionnaire (Creator Hub → the experience → Audience / Maturity & Compliance) and set the experience to Public. Honest answers: no weapons or combat damage, no blood, no gambling, no romance, no voice/chat features beyond Roblox defaults; theme is non-violent crime (robbing stores/ATMs, police arrests).
+
+## S3 started · 2026-10-17 · the game is public
+Live page check (signed out): accessible. Maturity **Content May Vary • Ages 16+**, Server Size **50**, description empty, genre N/A, visits 3.
+Owner fixes on create.roblox.com (most important first):
+1. **Maturity & Compliance:** re-check the answers. Outlaw City has no weapons, combat damage, blood, gambling or romance; a 16+ gate hides it from most Roblox players. Expected label: Mild or Minimal.
+2. **Server size 8** (D-005): Places → Outlaw City → server size / max players.
+3. **Title and description:** title `Crime Spree 🚔 Outlaw City`; description from the S2.10 package above. Genre: Action (or Town and City).
+4. Icon and thumbnails (still not made).
+After that, S3 runs on real players: I read the funnel (second spree, bank vs bust, time to first bank) once there are sessions to read; the Creator Hub analytics needs your login, so paste or screenshot it when asked.
