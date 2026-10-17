@@ -550,6 +550,21 @@ function CityBuilder.buildDressing(city: Instance): Folder?
 			mesh.MeshType = Enum.MeshType.Sphere
 			mesh.Parent = part
 		end
+		if spec.Label then
+			local gui = Instance.new("SurfaceGui")
+			gui.Face = spec.Label.Face
+			gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			gui.PixelsPerStud = 30
+			local text = Instance.new("TextLabel")
+			text.Size = UDim2.fromScale(1, 1)
+			text.BackgroundTransparency = 1
+			text.Text = spec.Label.Text
+			text.TextScaled = true
+			text.Font = Enum.Font.GothamBlack
+			text.TextColor3 = spec.Label.Color
+			text.Parent = gui
+			gui.Parent = part
+		end
 		part.Parent = group
 		if index % CHUNK_SIZE == 0 then
 			task.wait()

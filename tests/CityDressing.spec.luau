@@ -38,14 +38,14 @@ return {
 		for _, s in CityDressing.specs() do
 			groups[s.Group] = (groups[s.Group] or 0) + 1
 		end
-		for _, g in { "Facade", "Roof", "Lamp", "Tree", "Furniture", "Park", "Hill" } do
+		for _, g in { "Facade", "Roof", "Lamp", "Tree", "Furniture", "Park", "Hill", "Site", "SiteProp" } do
 			Assert.truthy((groups[g] or 0) > 0, `{g} missing`)
 		end
 	end,
 	["solid props stay off roads, buildings and gameplay sites"] = function()
 		local clear = CityDressing.keepClear()
 		for _, s in CityDressing.specs() do
-			if s.Solid and s.Group ~= "Hill" then
+			if s.Solid and s.Group ~= "Hill" and s.Group ~= "SiteProp" then
 				local mn, mx = footprint(s)
 				for _, box in clear do
 					Assert.truthy(not overlaps(mn, mx, box.Min, box.Max), `{s.Name} blocks a road, building or site`)
@@ -70,6 +70,40 @@ return {
 				Assert.truthy(math.abs(d.X) <= half.X and math.abs(d.Z) <= half.Z and math.abs(d.Y) <= half.Y, `{s.Name} floats away from its building`)
 			end
 		end
+	end,
+	["safehouse props sit inside by the walls and leave the driving lane clear"] = function()
+		local props = 0
+		for _, s in CityDressing.specs() do
+			if s.Group == "SiteProp" then
+				props += 1
+				local home
+				for _, h in CityLayout.SAFEHOUSES do
+					if string.sub(s.Name, 1, #h.Id + 1) == h.Id .. "_" then
+						home = h
+					end
+				end
+				Assert.truthy(home, `{s.Name} belongs to a safehouse`)
+				local mn, mx = footprint(s)
+				local back = home.X - home.Depth / 2
+				Assert.truthy(mn.X >= back + 1 and mx.X <= home.X + home.Depth / 2 and mn.Z >= home.Z - home.Width / 2 + 1 and mx.Z <= home.Z + home.Width / 2 - 1, `{s.Name} pokes through the walls`)
+				local byWall = math.min(math.abs(mn.Z - home.Z), math.abs(mx.Z - home.Z)) >= home.Width / 2 - 6
+				local atBack = s.Center.X <= back + 4
+				Assert.truthy(byWall or atBack, `{s.Name} blocks the driving lane`)
+			end
+		end
+		Assert.truthy(props >= 6, "safehouse props")
+	end,
+	["crime sites and safehouses carry their signs"] = function()
+		local labels = {}
+		for _, s in CityDressing.specs() do
+			if s.Label then
+				labels[s.Label.Text] = (labels[s.Label.Text] or 0) + 1
+				Assert.equal(s.Solid, false, `{s.Name} sign is decoration`)
+			end
+		end
+		Assert.equal(labels.ATM, #CityLayout.ATM_SITES)
+		Assert.equal(labels.SAFEHOUSE, #CityLayout.SAFEHOUSES)
+		Assert.truthy(labels["GAS 24/7"] == 1 and labels.FUEL == 1 and labels.OPEN == 1, "gas station signs")
 	end,
 	["hills ring the map beyond the highway ends"] = function()
 		local hills = 0

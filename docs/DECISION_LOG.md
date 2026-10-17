@@ -211,3 +211,6 @@ Decision: insert polish stage P1 before S3 continues; D-006 (world polish frozen
 
 ## CP — P1 batch 1 (city dressing) · 2026-10-17
 `CityDressing` + `CityBuilder.buildDressing`: 1,747 parts (736 facade, 133 roof, 366 lamp, 378 tree, 110 furniture, 6 parks, 18 hills); baseplate turns to grass at server start. `[Tests] 341 passed, 0 failed` (+ CityDressing.spec 5: deterministic, ≤ 4,000 parts, solid props clear of roads/buildings/sites/spawns, facades on their buildings, hills clear of the highway). Workspace parts 2,234 in play. Studio = src/ 157/157, manifest a44aec59.
+
+## CP — P1 batch 2 (crime sites and safehouses) · 2026-10-17
+ATMs: ATM sign, hood, keypad, card slot, plinth. Gas station: canopy fascia "FUEL", "GAS 24/7" pylon, pump caps/screens/hoses, kiosk OPEN sign, parking bays. Safehouses: SAFEHOUSE plate, half-raised shutter, work lights, wall lamp, hazard strip; garage tyres/drums/workbench, warehouse crates/pallet (solid, kept by the walls). SurfaceGui text labels. Dressing 1,808 parts. `[Tests] 343 passed, 0 failed` (+2 specs: safehouse props off the driving lane, signs present). Studio = src/ 157/157, manifest b54aee3b.

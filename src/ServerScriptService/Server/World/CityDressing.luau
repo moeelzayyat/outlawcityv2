@@ -2,7 +2,8 @@
 -- City dressing (P1 polish, D-022): data-only detail added around the existing blueprint so the
 -- city stops reading as plain boxes. Building facades (window bands per floor, storefronts with
 -- awnings on road faces, parapets, rooftop units), street furniture (lamps, trees, hydrants,
--- benches, bins), small parks on empty lots, plaza trees, and a ring of hills on the horizon.
+-- benches, bins), small parks on empty lots, plaza trees, crime-site and safehouse details
+-- (signs, fascia, shutters, lights, props), and a ring of hills on the horizon.
 -- Everything is project-built parts (no outside assets), seeded so every server builds the same
 -- city. CityBuilder.buildDressing turns the specs into parts; CityDressing.spec checks them.
 local CityLayout = require(script.Parent.CityLayout)
@@ -21,6 +22,7 @@ export type DressSpec = {
 	Rotation: Vector3?, -- degrees (cylinders stand upright with Z = 90)
 	Ellipsoid: boolean?, -- a SpecialMesh sphere stretched to Size (hills); collision stays the box
 	Solid: boolean, -- blocks walking/driving: kept clear of roads, buildings and gameplay sites
+	Label: { Text: string, Face: Enum.NormalId, Color: Color3 }?, -- sign text (SurfaceGui)
 }
 
 local SEED = 20261017
@@ -212,6 +214,105 @@ local function bin(out: { DressSpec }, name: string, at: Vector3, base: number)
 	table.insert(out, spec(`{name}`, "Furniture", Vector3.new(at.X, base + 1.3, at.Z), Vector3.new(2.6, 1.6, 1.6), COLORS.Bin, Enum.Material.Metal, true, Enum.PartType.Cylinder, UPRIGHT))
 end
 
+-- Sign plate text: which face of a thin plate looks along `facing`.
+local function faceToward(facing: Vector3): Enum.NormalId
+	if facing.X > 0.5 then
+		return Enum.NormalId.Right
+	elseif facing.X < -0.5 then
+		return Enum.NormalId.Left
+	elseif facing.Z > 0.5 then
+		return Enum.NormalId.Back
+	end
+	return Enum.NormalId.Front
+end
+
+local function labelled(s: DressSpec, text: string, face: Enum.NormalId, color: Color3): DressSpec
+	s.Label = { Text = text, Face = face, Color = color }
+	return s
+end
+
+-- Crime sites and safehouses (P1 batch 2): signs and details so each place reads at a glance.
+-- Decoration is never solid; props inside the safehouses are, but stay by the walls so the
+-- driving lane in is clear (CityDressing.spec).
+local function sites(out: { DressSpec })
+	local base = CURB
+	for _, a in CityLayout.ATM_SITES do
+		local forwardV = Vector3.new(a.FaceX, 0, a.FaceZ)
+		local acrossX = a.FaceX == 0
+		local function at(forward: number, up: number, across: number, height: number, depth: number): (Vector3, Vector3)
+			local center = Vector3.new(a.X, base + up, a.Z) + forwardV * forward
+			local size = if acrossX then Vector3.new(across, height, depth) else Vector3.new(depth, height, across)
+			return center, size
+		end
+		local c, s = at(1.25, 6.3, 3, 0.55, 0.1)
+		table.insert(out, labelled(spec(`{a.Id}_Sign`, "Site", c, s, Color3.fromRGB(30, 120, 70), Enum.Material.SmoothPlastic, false), "ATM", faceToward(forwardV), Color3.new(1, 1, 1)))
+		c, s = at(1.35, 5.0, 2.6, 0.2, 0.7)
+		table.insert(out, spec(`{a.Id}_Hood`, "Site", c, s, Color3.fromRGB(40, 42, 48), Enum.Material.Metal, false))
+		c, s = at(1.1, 2.7, 0.9, 0.6, 0.25)
+		table.insert(out, spec(`{a.Id}_Keypad`, "Site", c, s, Color3.fromRGB(150, 152, 158), Enum.Material.Metal, false))
+		c, s = at(1.05, 3.25, 0.7, 0.08, 0.2)
+		table.insert(out, spec(`{a.Id}_Slot`, "Site", c, s, Color3.fromRGB(90, 255, 140), Enum.Material.Neon, false))
+		c, s = at(0, 0.15, 3.8, 0.3, 2.8)
+		table.insert(out, spec(`{a.Id}_Plinth`, "Site", c, s, Color3.fromRGB(120, 120, 124), Enum.Material.Concrete, false))
+	end
+
+	-- Gas station: canopy fascia with the brand, a price pylon by the road, pump displays, the
+	-- kiosk's OPEN sign and parking bays.
+	local g = CityLayout.GAS_CENTER
+	local top = CityLayout.ROAD_TOP
+	local white = Color3.fromRGB(240, 240, 240)
+	local red = Color3.fromRGB(200, 40, 40)
+	table.insert(out, labelled(spec("Gas_FasciaW", "Site", Vector3.new(g.X - 27.25, top + 14.2, g.Z), Vector3.new(0.5, 1.6, 22.4), white, Enum.Material.SmoothPlastic, false), "FUEL", Enum.NormalId.Left, red))
+	table.insert(out, spec("Gas_FasciaE", "Site", Vector3.new(g.X - 0.75, top + 14.2, g.Z), Vector3.new(0.5, 1.6, 22.4), white, Enum.Material.SmoothPlastic, false))
+	table.insert(out, spec("Gas_FasciaN", "Site", Vector3.new(g.X - 14, top + 14.2, g.Z - 11.25), Vector3.new(26.4, 1.6, 0.5), white, Enum.Material.SmoothPlastic, false))
+	table.insert(out, spec("Gas_FasciaS", "Site", Vector3.new(g.X - 14, top + 14.2, g.Z + 11.25), Vector3.new(26.4, 1.6, 0.5), white, Enum.Material.SmoothPlastic, false))
+	table.insert(out, spec("Gas_PylonPole", "Site", Vector3.new(g.X - 27, top + 6, g.Z + 31), Vector3.new(12, 0.8, 0.8), COLORS.Pole, Enum.Material.Metal, false, Enum.PartType.Cylinder, UPRIGHT))
+	table.insert(out, labelled(spec("Gas_PylonBoard", "Site", Vector3.new(g.X - 27, top + 14, g.Z + 31), Vector3.new(0.6, 5, 8), red, Enum.Material.SmoothPlastic, false), "GAS 24/7", Enum.NormalId.Left, white))
+	for i, z in { -5, 5 } do
+		table.insert(out, spec(`Gas_PumpCap{i}`, "Site", Vector3.new(g.X - 14, top + 5.15, g.Z + z), Vector3.new(2.3, 0.3, 1.7), red, Enum.Material.Neon, false))
+		table.insert(out, spec(`Gas_PumpScreen{i}`, "Site", Vector3.new(g.X - 15.05, top + 3.8, g.Z + z), Vector3.new(0.1, 1, 1.1), Color3.fromRGB(30, 34, 40), Enum.Material.Glass, false))
+		table.insert(out, spec(`Gas_PumpHose{i}`, "Site", Vector3.new(g.X - 12.85, top + 2.6, g.Z + z), Vector3.new(4, 0.25, 0.25), Color3.fromRGB(25, 25, 28), Enum.Material.Rubber, false, Enum.PartType.Cylinder, UPRIGHT))
+	end
+	table.insert(out, labelled(spec("Gas_OpenSign", "Site", Vector3.new(g.X + 11.8, top + 9.2, g.Z), Vector3.new(0.2, 1.4, 4), Color3.fromRGB(25, 25, 30), Enum.Material.SmoothPlastic, false), "OPEN", Enum.NormalId.Left, Color3.fromRGB(110, 255, 140)))
+	for i, z in { 15, 21, 27, 33 } do
+		table.insert(out, spec(`Gas_Bay{i}`, "Site", Vector3.new(g.X + 8, top + 0.03, g.Z + z), Vector3.new(10, 0.05, 0.3), white, Enum.Material.SmoothPlastic, false))
+	end
+
+	-- Safehouses: a SAFEHOUSE plate over the opening, a half-raised shutter, work lights, a wall
+	-- lamp, a hazard strip at the door, and props along the walls.
+	for _, h in CityLayout.SAFEHOUSES do
+		local front = h.X + h.Depth / 2
+		local back = h.X - h.Depth / 2
+		local n = h.Id
+		table.insert(out, labelled(spec(`{n}_Sign`, "Site", Vector3.new(front + 0.15, h.Height - 1.5, h.Z), Vector3.new(0.2, 2.2, h.Width * 0.6), Color3.fromRGB(28, 28, 32), Enum.Material.SmoothPlastic, false), "SAFEHOUSE", Enum.NormalId.Right, Color3.fromRGB(255, 205, 70)))
+		table.insert(out, spec(`{n}_Shutter`, "Site", Vector3.new(front - 0.6, h.Height - 4, h.Z), Vector3.new(0.4, 2, h.Width - 2.2), Color3.fromRGB(150, 150, 146), Enum.Material.CorrodedMetal, false))
+		for i, x in { h.X - h.Depth / 4, h.X + h.Depth / 4 } do
+			table.insert(out, spec(`{n}_Light{i}`, "Site", Vector3.new(x, h.Height - 0.8, h.Z), Vector3.new(0.6, 0.3, h.Width * 0.5), Color3.fromRGB(255, 240, 200), Enum.Material.Neon, false))
+		end
+		table.insert(out, spec(`{n}_WallLamp`, "Site", Vector3.new(front + 0.6, h.Height - 4.5, h.Z + h.Width / 2 - 3), Vector3.new(0.8, 0.6, 0.8), Color3.fromRGB(255, 220, 150), Enum.Material.Neon, false))
+		table.insert(out, spec(`{n}_Hazard`, "Site", Vector3.new(front - 1.5, CityLayout.ROAD_TOP + 0.03, h.Z), Vector3.new(1.2, 0.05, h.Width - 2), Color3.fromRGB(240, 190, 40), Enum.Material.SmoothPlastic, false))
+		local side = h.Width / 2 - 2.5
+		if h.Id == "Garage" then
+			for i, z in { -side, side } do
+				table.insert(out, spec(`{n}_Tyres{i}`, "SiteProp", Vector3.new(back + 3, CityLayout.ROAD_TOP + 1.2, h.Z + z), Vector3.new(2.4, 3, 3), Color3.fromRGB(28, 28, 30), Enum.Material.Rubber, true, Enum.PartType.Cylinder, UPRIGHT))
+				table.insert(out, spec(`{n}_Drum{i}`, "SiteProp", Vector3.new(h.X, CityLayout.ROAD_TOP + 1.5, h.Z + z), Vector3.new(3, 2, 2), if i == 1 then Color3.fromRGB(170, 50, 40) else Color3.fromRGB(40, 80, 150), Enum.Material.Metal, true, Enum.PartType.Cylinder, UPRIGHT))
+			end
+			table.insert(out, spec(`{n}_Bench`, "SiteProp", Vector3.new(back + 2, CityLayout.ROAD_TOP + 1.5, h.Z), Vector3.new(2, 3, 8), Color3.fromRGB(110, 80, 52), Enum.Material.Wood, true))
+		else
+			local crate = Color3.fromRGB(150, 112, 64)
+			for i, x in { h.X - h.Depth / 4, h.X + h.Depth / 8 } do
+				for j, z in { -side + 0.5, side - 0.5 } do
+					table.insert(out, spec(`{n}_Crate{i}{j}`, "SiteProp", Vector3.new(x, CityLayout.ROAD_TOP + 2, h.Z + z), Vector3.new(4, 4, 4), crate, Enum.Material.WoodPlanks, true))
+					if i == 1 then
+						table.insert(out, spec(`{n}_CrateTop{i}{j}`, "SiteProp", Vector3.new(x + 0.3, CityLayout.ROAD_TOP + 6, h.Z + z), Vector3.new(3.4, 4, 3.4), crate, Enum.Material.WoodPlanks, true))
+					end
+				end
+			end
+			table.insert(out, spec(`{n}_Pallet`, "SiteProp", Vector3.new(back + 3, CityLayout.ROAD_TOP + 0.3, h.Z), Vector3.new(4, 0.6, 5), Color3.fromRGB(140, 104, 64), Enum.Material.Wood, true))
+		end
+	end
+end
+
 -- Every dressing spec, in a fixed order (same city on every server).
 function CityDressing.specs(): { DressSpec }
 	local rng = Random.new(SEED)
@@ -315,6 +416,8 @@ function CityDressing.specs(): { DressSpec }
 			end
 		end
 	end
+
+	sites(out)
 
 	-- Hills on the horizon, at the baseplate's edge: a soft boundary around the whole map.
 	for i = 1, 20 do
