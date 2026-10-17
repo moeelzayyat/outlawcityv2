@@ -332,3 +332,6 @@ NEXT: owner publishes (S2.10 package above). S3 needs the live game and real pla
 - Sounds approved (D-017) and wired after that publish, so they ship with the **next** publish (File → Publish to Roblox again). Tested in Studio: siren, alarm, bank sting, engine, tyre.
 - **MaxPlayers 8, still open.** Studio: Home → Game Settings → Places → hover "Outlaw City" → the `⋯` button → Edit → Max Players = 8 → Save. Or the Creator Hub: create.roblox.com → Creations → Outlaw City → Places → Outlaw City → Server Size / Max Players = 8.
 - Still open: icon and 3 thumbnails (owner item 5), archive the old repo (owner item 6).
+
+## Live check · 2026-10-17
+Owner published again (sounds ship in this version). Signed-out check of roblox.com/games/132163592957463: "This experience is not accessible because it is unrated". S3 needs the owner to complete the Maturity & Compliance questionnaire (Creator Hub → the experience → Audience / Maturity & Compliance) and set the experience to Public. Honest answers: no weapons or combat damage, no blood, no gambling, no romance, no voice/chat features beyond Roblox defaults; theme is non-violent crime (robbing stores/ATMs, police arrests).
