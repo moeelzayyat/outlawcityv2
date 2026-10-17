@@ -5,7 +5,7 @@ Measured cells only. Baselines from `docs/legacy/PROGRESS.md` (solo Studio).
 | Metric | Target | Baseline | R1 | S2.5 | S2 soak | S5 | B1 |
 |---|---|---|---|---|---|---|---|
 | Server game work / frame (8 players, 6 units, 2 roadblocks) | ≤ 2 ms | police 0.09–0.12 ms avg, 0.44 max (1 unit) | | | | | |
-| Police raycasts / frame | ≤ 50 | 7 (1 unit) | | | | | |
+| Police raycasts / frame | ≤ 100 (D-019; was 50 for 6 units) | 7 (1 unit) | | | | | |
 | Validation loops (vehicle + character) | ≤ 0.2 ms | vehicle 0.034 ms avg | | | | | |
 | Client FPS PC (3★ chase) | 60 | 60 (Studio front) | | | | | |
 | Client FPS Device Simulator (3★ chase) | ≥ 30 | ~60 idle (sim) | | | | | |

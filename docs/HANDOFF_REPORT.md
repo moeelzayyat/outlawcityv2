@@ -344,3 +344,7 @@ Owner fixes on create.roblox.com (most important first):
 3. **Title and description:** title `Crime Spree 🚔 Outlaw City`; description from the S2.10 package above. Genre: Action (or Town and City).
 4. Icon and thumbnails (still not made).
 After that, S3 runs on real players: I read the funnel (second spree, bank vs bust, time to first bank) once there are sessions to read; the Creator Hub analytics needs your login, so paste or screenshot it when asked.
+
+## 50-player servers (D-019) · 2026-10-17
+Server size stays 50 (owner). Police retuned: up to 12 cars per server, at most 3 roadblocks at once. Studio 8-client test: 12 cars spread 3/3/1/1/1/1/1/1, 3 roadblocks max, police 0.63 ms per frame on average. Ships with your next publish.
+Live page after your questionnaire: Maturity **Minimal**, but it still shows **Ages 16+**; check the age settings in Creator Hub (Audience) if you want younger players to find it.

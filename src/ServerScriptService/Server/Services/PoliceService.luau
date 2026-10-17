@@ -474,7 +474,14 @@ local function updateRoadblocks(now: number)
 			removeRoadblock(player, if now >= block.EndsAt then "expired" else "pursuit over")
 		end
 	end
+	local active = 0
+	for _ in roadblocks do
+		active += 1
+	end
 	for _, player in Players:GetPlayers() do
+		if active >= PoliceConfig.RoadblockServerCap then
+			break -- busy servers: a few roadblocks, not one per 3-star player (D-019)
+		end
 		if roadblocks[player] or WantedService.getStars(player) < PoliceConfig.RoadblockStars or now < (roadblockReadyAt[player] or 0) then
 			continue
 		end
@@ -500,6 +507,7 @@ local function updateRoadblocks(now: number)
 		model:SetAttribute("TargetUserId", player.UserId)
 		model.Parent = npcFolder
 		roadblocks[player] = { Model = model, Target = player, EndsAt = now + PoliceConfig.RoadblockSeconds }
+		active += 1
 		logEvent(string.format("roadblock for %s at (%.0f, %.0f) across the %s road", player.Name, center.X, center.Z, axis))
 		EventBus.publish("RoadblockPlaced", { UserId = player.UserId, X = center.X, Z = center.Z, Seconds = PoliceConfig.RoadblockSeconds })
 	end
@@ -650,6 +658,14 @@ function PoliceService.getTarget(): Player?
 		end
 	end
 	return nil
+end
+
+function PoliceService.roadblockCount(): number
+	local n = 0
+	for _ in roadblocks do
+		n += 1
+	end
+	return n
 end
 
 function PoliceService.hasRoadblock(player: Player): boolean

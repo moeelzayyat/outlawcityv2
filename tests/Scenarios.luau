@@ -711,6 +711,70 @@ registry["S2-Soak"] = function()
 	return true, summary
 end
 
+-- D-019 (50-player servers): 8 wanted players, four at 3 stars and four at 1 star, want 16 units;
+-- the server cap of 12 gives every player one unit and the extra ones to the 3-star players, and
+-- no more than 3 roadblocks stand at once. Players shuttle so no unit can bust them; the police
+-- budget is recorded for 12 units.
+registry["S3-BigServer"] = function()
+	local WantedService = require(Services.WantedService) :: any
+	local PoliceService = require(Services.PoliceService) :: any
+	local PoliceConfig = require(ServerScriptService.Server.Police.PoliceConfig) :: any
+	local players = waitForPlayers(8, 180)
+	if #players < 8 then
+		return false, `only {#players} player(s) joined`
+	end
+	-- Two spots per player on grid roads (facing -Z, so 3-star players can get a roadblock ahead).
+	local columns = { -300, -100, 100, 300 }
+	local spots, heat = {}, {}
+	for i, p in players do
+		local x = columns[(i - 1) % 4 + 1]
+		local z = if i <= 4 then 200 else -200
+		spots[p] = { Vector3.new(x, 4, z), Vector3.new(x, 4, z - 60) }
+		heat[p] = if i <= 4 then 120 else 20
+	end
+	local maxUnits, maxBlocks = 0, 0
+	PoliceService.resetBudget()
+	for i = 1, 60 * 4 do -- 60 s
+		if i % 8 == 1 then
+			for p, pair in spots do
+				place(p, pair[(i // 8) % 2 + 1])
+				WantedService.setHeatForTesting(p, heat[p])
+			end
+		end
+		maxUnits = math.max(maxUnits, PoliceService.getBudget().Units)
+		maxBlocks = math.max(maxBlocks, PoliceService.roadblockCount())
+		task.wait(0.25)
+	end
+	local counts = {}
+	for i, p in players do
+		counts[i] = PoliceService.unitsOn(p)
+	end
+	local budget = PoliceService.getBudget()
+	for p in spots do
+		WantedService.resetWanted(p)
+	end
+	local summary = string.format("units per player %s (cap %d, max on server %d); max roadblocks %d; %d rays/frame max, %.3f ms avg / %.3f ms max per frame",
+		table.concat(counts, "/"), PoliceConfig.ServerUnitCap, maxUnits, maxBlocks, budget.MaxRaysPerFrame, budget.AvgFrameMs, budget.MaxFrameMs)
+	log(summary)
+	local total = 0
+	for i, n in counts do
+		total += n
+		if n < 1 then
+			return false, `player {i} had no unit | {summary}`
+		end
+	end
+	if total ~= PoliceConfig.ServerUnitCap or maxUnits > PoliceConfig.ServerUnitCap then
+		return false, `unit total {total}, cap {PoliceConfig.ServerUnitCap} | {summary}`
+	end
+	if maxBlocks > PoliceConfig.RoadblockServerCap then
+		return false, `{maxBlocks} roadblocks at once | {summary}`
+	end
+	if budget.MaxRaysPerFrame > PoliceConfig.MaxRaycastsPerFrame or budget.AvgFrameMs > PoliceConfig.MaxStepMs then
+		return false, `budget missed | {summary}`
+	end
+	return true, summary
+end
+
 function Scenarios.run(name: string)
 	local scenario = registry[name]
 	if not scenario then

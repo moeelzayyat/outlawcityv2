@@ -15,10 +15,11 @@ local function suspect(stars: number)
 end
 
 return {
-	["units scale 1-2-3 with stars under a server cap of 6 (D-002)"] = function()
+	["units scale 1-2-3 with stars under a server cap of 12 (D-002, D-019)"] = function()
 		Assert.equal(table.concat(PoliceConfig.UnitsByStars, ","), "1,2,3")
-		Assert.equal(PoliceConfig.ServerUnitCap, 6)
+		Assert.equal(PoliceConfig.ServerUnitCap, 12)
 		Assert.equal(PoliceConfig.RoadblockStars, 3)
+		Assert.equal(PoliceConfig.RoadblockServerCap, 3)
 	end,
 	["police cruiser exists and players cannot spawn it"] = function()
 		local stats = VehicleConfig.get("Police")

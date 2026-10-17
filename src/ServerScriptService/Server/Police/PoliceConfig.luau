@@ -3,7 +3,7 @@
 local PoliceConfig = {
 	-- Dispatch
 	UnitsByStars = { 1, 2, 3 }, -- units per wanted player at 1, 2, 3+ stars (D-002, S2.5)
-	ServerUnitCap = 6, -- never more units on the server than this (D-002)
+	ServerUnitCap = 12, -- never more units on the server than this (D-002; 12 for 50-player servers, D-019)
 	SpawnMinDistance = 160, -- spawn road nodes at least this far from the target...
 	SpawnMaxDistance = 450, -- ...and preferably no farther than this
 	DespawnDelay = 3, -- seconds a unit lingers after its pursuit ends
@@ -52,9 +52,10 @@ local PoliceConfig = {
 	RoadblockAhead = 250,
 	RoadblockSeconds = 30,
 	RoadblockCooldown = 15,
+	RoadblockServerCap = 3, -- at most this many roadblocks on the server at once (D-019)
 
 	-- Budget (D-002, S2.5): police raycasts per physics frame and step time for all units.
-	MaxRaycastsPerFrame = 50,
+	MaxRaycastsPerFrame = 100, -- 12 units (D-019); was 50 for 6
 	MaxStepMs = 2,
 
 	-- Diagnostics

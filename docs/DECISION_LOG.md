@@ -190,3 +190,9 @@ Applied now: MaxPlayers stays 8 (D-005; owner sets it in Game Settings); no ads 
 
 ## S3 started · 2026-10-17
 Live page (signed out) loads: "Outlaw City" by @Lighthouse8282, Maturity "Content May Vary • Ages 16+", Server Size 50, empty description, genre N/A, 3 visits. Recommendations taken (D-018): re-answer the maturity questionnaire so the game isn't gated to 16+ (the content is non-violent: no weapons, blood or gambling), server size 8 (D-005), title A and the S2.10 description, no ads in week 1. All four are Creator Hub settings only the owner can change.
+
+## D-019 — Server size 50 (replaces D-005)
+2026-10-17 · S3 · **Owner decision** ("I want the server to have many people not just 8, leave it size 50")
+Consequences taken on recommendation (D-018): police server cap 6 → 12 units; at most 3 roadblocks on a server at once; police raycast budget 50 → 100 per frame (12 units × 4 wheel + 3 whisker rays + sight checks); server frame budget stays ≤ 2 ms. A wanted player beyond the cap still gets frozen heat and can still bank at a safehouse.
+Measured (`S3-BigServer`, Studio, 8 clients, 60 s): 12 units given out 3/3/1/1/1/1/1/1, max 3 roadblocks, 96 rays/frame max, 0.629 ms avg / 2.937 ms max per frame. `[Tests] 336 passed, 0 failed`.
+Open risk: 2 safehouses, 4 ATMs and 1 store for up to 50 players will crowd; S3 data decides whether S4.5 (more crime sites) comes earlier.
