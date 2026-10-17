@@ -511,4 +511,57 @@ function CityBuilder.buildSafehouses(city: Instance): Folder
 	return safehouses
 end
 
+-- City dressing (P1, D-022): City.Dressing.<Group> parts from CityDressing.specs(), and grass on
+-- the baseplate. Decoration that isn't solid can't be walked on, queried or touched; small parts
+-- cast no shadows (phones). Built once at server start; the saved place is unchanged.
+function CityBuilder.buildDressing(city: Instance): Folder?
+	if city:FindFirstChild("Dressing") then
+		return nil
+	end
+	local CityDressing = require(script.Parent.CityDressing)
+	local folder = Instance.new("Folder")
+	folder.Name = "Dressing"
+	local groups: { [string]: Folder } = {}
+	for index, spec in CityDressing.specs() do
+		local group = groups[spec.Group]
+		if not group then
+			group = Instance.new("Folder")
+			group.Name = spec.Group
+			group.Parent = folder
+			groups[spec.Group] = group
+		end
+		local part = Instance.new("Part")
+		part.Name = spec.Name
+		part.Anchored = true
+		part.Shape = spec.Shape or Enum.PartType.Block
+		part.Size = spec.Size
+		local rotation = spec.Rotation or Vector3.zero
+		part.CFrame = CFrame.new(spec.Center) * CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+		part.Color = spec.Color
+		part.Material = spec.Material
+		part.CanCollide = spec.CanCollide
+		part.CanQuery = spec.Solid
+		part.CanTouch = false
+		part.CastShadow = spec.Group == "Tree" or spec.Group == "Roof"
+		part.TopSurface = Enum.SurfaceType.Smooth
+		part.BottomSurface = Enum.SurfaceType.Smooth
+		if spec.Ellipsoid then
+			local mesh = Instance.new("SpecialMesh")
+			mesh.MeshType = Enum.MeshType.Sphere
+			mesh.Parent = part
+		end
+		part.Parent = group
+		if index % CHUNK_SIZE == 0 then
+			task.wait()
+		end
+	end
+	folder.Parent = city
+	local baseplate = city.Parent and city.Parent:FindFirstChild("Baseplate")
+	if baseplate and baseplate:IsA("BasePart") then
+		baseplate.Color = CityDressing.Ground.Color
+		baseplate.Material = CityDressing.Ground.Material
+	end
+	return folder
+end
+
 return CityBuilder

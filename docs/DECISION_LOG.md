@@ -204,3 +204,10 @@ Police stay as tuned in D-019 (12-car cap, 3 roadblocks, ≤ 100 rays/frame): al
 ## D-021 — Server size back to 50 (D-020 withdrawn)
 2026-10-17 · S3 · **Owner decision** ("nvm I let it 50 for more fun experience, the more the merier")
 D-019 stands: server size 50, police cap 12, 3 roadblocks, as measured in `S3-BigServer`.
+
+## D-022 — Polish stage P1 before the public test
+2026-10-17 · **Owner request** ("the game is not even polished and no good 3d objects") · Accepted (owner standing preference, recommendation)
+Decision: insert polish stage P1 before S3 continues; D-006 (world polish frozen) is lifted for P1. All detail is project-built parts generated from code at server start (no outside assets, saved place unchanged, rollback = code). Batches: 1 city dressing (facades, rooftops, lamps, trees, parks, grass, hills), 2 crime sites and safehouses, 3 cars and police livery. Recommended to the owner: set the game Private while P1 runs.
+
+## CP — P1 batch 1 (city dressing) · 2026-10-17
+`CityDressing` + `CityBuilder.buildDressing`: 1,747 parts (736 facade, 133 roof, 366 lamp, 378 tree, 110 furniture, 6 parks, 18 hills); baseplate turns to grass at server start. `[Tests] 341 passed, 0 failed` (+ CityDressing.spec 5: deterministic, ≤ 4,000 parts, solid props clear of roads/buildings/sites/spawns, facades on their buildings, hills clear of the highway). Workspace parts 2,234 in play. Studio = src/ 157/157, manifest a44aec59.

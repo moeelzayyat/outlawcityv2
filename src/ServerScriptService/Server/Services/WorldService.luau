@@ -30,6 +30,7 @@ function WorldService.init()
 	if city then
 		CityBuilder.buildCrimeSites(city) -- adds only missing sites (S2.3)
 		CityBuilder.buildSafehouses(city) -- adds only missing safehouses (S2.4)
+		CityBuilder.buildDressing(city) -- facades, street furniture, parks, hills (P1, D-022)
 	end
 	if city then
 		CityBuilder.buildStreetSigns(city) -- adds only missing signs
