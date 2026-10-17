@@ -351,3 +351,15 @@ Live page after your questionnaire: Maturity **Minimal**, but it still shows **A
 
 ## Published · 2026-10-17 03:17 UTC
 Owner published the build with sounds and the 50-player police tuning (D-019/D-021, Studio manifest f375e0ac). Live page: Maturity Minimal • Ages 16+, server size 50, 3 visits, 0 active. S3 now waits for real players.
+
+## P1.4 — READY FOR OWNER TO PUBLISH · 2026-10-17
+Polish stage P1 (D-022) is done in Studio: city dressing, crime sites and safehouses, cars and police livery. Everything is project-built parts made in code at server start (no outside assets; saved place unchanged).
+
+TESTS: `[Tests] 345 passed, 0 failed`
+PLAY TEST (scripted): S2.3-Crimes (1 client) PASS · S2.4-Safehouses (1 client) PASS · S2.5-Escalation (3 clients) PASS
+NUMBERS: dressing 1,808 parts; workspace 2,403 parts in play (7 vehicles); car visuals 33–39 parts each
+MIRROR: Studio = src/ 158/158, manifest 395668ce
+
+Owner steps:
+1. In Studio (Outlaw City), File → Publish to Roblox.
+2. Optional: keep the experience Private until you have looked at it in a live server.

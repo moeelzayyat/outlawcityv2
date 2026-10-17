@@ -137,19 +137,35 @@ local function buildPoliceCar(): Model
 			prompt:Destroy()
 		end
 	end
-	-- Light bar so the unit reads as police at a glance.
+	-- Light bar so the unit reads as police at a glance: a dark base with two neon halves that
+	-- AtmosphereController flashes (the livery itself comes from VehicleFactory, P1).
 	local chassis = model.PrimaryPart :: BasePart
+	local base = Instance.new("Part")
+	base.Name = "LightBarBase"
+	base.Size = Vector3.new(4, 0.15, 1.1)
+	base.Color = Color3.fromRGB(25, 25, 28)
+	base.Material = Enum.Material.SmoothPlastic
+	base.Massless = true
+	base.CanCollide = false
+	base.CanQuery = false
+	base.CanTouch = false
+	base.CFrame = chassis.CFrame * CFrame.new(0, stats.ChassisSize.Y / 2 + 2.075, 1.0)
+	local baseWeld = Instance.new("WeldConstraint")
+	baseWeld.Part0 = chassis
+	baseWeld.Part1 = base
+	baseWeld.Parent = base
+	base.Parent = model
 	for side, color in { [-1] = Color3.fromRGB(255, 40, 40), [1] = Color3.fromRGB(40, 90, 255) } do
 		local light = Instance.new("Part")
 		light.Name = "LightBar"
-		light.Size = Vector3.new(1.6, 0.35, 0.8)
+		light.Size = Vector3.new(1.8, 0.4, 0.9)
 		light.Material = Enum.Material.Neon
 		light.Color = color
 		light.Massless = true
 		light.CanCollide = false
 		light.CanQuery = false
 		light.CanTouch = false
-		light.CFrame = chassis.CFrame * CFrame.new(side * 1.0, stats.ChassisSize.Y / 2 + 2.15, 1.0)
+		light.CFrame = chassis.CFrame * CFrame.new(side * 1.0, stats.ChassisSize.Y / 2 + 2.35, 1.0)
 		local weld = Instance.new("WeldConstraint")
 		weld.Part0 = chassis
 		weld.Part1 = light

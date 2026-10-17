@@ -32,6 +32,7 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | R0 | Re-baseline | 5 | 0.5 | Decisions | ✅ |
 | R1 | Integrity | 8 | 1.5 | Numeric | ✅ (static 🟦; R1.7 dashboard 🟦) |
 | S2 | Signature: Crime Spree | 10 | 3 | Numeric + owner publish | 🟨 |
+| P1 | Polish (D-022) | 3 | — | Standard + owner publish | 🟨 batches done; owner publish open |
 | S3 | **Public test** | 6 | 2–3 live | **GO/NO-GO** | ⬜ |
 | S4 | Content and progression | 8 | 3–4 | Standard | ⬜ |
 | S5 | Multiplayer and co-op | 6 | 2–3 | Numeric | ⬜ |
@@ -86,6 +87,19 @@ Status: `⬜` not started · `🟨` in progress · `🟦` checkpoint pending (pu
 | S2.10 | Store assets + publish (owner) | Title A/B/C; icon; 3 thumbnails; description; owner publishes (private first, then public at S3) | Assets uploaded; published | Owner | ✅ published privately by owner 2026-10-16 (icon/thumbnails still open) |
 
 **S2 exit numbers:** first crime ≤ 60 s; first result ≤ 4 min; 3★ budget; 8-client Studio soak 30 min, 0 errors. → S3.
+
+---
+
+## 4b. Stage P1 — Polish before the public test (D-022)
+
+All detail is project-built parts made in code at server start (no outside assets; saved place unchanged; rollback = code).
+
+| ID | Substage | Deliverables | Passes when | Status |
+|---|---|---|---|---|
+| P1.1 | City dressing | Facades, rooftops, lamps, trees, parks, grass, hills | CityDressing.spec; ≤ 4,000 dressing parts | ✅ 2026-10-17 |
+| P1.2 | Crime sites and safehouses | Signs, fascia, pumps, shutters, lights, props | Specs; S2.3-Crimes and S2.4-Safehouses PASS | ✅ 2026-10-17 |
+| P1.3 | Cars and police livery | Grille, pillars, mirrors, plates, rims, exhaust; muscle stripes and spoiler; police doors, roof, push bar, light bar | VehicleFactory.spec; S2.5-Escalation PASS | ✅ 2026-10-17 |
+| P1.4 | Owner publish | Owner publishes the polished build | Published | 🟦 READY FOR OWNER TO PUBLISH |
 
 ---
 

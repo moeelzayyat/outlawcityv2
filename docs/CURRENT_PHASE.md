@@ -1,9 +1,12 @@
 # CURRENT PHASE
 
 **Mode:** UNATTENDED (D-008) — run substages back to back; stop only at publish substages (write the package, continue elsewhere) and GO/NO-GO gates.
-**Stage:** S3 — Public test (GO/NO-GO at S3.6)
-**Substage:** S3.1 — List publicly
-**Status:** 🟨 public since 2026-10-17 · **Last checkpoint passed:** S2 exit (2026-10-16)
+**Stage:** P1 — Polish (D-022), then S3 — Public test (GO/NO-GO at S3.6)
+**Substage:** P1.4 — Owner publish of the polished build (P1.1–P1.3 ✅)
+**Status:** 🟦 READY FOR OWNER TO PUBLISH · **Last checkpoint passed:** P1.3 (2026-10-17)
+
+## P1 — Polish
+City dressing, crime sites and safehouses, cars and police livery: all built in code at server start, no outside assets. The owner publishes the polished build (and may keep the game Private until then). S3.1 resumes after that.
 
 ## S3.1 — List publicly
 Public and playable. Open owner fixes: maturity label (shows Ages 16+), server size 8, title/description, icon and thumbnails. No ads in week 1 (D-018). Next: S3.2 outside sessions and the first weekly signal read once real sessions exist. S3.6 is a gate: stop there.
