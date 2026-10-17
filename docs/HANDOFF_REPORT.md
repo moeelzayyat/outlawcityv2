@@ -348,3 +348,6 @@ After that, S3 runs on real players: I read the funnel (second spree, bank vs bu
 ## 50-player servers (D-019) · 2026-10-17
 Server size stays 50 (owner). Police retuned: up to 12 cars per server, at most 3 roadblocks at once. Studio 8-client test: 12 cars spread 3/3/1/1/1/1/1/1, 3 roadblocks max, police 0.63 ms per frame on average. Ships with your next publish.
 Live page after your questionnaire: Maturity **Minimal**, but it still shows **Ages 16+**; check the age settings in Creator Hub (Audience) if you want younger players to find it.
+
+## Published · 2026-10-17 03:17 UTC
+Owner published the build with sounds and the 50-player police tuning (D-019/D-021, Studio manifest f375e0ac). Live page: Maturity Minimal • Ages 16+, server size 50, 3 visits, 0 active. S3 now waits for real players.
