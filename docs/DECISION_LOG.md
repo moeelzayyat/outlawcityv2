@@ -196,3 +196,7 @@ Live page (signed out) loads: "Outlaw City" by @Lighthouse8282, Maturity "Conten
 Consequences taken on recommendation (D-018): police server cap 6 → 12 units; at most 3 roadblocks on a server at once; police raycast budget 50 → 100 per frame (12 units × 4 wheel + 3 whisker rays + sight checks); server frame budget stays ≤ 2 ms. A wanted player beyond the cap still gets frozen heat and can still bank at a safehouse.
 Measured (`S3-BigServer`, Studio, 8 clients, 60 s): 12 units given out 3/3/1/1/1/1/1/1, max 3 roadblocks, 96 rays/frame max, 0.629 ms avg / 2.937 ms max per frame. `[Tests] 336 passed, 0 failed`.
 Open risk: 2 safehouses, 4 ATMs and 1 store for up to 50 players will crowd; S3 data decides whether S4.5 (more crime sites) comes earlier.
+
+## D-020 — Server size 20 (replaces D-019 size 50)
+2026-10-17 · S3 · **Owner decision** ("let's make it server size 20 players")
+Police stay as tuned in D-019 (12-car cap, 3 roadblocks, ≤ 100 rays/frame): already measured, and 20 players fit inside it (12 cars cover 12 wanted players at 1 star each). Owner sets the server size in Creator Hub.
