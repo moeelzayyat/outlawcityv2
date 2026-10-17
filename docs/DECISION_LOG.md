@@ -182,3 +182,8 @@ Sounds wired (`AudioConfig.Sounds` + `ApprovedIds`). Play test (clients: 1): sir
 
 ## CP — S2.10 published by owner · 2026-10-16
 Owner published privately after removing `ServerStorage.Backups`; backup saved as `10162026-backup1.rbxl`. That publish predates the sounds: they ship on the next publish. MaxPlayers 8 still open.
+
+## D-018 — Owner standing preference: take the recommended option
+2026-10-17 · **Accepted by the owner** ("Always do the recommended decision by you for better unattended experience")
+Decision: when a decision comes up, Claude takes its own recommendation, logs it here as "Accepted (owner standing preference, recommendation)" and continues. Publishing, making the game public and spending (ads, monetization) stay with the owner per the hard rules.
+Applied now: MaxPlayers stays 8 (D-005; owner sets it in Game Settings); no ads in the first public week (S3.1).
