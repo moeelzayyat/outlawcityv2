@@ -200,3 +200,7 @@ Open risk: 2 safehouses, 4 ATMs and 1 store for up to 50 players will crowd; S3 
 ## D-020 — Server size 25 (replaces D-019 size 50)
 2026-10-17 · S3 · **Owner decision** ("let's make it server size 25 players", edited from 20)
 Police stay as tuned in D-019 (12-car cap, 3 roadblocks, ≤ 100 rays/frame): already measured, and 25 players fit inside it (12 cars cover 12 wanted players at 1 star each; beyond that heat freezes and they can still bank). Owner sets the server size in Creator Hub.
+
+## D-021 — Server size back to 50 (D-020 withdrawn)
+2026-10-17 · S3 · **Owner decision** ("nvm I let it 50 for more fun experience, the more the merier")
+D-019 stands: server size 50, police cap 12, 3 roadblocks, as measured in `S3-BigServer`.
